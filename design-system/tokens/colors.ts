@@ -7,20 +7,35 @@
 
 export const colors = {
   // ===== TEMA CLARO =====
-  // Cores primárias - Tema Claro
-  'primary-light': '#687789',
-  'primary-light-hover': '#3D5C8C',
-  'primary-light-active': '#345078',
+  // Cores primárias - Tema Claro (Roxo Mais 60)
+  'primary-light': '#430593',
+  'primary-light-hover': '#360476',
+  'primary-light-active': '#2A0359',
   
-  // Cores secundárias - Tema Claro
-  'secondary-light': '#22D3EE',
-  'secondary-light-hover': '#06B6D4',
-  'secondary-light-active': '#0891B2',
+  // Cores secundárias - Tema Claro (Verde Mais 60)
+  'secondary-light': '#27CC95',
+  'secondary-light-hover': '#22B582',
+  'secondary-light-active': '#1D9E6F',
   
-  // Cores terciárias - Tema Claro
-  'tertiary-light': '#D3545D',
-  'tertiary-light-hover': '#C1414A',
-  'tertiary-light-active': '#AB343C',
+  // Cores terciárias - Tema Claro (Coral Mais 60)
+  'tertiary-light': '#FB5C3D',
+  'tertiary-light-hover': '#EA4A2B',
+  'tertiary-light-active': '#D9381A',
+  
+  // Cores quaternárias - Tema Claro (Azul Mais 60)
+  'quaternary-light': '#06AAFC',
+  'quaternary-light-hover': '#0596E3',
+  'quaternary-light-active': '#0482CA',
+  
+  // Cores quinárias - Tema Claro (Amarelo Mais 60)
+  'quinary-light': '#FFA300',
+  'quinary-light-hover': '#E69200',
+  'quinary-light-active': '#CC8100',
+  
+  // Cores neutras - Tema Claro (Cinza Claro Mais 60)
+  'neutral-light': '#E8F3F5',
+  'neutral-light-hover': '#D4E7EA',
+  'neutral-light-active': '#C0DBDF',
   
   // Cores alternativas - Tema Claro
   'alternate-light': '#E0E3E7',
@@ -42,20 +57,35 @@ export const colors = {
   'active-light': '#00000012',
   
   // ===== TEMA ESCURO =====
-  // Cores primárias - Tema Escuro
-  'primary-dark': '#606c38',
-  'primary-dark-hover': '#5B80B6', 
-  'primary-dark-active': '#6C91C7',
+  // Cores primárias - Tema Escuro (Roxo Mais 60 - versão escura)
+  'primary-dark': '#6B46C1',
+  'primary-dark-hover': '#7C3AED',
+  'primary-dark-active': '#8B5CF6',
   
-  // Cores secundárias - Tema Escuro
-  'secondary-dark': '#2C3E50',
-  'secondary-dark-hover': '#3D4F61',
-  'secondary-dark-active': '#4E6072',
+  // Cores secundárias - Tema Escuro (Verde Mais 60 - versão escura)
+  'secondary-dark': '#10B981',
+  'secondary-dark-hover': '#34D399',
+  'secondary-dark-active': '#6EE7B7',
   
-  // Cores terciárias - Tema Escuro
-  'tertiary-dark': '#D3545D',
-  'tertiary-dark-hover': '#E4656E',
-  'tertiary-dark-active': '#F5767F',
+  // Cores terciárias - Tema Escuro (Coral Mais 60 - versão escura)
+  'tertiary-dark': '#F87171',
+  'tertiary-dark-hover': '#FCA5A5',
+  'tertiary-dark-active': '#FECACA',
+  
+  // Cores quaternárias - Tema Escuro (Azul Mais 60 - versão escura)
+  'quaternary-dark': '#3B82F6',
+  'quaternary-dark-hover': '#60A5FA',
+  'quaternary-dark-active': '#93C5FD',
+  
+  // Cores quinárias - Tema Escuro (Amarelo Mais 60 - versão escura)
+  'quinary-dark': '#F59E0B',
+  'quinary-dark-hover': '#FBBF24',
+  'quinary-dark-active': '#FCD34D',
+  
+  // Cores neutras - Tema Escuro (Cinza Claro Mais 60 - versão escura)
+  'neutral-dark': '#374151',
+  'neutral-dark-hover': '#4B5563',
+  'neutral-dark-active': '#6B7280',
   
   // Cores alternativas - Tema Escuro
   'alternate-dark': '#262D34',

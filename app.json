@@ -1,32 +1,32 @@
 {
   "expo": {
-    "name": "Projeto Origem",
-    "slug": "projeto-origem",
+    "name": "Mais 60 Saúde",
+    "slug": "mais-60-saude",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "projeto-origem",
+    "scheme": "mais-60-saude",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.seudominio.projetoorigem"
+      "bundleIdentifier": "com.mais60saude.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.seudominio.projetoorigem"
+      "package": "com.mais60saude.app"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png",
-      "name": "Projeto Origem - Aplicativo Multiplataforma",
-      "description": "Projeto origem para desenvolvimento de aplicativos React Native/Expo multiplataforma para iOS, Android e Web.",
+      "name": "Mais 60 Saúde - Aplicativo de Saúde para Idosos",
+      "description": "Aplicativo intuitivo para gerenciamento de saúde em 5 áreas-chave através de conteúdo multimídia para pessoas com 60+ anos.",
       "lang": "pt-BR",
-      "themeColor": "#2563eb",
+      "themeColor": "#430593",
       "backgroundColor": "#ffffff",
       "templatePath": "./web/index.html",
       "build": {
@@ -76,8 +76,24 @@
     },
     "fonts": [
       {
-        "asset": "./assets/fonts/PlusJakartaSans-VariableFont_wght.ttf",
-        "family": "PlusJakartaSansVariable"
+        "family": "Poppins_300Light",
+        "source": "@expo-google-fonts/poppins"
+      },
+      {
+        "family": "Poppins_400Regular", 
+        "source": "@expo-google-fonts/poppins"
+      },
+      {
+        "family": "Poppins_500Medium",
+        "source": "@expo-google-fonts/poppins"
+      },
+      {
+        "family": "Poppins_600SemiBold",
+        "source": "@expo-google-fonts/poppins"
+      },
+      {
+        "family": "Poppins_700Bold",
+        "source": "@expo-google-fonts/poppins"
       }
     ]
   }

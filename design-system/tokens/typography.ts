@@ -7,7 +7,15 @@
 
 // Famílias de fonte disponíveis
 export const fontFamily = {
-  // Família Jakarta Sans
+  // Família Poppins (Principal para Mais 60 Saúde)
+  'poppins-light': 'Poppins_300Light',
+  'poppins-regular': 'Poppins_400Regular',
+  'poppins-medium': 'Poppins_500Medium',
+  'poppins-semibold': 'Poppins_600SemiBold',
+  'poppins-bold': 'Poppins_700Bold',
+  // Família Monospace
+  'mono-regular': 'SpaceMono-Regular, monospace',
+  // Mantém Jakarta Sans para compatibilidade (se necessário)
   'jakarta-thin': 'PlusJakartaSans_200ExtraLight',
   'jakarta-light': 'PlusJakartaSans_300Light',
   'jakarta-regular': 'PlusJakartaSans_400Regular',
@@ -15,8 +23,6 @@ export const fontFamily = {
   'jakarta-semibold': 'PlusJakartaSans_600SemiBold',
   'jakarta-bold': 'PlusJakartaSans_700Bold',
   'jakarta-extrabold': 'PlusJakartaSans_800ExtraBold',
-  // Família Monospace
-  'mono-regular': 'SpaceMono-Regular, monospace',
 } as const;
 
 // Configurações de tamanho de fonte e altura de linha
@@ -43,16 +49,16 @@ export const fontSize = {
   'subtitle-md': { size: '16px', lineHeight: '22px', fontWeight: '600' },
   'subtitle-sm': { size: '14px', lineHeight: '20px', fontWeight: '600' },
   
-  // Label - Rótulos
-  'label-lg': { size: '16px', lineHeight: '24px', fontWeight: '600' },
-  'label-md': { size: '14px', lineHeight: '20px', fontWeight: '600' },
-  'label-sm': { size: '13px', lineHeight: '17px', fontWeight: '600' },
+  // Label - Rótulos (tamanhos aumentados para acessibilidade)
+  'label-lg': { size: '18px', lineHeight: '26px', fontWeight: '600' },
+  'label-md': { size: '16px', lineHeight: '22px', fontWeight: '600' },
+  'label-sm': { size: '14px', lineHeight: '20px', fontWeight: '600' },
   
-  // Body - Texto de corpo
-  'body-lg': { size: '16px', lineHeight: '24px', fontWeight: '400' },
-  'body-md': { size: '14px', lineHeight: '20px', fontWeight: '400' },
-  'body-sm': { size: '12px', lineHeight: '18px', fontWeight: '400' },
-  'body-xs': { size: '10px', lineHeight: '14px', fontWeight: '400' },
+  // Body - Texto de corpo (tamanhos aumentados para acessibilidade de idosos)
+  'body-lg': { size: '18px', lineHeight: '26px', fontWeight: '400' },
+  'body-md': { size: '16px', lineHeight: '22px', fontWeight: '400' },
+  'body-sm': { size: '14px', lineHeight: '20px', fontWeight: '400' },
+  'body-xs': { size: '12px', lineHeight: '18px', fontWeight: '400' },
   
   // Mono - Texto monoespaçado
   'mono-lg': { size: '16px', lineHeight: '24px', fontWeight: '400', fontFamily: 'monospace' },

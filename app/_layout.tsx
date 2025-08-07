@@ -2,7 +2,15 @@
 import '@/lib/polyfills';
 
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
-import { useFonts, 
+import { useFonts } from 'expo-font';
+import { 
+  Poppins_300Light,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from '@expo-google-fonts/poppins';
+import { 
   PlusJakartaSans_200ExtraLight,
   PlusJakartaSans_300Light,
   PlusJakartaSans_400Regular,
@@ -61,6 +69,13 @@ const helmetContext = {};
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
+    // Fontes Poppins (principais)
+    Poppins_300Light,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    // Mantém Jakarta Sans para compatibilidade
     PlusJakartaSans_200ExtraLight,
     PlusJakartaSans_300Light,
     PlusJakartaSans_400Regular,
@@ -71,7 +86,7 @@ export default function RootLayout() {
   });
   const [initialCheckDone, setInitialCheckDone] = useState(false);
   const [initialSession, setInitialSession] = useState<Session | null>(null);
-  const sessionCheckTimeout = useRef<NodeJS.Timeout>();
+  const sessionCheckTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Verificar e limpar tokens inválidos na inicialização
   useEffect(() => {
