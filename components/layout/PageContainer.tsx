@@ -110,6 +110,12 @@ interface PageContainerProps {
    * @default 64 (mobile/tablet), 75 (desktop)
    */
   headerHeight?: number;
+
+  /**
+   * Quando true, adiciona padding inferior extra equivalente à altura da Tab Bar
+   * para evitar que o conteúdo fique oculto sob a Navibar
+   */
+  withTabBarPadding?: boolean;
 }
 
 /**
@@ -160,7 +166,8 @@ export function PageContainer({
   withSidebar = false,
   withHeader = false,
   sidebarWidth = 0,
-  headerHeight = 64 
+  headerHeight = 64,
+  withTabBarPadding = false,
 }: PageContainerProps) {
   const { isMobile, isTablet, isDesktop } = useResponsive();
   
@@ -174,12 +181,24 @@ export function PageContainer({
   const effectiveHeaderHeight = withHeader ? (isMobile ? 0 : responsiveHeaderHeight) : 0;
   const maxContentWidth = isDesktop ? 1200 : isTablet ? 800 : '100%';
 
+  // Altura aproximada da Tab Bar por plataforma (sincronizado com app/(tabs)/_layout.tsx)
+  const tabBarHeight = Platform.select<number>({
+    ios: 88,
+    android: 60,
+    web: 70,
+    default: 60,
+  }) as number;
+
   // Estilos do container principal seguindo o Design System
   const containerStyle: ViewStyle = {
     marginTop: effectiveHeaderHeight,
     padding: isMobile ? SPACING.md : isTablet ? SPACING.lg : SPACING.xl,
     backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
   };
+
+  // Garantir que o conteúdo não fique escondido atrás da Tab Bar
+  const basePadding = isMobile ? SPACING.md : isTablet ? SPACING.lg : SPACING.xl;
+  (containerStyle as any).paddingBottom = basePadding + (withTabBarPadding ? tabBarHeight : 0);
 
   // Ajustes para sidebar em tablets e desktops
   if (!isMobile && withSidebar) {
