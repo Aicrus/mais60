@@ -104,6 +104,576 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 - Estatísticas detalhadas
 - Ajuda/Suporte
 
+---
+
+## MELHORIA - SEÇÃO TELAS DO PRD MAIS 60
+
+## 📱 DETALHAMENTO DAS TELAS PARA IDOSOS
+
+### 🏠 **TELA PRINCIPAL (HOME)**
+**Inspirada na primeira imagem - saudação personalizada**
+
+[Ver tarefa: 2.1.2 – Home](#task-2-1-2-home)
+
+#### O que terá na tela:
+- **Saudação no topo:** "Olá, Maria!" (nome do usuário)
+- **Frase motivacional:** "Aqui você encontra atividades para cuidar do corpo e da mente"
+- **5 botões grandes** (um embaixo do outro ou 2 colunas simples):
+  1. **Movimente-se** (ícone de exercício, cor verde)
+  2. **Alimente-se** (ícone de comida, cor amarela)
+  3. **Segurança em Casa** (ícone de casa, cor azul)
+  4. **Mente Ativa** (ícone de cérebro, cor roxa)
+  5. **Bem-estar Mental** (ícone de coração, cor coral)
+
+#### Características importantes:
+- Botões bem grandes (altura mínima 80px)
+- Fonte grande e clara (Poppins)
+- Cores vibrantes para cada módulo
+- Espaço generoso entre botões
+- Ícones grandes e claros (48px)
+
+---
+
+### 🏃 **TELA ATIVIDADE FÍSICA - "Movimente-se"**
+**Baseada na segunda imagem - layout simples e direto**
+
+[Ver tarefas: 2.3.1](#task-2-3-1-atividade-fisica) • [Fase 3 – Módulo Atividade Física](#fase3-atividade-fisica) • [3.3 – Integração YouTube](#task-3-3-youtube)
+
+#### O que terá na tela:
+- **Cabeçalho com foto:** Imagem da senhora exercitando (como na foto)
+- **Título grande:** "Movimente-se"
+- **Subtítulo:** "Aulas de exercícios e movimentos"
+- **3 botões de filtro** (horizontais no topo):
+  - Alongamento
+  - Caminhada
+  - Fortalecimento
+- **Lista de exercícios** (um embaixo do outro):
+  - Nome do exercício (fonte grande)
+  - Descrição simples ("Função do Exercício")
+  - Botão de play (▶) bem visível
+  - Tempo de duração
+
+#### Características importantes:
+- Cada exercício ocupa bastante espaço na tela
+- Botão de play grande e fácil de tocar
+- Informações essenciais: nome, função, tempo
+- Cores do módulo (verde) destacadas
+- Scroll simples para ver mais exercícios
+
+---
+
+### 🥗 **TELA HÁBITOS ALIMENTARES - "Alimente-se"**
+
+[Ver tarefas: 2.3.2](#task-2-3-2-habitos-alimentares) • [Fase 3 – Módulo Hábitos Alimentares](#fase3-habitos-alimentares)
+
+#### O que terá na tela:
+- **Cabeçalho com foto:** Imagem de alimentos saudáveis
+- **Título:** "Alimente-se Bem"
+- **Subtítulo:** "Receitas saudáveis e nutritivas"
+- **4 botões de filtro** (por refeição):
+  - Café da Manhã
+  - Almoço
+  - Lanche
+  - Jantar
+- **Lista de receitas** (uma embaixo da outra):
+  - Foto da receita
+  - Nome da receita
+  - Dificuldade (Fácil/Médio)
+  - Tempo de preparo
+  - Botão "Ver Receita"
+
+#### Características importantes:
+- Fotos grandes e apetitosas
+- Informações claras sobre dificuldade
+- Tempo sempre visível
+- Botões grandes para acessar receitas
+
+---
+
+### 🏠 **TELA SEGURANÇA DOMICILIAR - "Segurança em Casa"**
+
+[Ver tarefas: 2.3.3](#task-2-3-3-seguranca-domiciliar) • [Fase 3 – Módulo Segurança Domiciliar](#fase3-seguranca-domiciliar)
+
+#### O que terá na tela:
+- **Cabeçalho:** "Segurança em Casa"
+- **Subtítulo:** "Dicas para evitar acidentes"
+- **3 seções principais:**
+  1. **Checklist do Banheiro**
+  2. **Checklist da Cozinha**
+  3. **Checklist do Quarto**
+- **Para cada checklist:**
+  - Lista de itens para verificar
+  - Checkbox grande para marcar
+  - Explicação simples de cada item
+  - Progresso visual (quantos itens concluídos)
+
+#### Características importantes:
+- Checkboxes bem grandes (fáceis de tocar)
+- Textos explicativos simples
+- Progresso claro e motivador
+- Cores que indicam segurança (verde = feito, vermelho = pendente)
+
+---
+
+### 🧠 **TELA ESTIMULAÇÃO COGNITIVA - "Mente Ativa"**
+
+[Ver tarefas: 2.3.4](#task-2-3-4-estimulacao-cognitiva) • [Fase 3 – Módulo Estimulação Cognitiva](#fase3-estimulacao-cognitiva)
+
+#### O que terá na tela:
+- **Cabeçalho:** "Mente Ativa"
+- **Subtítulo:** "Exercícios para o cérebro"
+- **4 tipos de atividades:**
+  1. **Jogos de Memória**
+  2. **Palavras Cruzadas**
+  3. **Exercícios de Lógica**
+  4. **Leitura Interativa**
+- **Para cada atividade:**
+  - Ícone grande representativo
+  - Nome da atividade
+  - Nível de dificuldade
+  - Tempo estimado
+  - Botão "Começar"
+
+#### Características importantes:
+- Atividades organizadas por tipo
+- Níveis de dificuldade claros
+- Botões "Começar" bem destacados
+- Tempo sempre informado
+
+---
+
+### 😊 **TELA SAÚDE MENTAL - "Bem-estar Mental"**
+
+[Ver tarefas: 2.3.5](#task-2-3-5-saude-mental) • [Fase 3 – Módulo Saúde Mental](#fase3-saude-mental)
+
+#### O que terá na tela:
+- **Cabeçalho:** "Bem-estar Mental"
+- **Subtítulo:** "Cuide da sua mente e emoções"
+- **3 seções principais:**
+  1. **Meditações Guiadas**
+     - Meditação para ansiedade
+     - Meditação para dormir
+     - Respiração relaxante
+  2. **Áudios Relaxantes**
+     - Sons da natureza
+     - Música calma
+     - Histórias para dormir
+  3. **Como Estou Hoje?** (registro de humor)
+-     5 emojis grandes para escolher humor
+-     Espaço para nota simples (opcional)
+
+#### Características importantes:
+- Áudios com play/pause grandes
+- Duração sempre visível
+- Emojis grandes para humor
+- Interface calma e relaxante
+
+---
+
+## 🎨 **PADRÕES VISUAIS PARA TODAS AS TELAS**
+
+### Fontes e Tamanhos:
+- **Títulos:** Poppins Bold 24px
+- **Subtítulos:** Poppins SemiBold 18px
+- **Textos normais:** Poppins Regular 16px
+- **Textos pequenos:** Poppins Regular 14px (mínimo)
+
+### Botões:
+- **Altura mínima:** 60px
+- **Largura mínima:** 150px
+- **Bordas arredondadas:** 12px
+- **Espaçamento interno:** 16px
+- **Feedback visual:** sempre presente
+
+### Cores por Módulo:
+- **Atividade Física:** Verde #27CC95
+- **Alimentação:** Amarelo #FFA300
+- **Segurança:** Azul #06AAFC
+- **Mente Ativa:** Roxo #430593
+- **Bem-estar:** Coral #FB5C3D
+
+### Espaçamentos:
+- **Entre elementos:** mínimo 16px
+- **Margens laterais:** 20px
+- **Entre seções:** 32px
+
+### Acessibilidade:
+- Alto contraste em todos os textos
+- Botões sempre com área tocável de 48px+
+- Feedback visual e sonoro
+- Textos sempre legíveis (mínimo 14px)
+- Cores nunca como única forma de comunicar informação
+
+---
+
+## 🚀 **TELAS DE ONBOARDING (3 TELAS)**
+
+### 📱 **TELA 1 - BOAS-VINDAS**
+
+#### O que terá na tela:
+- **Logo do app** grande no centro
+- **Título:** "Bem-vindo ao Mais 60!"
+- **Texto explicativo:** "Um app feito especialmente para você cuidar da sua saúde de forma simples e prática"
+- **Ilustração** de pessoas idosas sorrindo
+- **Botão grande:** "Começar"
+- **Botão pequeno:** "Pular apresentação"
+
+#### Características:
+- Visual acolhedor e amigável
+- Cores suaves do app
+- Botão "Começar" bem destacado (altura 60px)
+- Linguagem simples e direta
+
+---
+
+### 📱 **TELA 2 - PERMISSÕES**
+
+#### O que terá na tela:
+- **Título:** "Vamos configurar algumas coisas"
+- **3 permissões explicadas:**
+  1. **Notificações**
+     - Ícone de sino
+     - "Para lembrá-lo dos exercícios"
+     - Botão: "Permitir" / "Agora não"
+  2. **Sensores de movimento**
+     - Ícone de pessoa caminhando
+     - "Para contar seus passos"
+     - Botão: "Permitir" / "Agora não"
+  3. **Armazenamento**
+     - Ícone de pasta
+     - "Para salvar suas atividades favoritas"
+     - Botão: "Permitir" / "Agora não"
+- **Botão:** "Continuar"
+
+#### Características:
+- Explicação clara do porquê de cada permissão
+- Opção de negar sem problema
+- Visual não intimidador
+
+---
+
+### 📱 **TELA 3 - ACESSIBILIDADE**
+
+#### O que terá na tela:
+- **Título:** "Como você prefere?"
+- **3 configurações principais:**
+  1. **Tamanho da letra**
+     - Normal / Grande / Muito Grande
+     - Preview do texto em tempo real
+  2. **Contraste**
+     - Normal / Alto Contraste
+     - Preview das cores
+  3. **Sons**
+     - Com som / Sem som
+     - Teste do som
+- **Botão:** "Pronto, vamos começar!"
+
+#### Características:
+- Preview em tempo real das mudanças
+- Configurações podem ser mudadas depois
+- Visual claro das opções
+
+---
+
+## 🔐 **TELAS DE AUTENTICAÇÃO**
+
+### 📱 **TELA DE LOGIN**
+
+#### O que terá na tela:
+- **Logo** do app no topo
+- **Título:** "Entre na sua conta"
+- **2 campos grandes:**
+  1. Email (com ícone de envelope)
+  2. Senha (com ícone de cadeado e botão mostrar/ocultar)
+- **Botão grande:** "Entrar"
+- **Links:**
+  - "Esqueci minha senha"
+  - "Ainda não tenho conta"
+- **Opção:** "Entrar com Google" (se disponível)
+
+#### Características:
+- Campos de entrada grandes (altura 56px)
+- Fonte grande nos labels
+- Botão "Entrar" bem destacado
+- Links bem visíveis
+
+---
+
+### 📱 **TELA DE CADASTRO**
+
+#### O que terá na tela:
+- **Título:** "Criar conta"
+- **Campos grandes:**
+  1. Nome completo
+  2. Email
+  3. Data de nascimento (com seletor de data)
+  4. Senha
+  5. Confirmar senha
+- **Checkbox:** "Aceito os termos de uso"
+- **Botão:** "Criar conta"
+- **Link:** "Já tenho conta"
+
+#### Características:
+- Validação clara dos campos
+- Seletor de data amigável
+- Senhas com indicador de força
+- Termos em linguagem simples
+
+---
+
+### 📱 **TELA RECUPERAR SENHA**
+
+#### O que terá na tela:
+- **Título:** "Esqueci minha senha"
+- **Texto explicativo:** "Digite seu email e enviaremos instruções para criar uma nova senha"
+- **Campo:** Email
+- **Botão:** "Enviar instruções"
+- **Link:** "Voltar para login"
+- **Confirmação:** "Email enviado! Verifique sua caixa de entrada"
+
+---
+
+## 🎥 **TELAS DE CONTEÚDO ESPECÍFICO**
+
+### 📱 **TELA PLAYER DE VÍDEO**
+
+[Ver tarefa: 3.3 – Integração YouTube](#task-3-3-youtube)
+
+#### O que terá na tela:
+- **Vídeo** ocupando boa parte da tela
+- **Controles grandes:**
+  - Play/Pause (botão grande central)
+  - Barra de progresso (grossa e fácil de usar)
+  - Volume (+ e - grandes)
+  - Tela cheia
+- **Informações embaixo:**
+  - Nome do exercício
+  - Descrição
+  - Duração total
+- **Botões:**
+  - Favoritar (estrela grande)
+  - Compartilhar
+  - "Próximo vídeo"
+- **Botão voltar** sempre visível
+
+#### Características:
+- Controles simples e grandes
+- Informações essenciais visíveis
+- Fácil navegação entre vídeos
+
+---
+
+### 📱 **TELA RECEITA DETALHADA**
+
+[Ver tarefa: Fase 3 – Módulo Hábitos Alimentares](#fase3-habitos-alimentares)
+
+#### O que terá na tela:
+- **Foto grande** da receita pronta
+- **Nome da receita** (título grande)
+- **Informações rápidas:**
+  - Tempo de preparo
+  - Dificuldade
+  - Serve quantas pessoas
+- **2 abas grandes:**
+  1. **INGREDIENTES**
+     - Lista com checkbox para marcar
+     - Quantidades bem claras
+     - Botão "Lista de compras"
+  2. **MODO DE PREPARO**
+     - Passo a passo numerado
+     - Textos grandes
+     - Botões para marcar passo concluído
+- **Botão favoritar**
+- **Botão "Fazer novamente"**
+
+#### Características:
+- Ingredientes com checkbox (lista de compras)
+- Passos numerados claramente
+- Possibilidade de marcar progresso
+
+---
+
+### 📱 **TELA JOGO COGNITIVO**
+
+[Ver tarefa: Fase 3 – Módulo Estimulação Cognitiva](#fase3-estimulacao-cognitiva)
+
+#### O que terá na tela:
+- **Nome do jogo** no topo
+- **Instruções simples** antes de começar
+- **Área do jogo** (grande e central)
+- **Pontuação atual** bem visível
+- **Timer** (se aplicável) grande
+- **Botões de controle:**
+  - Pausar
+  - Reiniciar
+  - Dica (se disponível)
+- **No final do jogo:**
+  - Pontuação final
+  - "Parabéns!" ou incentivo
+  - "Jogar novamente"
+  - "Próximo jogo"
+
+#### Características:
+- Instruções sempre visíveis
+- Botões grandes e claros
+- Feedback positivo sempre
+
+---
+
+### 📱 **TELA PLAYER DE ÁUDIO (MEDITAÇÃO)**
+
+[Ver tarefa: Fase 3 – Módulo Saúde Mental](#fase3-saude-mental)
+
+#### O que terá na tela:
+- **Imagem relaxante** (natureza, cores suaves)
+- **Nome da meditação**
+- **Duração total**
+- **Controles grandes:**
+  - Play/Pause central
+  - Barra de progresso
+  - Volume (+ e -)
+  - Voltar 15s / Avançar 15s
+- **Timer visual** circular
+- **Texto de apoio:** frases motivacionais que aparecem durante a meditação
+- **Botão:** "Finalizar sessão"
+
+#### Características:
+- Visual calmo e relaxante
+- Controles intuitivos
+- Frases motivacionais aparecem
+- Fácil de pausar/retomar
+
+---
+
+## ⚙️ **TELAS AUXILIARES**
+
+### 📱 **TELA FAVORITOS**
+
+[Ver tarefa: 3.1 – Sistema de Favoritos](#task-3-1-favoritos)
+
+#### O que terá na tela:
+- **Título:** "Seus Favoritos"
+- **Organizados por tipo:**
+  - Exercícios favoritos
+  - Receitas favoritas
+  - Meditações favoritas
+  - Jogos favoritos
+- **Para cada item:**
+  - Mesmo layout da tela original
+  - Botão para remover dos favoritos
+  - Acesso direto ao conteúdo
+- **Se vazia:** "Ainda não há favoritos. Explore os módulos e marque o que mais gosta!"
+
+#### Características:
+- Organização clara por categoria
+- Fácil remoção de favoritos
+- Mensagem motivadora se vazia
+
+---
+
+### 📱 **TELA PERFIL/CONFIGURAÇÕES**
+
+#### O que terá na tela:
+- **Foto do usuário** (ou ícone padrão)
+- **Nome do usuário**
+- **Seções de configuração:**
+  1. **Dados Pessoais**
+     - Nome, email, telefone
+     - Data de nascimento
+  2. **Acessibilidade**
+     - Tamanho da fonte
+     - Alto contraste
+     - Sons
+  3. **Notificações**
+     - Lembretes de exercícios
+     - Novas receitas
+     - Horário das notificações
+  4. **Sobre o App**
+     - Versão
+     - Termos de uso
+     - Política de privacidade
+  5. **Conta**
+-     - Alterar senha
+-     - Sair da conta
+
+#### Características:
+- Seções bem organizadas
+- Configurações com preview
+- Opções claras de sim/não
+
+---
+
+### 📱 **TELA ESTATÍSTICAS**
+
+#### O que terá na tela:
+- **Título:** "Seu Progresso"
+- **Cards grandes com números:**
+  1. **Esta semana:**
+     - Exercícios feitos
+     - Receitas testadas
+     - Minutos de meditação
+  2. **Este mês:**
+     - Total de atividades
+     - Dias ativos
+     - Favoritos adicionados
+  3. **Conquistas:**
+     - "7 dias seguidos!"
+     - "10 receitas testadas!"
+     - "Primeira meditação!"
+- **Gráfico simples** (barras coloridas)
+- **Frases motivacionais** baseadas no progresso
+
+#### Características:
+- Números grandes e claros
+- Conquistas motivadoras
+- Gráficos simples de entender
+- Sempre positivo e encorajador
+
+---
+
+### 📱 **TELA AJUDA/SUPORTE**
+
+#### O que terá na tela:
+- **Título:** "Precisa de ajuda?"
+- **Seções:**
+  1. **Perguntas Frequentes**
+     - Como usar o app?
+     - Como favoritar uma atividade?
+     - Como mudar o tamanho da letra?
+     - Não consigo fazer login
+  2. **Vídeo Tutorial**
+     - "Como usar o Mais 60" (2 minutos)
+  3. **Falar Conosco**
+     - Telefone (grande e clicável)
+     - Email
+     - WhatsApp (se disponível)
+  4. **Sobre o App**
+     - Versão atual
+     - Novidades da versão
+
+#### Características:
+- Perguntas organizadas por tema
+- Contatos grandes e clicáveis
+- Tutorial em vídeo simples
+- Linguagem não técnica
+
+---
+
+## 📝 **NAVEGAÇÃO SIMPLIFICADA**
+
+### Como o idoso navega:
+1. **Tela Principal** → escolhe um dos 5 módulos
+2. **Dentro do módulo** → vê lista de atividades
+3. **Escolhe atividade** → vai para tela específica (vídeo, receita, etc.)
+4. **Botão "Voltar"** sempre presente e grande
+5. **Máximo 3 toques** para chegar em qualquer conteúdo
+
+### Indicadores visuais:
+- Sempre mostrar onde a pessoa está
+- Breadcrumb simples quando necessário
+- Botão "Início" sempre acessível
+- Confirmações para ações importantes
+
 ## 🎯 Tasks de Desenvolvimento
 
 ### 📋 MAPEAMENTO COMPLETO: O QUE EXISTE vs O QUE CRIAR
@@ -269,7 +839,7 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 
 ### 🎯 **ETAPA 2: NAVEGAÇÃO E TELAS (Semana 2-3)**
 
-#### 📋 **2.1 - Expandir Navegação**
+#### 📋 **2.1 - Expandir Navegação** <a id="task-2-1"></a>
 - [ ] **2.1.1** - Atualizar `app/(tabs)/_layout.tsx` 
   - [ ] Adicionar tab `atividade-fisica`
   - [ ] Adicionar tab `habitos-alimentares`  
@@ -278,7 +848,7 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
   - [ ] Adicionar tab `saude-mental`
   - [ ] Configurar ícones grandes (32px+)
 
-- [ ] **2.1.2** - Atualizar `app/(tabs)/home.tsx`
+- [ ] **2.1.2** - Atualizar `app/(tabs)/home.tsx` <a id="task-2-1-2-home"></a>
   - [ ] Criar dashboard com grid 2x3 dos módulos
   - [ ] Integrar QuickStats
   - [ ] Integrar ModuleGrid
@@ -297,28 +867,28 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 - [ ] **2.2.11** - `components/filters/CategoryFilter.tsx`
 - [ ] **2.2.12** - `components/filters/MealFilter.tsx`
 
-#### 📋 **2.3 - Criar 5 Telas dos Módulos**
-- [ ] **2.3.1** - `app/(tabs)/atividade-fisica.tsx`
+#### 📋 **2.3 - Criar 5 Telas dos Módulos** <a id="task-2-3"></a>
+- [ ] **2.3.1** - `app/(tabs)/atividade-fisica.tsx` <a id="task-2-3-1-atividade-fisica"></a>
   - [ ] Implementar lista de vídeos
   - [ ] Integrar filtros de categoria
   - [ ] Conectar com Supabase
 
-- [ ] **2.3.2** - `app/(tabs)/habitos-alimentares.tsx`
+- [ ] **2.3.2** - `app/(tabs)/habitos-alimentares.tsx` <a id="task-2-3-2-habitos-alimentares"></a>
   - [ ] Implementar lista de receitas
   - [ ] Integrar filtros de refeição
   - [ ] Conectar com Supabase
 
-- [ ] **2.3.3** - `app/(tabs)/seguranca-domiciliar.tsx`
+- [ ] **2.3.3** - `app/(tabs)/seguranca-domiciliar.tsx` <a id="task-2-3-3-seguranca-domiciliar"></a>
   - [ ] Implementar checklists interativos
   - [ ] Integrar dicas de segurança
   - [ ] Conectar com Supabase
 
-- [ ] **2.3.4** - `app/(tabs)/estimulacao-cognitiva.tsx`
+- [ ] **2.3.4** - `app/(tabs)/estimulacao-cognitiva.tsx` <a id="task-2-3-4-estimulacao-cognitiva"></a>
   - [ ] Implementar lista de jogos
   - [ ] Integrar progress tracker
   - [ ] Conectar com Supabase
 
-- [ ] **2.3.5** - `app/(tabs)/saude-mental.tsx`
+- [ ] **2.3.5** - `app/(tabs)/saude-mental.tsx` <a id="task-2-3-5-saude-mental"></a>
   - [ ] Implementar lista de meditações
   - [ ] Integrar mood tracker
   - [ ] Conectar com Supabase
@@ -327,7 +897,7 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 
 ### 🎯 **ETAPA 3: INTEGRAÇÃO E FUNCIONALIDADES (Semana 4)**
 
-#### 📋 **3.1 - Sistema de Favoritos**
+#### 📋 **3.1 - Sistema de Favoritos** <a id="task-3-1-favoritos"></a>
 - [ ] **3.1.1** - Implementar toggle de favoritos em todos os cards
 - [ ] **3.1.2** - Criar tela de favoritos
 - [ ] **3.1.3** - Sincronização com Supabase
@@ -337,7 +907,7 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 - [ ] **3.2.2** - Implementar progresso de vídeos
 - [ ] **3.2.3** - Implementar estatísticas do usuário
 
-#### 📋 **3.3 - Integração YouTube**
+#### 📋 **3.3 - Integração YouTube** <a id="task-3-3-youtube"></a>
 - [ ] **3.3.1** - Player de vídeo integrado
 - [ ] **3.3.2** - Controles de reprodução
 - [ ] **3.3.3** - Tracking de progresso de vídeo
@@ -566,7 +1136,7 @@ FUNCIONALIDADES:
 
 ### FASE 3: Módulos de Conteúdo
 
-#### Task 3.1: Módulo Atividade Física
+#### Task 3.1: Módulo Atividade Física <a id="fase3-atividade-fisica"></a>
 ```markdown
 OBJETIVO: Repositório de vídeos de exercícios
 
@@ -588,7 +1158,7 @@ FUNCIONALIDADES:
 - Pedômetro integrado (Expo Sensors)
 ```
 
-#### Task 3.2: Módulo Hábitos Alimentares
+#### Task 3.2: Módulo Hábitos Alimentares <a id="fase3-habitos-alimentares"></a>
 ```markdown
 OBJETIVO: Receitas saudáveis e dicas nutricionais
 
@@ -609,7 +1179,7 @@ FUNCIONALIDADES:
 - Dicas de substituição
 ```
 
-#### Task 3.3: Módulo Segurança Domiciliar
+#### Task 3.3: Módulo Segurança Domiciliar <a id="fase3-seguranca-domiciliar"></a>
 ```markdown
 OBJETIVO: Prevenção de acidentes domésticos
 
@@ -630,7 +1200,7 @@ FUNCIONALIDADES:
 - Contatos de emergência
 ```
 
-#### Task 3.4: Módulo Estimulação Cognitiva
+#### Task 3.4: Módulo Estimulação Cognitiva <a id="fase3-estimulacao-cognitiva"></a>
 ```markdown
 OBJETIVO: Exercícios para memória e raciocínio
 
@@ -651,7 +1221,7 @@ FUNCIONALIDADES:
 - Links para jogos externos
 ```
 
-#### Task 3.5: Módulo Saúde Mental
+#### Task 3.5: Módulo Saúde Mental <a id="fase3-saude-mental"></a>
 ```markdown
 OBJETIVO: Bem-estar emocional e relaxamento
 
