@@ -512,17 +512,17 @@ export const Input = ({
   // Configurações compartilhadas para garantir consistência absoluta
   const sharedPlaceholderConfig = {
     fontSize: responsive({
-      mobile: 13,      // body-sm + 1 (balanceado)
-      tablet: 13,      // consistente
-      desktop: 13,     // body-sm + 1 (web mantém menor)
-      default: 14      // nativo + 1 como solicitado
+      mobile: 15,      // mais legível em mobile
+      tablet: 14,      // ligeiro aumento
+      desktop: 13,     // mantém menor na web
+      default: 16      // nativo maior
     }),
     fontFamily: fontFamily['jakarta-regular'],
     lineHeight: responsive({
-      mobile: 19,      // proporção 1.46 (boa legibilidade)
-      tablet: 19,      // consistente
-      desktop: 19,     // body-sm + 1 line-height
-      default: 20      // nativo proporcionalmente ajustado
+      mobile: 22,      // ajusta para o novo tamanho
+      tablet: 21,
+      desktop: 19,
+      default: 24
     }),
     color: isDark ? colors['text-tertiary-dark'] : colors['text-tertiary-light']
   };
@@ -540,9 +540,12 @@ export const Input = ({
       alignItems: 'center',
       ...getVariantStyles(), // Aplicar estilos da variante
       backgroundColor: getInputBackgroundColor(), // Cor de fundo baseada na prop transparent
-      minHeight: Platform.OS === 'web' 
-        ? Number(spacing['10'].replace('px', '')) // 40px na web
-        : Number(spacing['12'].replace('px', '')), // 48px no nativo (bom como está)
+      // Em web, se for viewport mobile, usar a altura de mobile também
+      minHeight: Platform.OS === 'web'
+        ? (isMobile 
+            ? Number(spacing['13'].replace('px', '')) // 52px em web-mobile
+            : Number(spacing['10'].replace('px', ''))) // 40px em web desktop
+        : Number(spacing['13'].replace('px', '')), // 52px no nativo
       paddingHorizontal: Number(spacing['3'].replace('px', '')),
       // Sombra inteligente do design system (sempre escura)
       shadowColor: getShadowColor('input'),
@@ -558,19 +561,22 @@ export const Input = ({
     inputStyle: {
       flex: 1,
       color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-      fontSize: sharedPlaceholderConfig.fontSize, // Exato mesmo tamanho
-      fontFamily: sharedPlaceholderConfig.fontFamily, // Exato mesmo peso
+      fontSize: sharedPlaceholderConfig.fontSize,
+      // Texto do input um pouco mais encorpado para legibilidade em mobile
+      fontFamily: fontFamily['jakarta-medium'],
       // Configuração unificada com ajustes específicos por plataforma
       paddingVertical: Number(spacing['3'].replace('px', '')), // 12px para ambos
       height: multiline ? undefined : Platform.OS === 'web'
-        ? Number(spacing['10'].replace('px', '')) // 40px na web
-        : Number(spacing['12'].replace('px', '')), // 48px no nativo
+        ? (isMobile 
+            ? Number(spacing['13'].replace('px', '')) // 52px em web-mobile
+            : Number(spacing['10'].replace('px', ''))) // 40px em web desktop
+        : Number(spacing['13'].replace('px', '')), // 52px no nativo
       textAlignVertical: multiline ? 'top' : 'center',
       // Ajustes específicos para nativo
       ...(Platform.OS !== 'web' ? {
         includeFontPadding: false, // Remove padding extra no Android
         // Ajuste de lineHeight para evitar corte no Android
-        lineHeight: Platform.OS === 'android' ? 16 : sharedPlaceholderConfig.lineHeight,
+        lineHeight: Platform.OS === 'android' ? 20 : sharedPlaceholderConfig.lineHeight,
         // Ajuste sutil para centralizar melhor o texto
         paddingTop: Number(spacing['3'].replace('px', '')) - 2, // 10px (2px menos)
         paddingBottom: Number(spacing['3'].replace('px', '')) + 2, // 14px (2px mais)

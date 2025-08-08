@@ -130,7 +130,7 @@ const OptionItem = ({ item, selected, onSelect, isDark }: any) => {
             : 'transparent')
     },
     itemText: {
-      fontSize: 14, // 14px em ambas as plataformas
+      fontSize: Platform.OS === 'web' ? 13 : 16, // maior no nativo
       fontFamily: fontFamily['jakarta-regular'],
       color: selected 
         ? themeColors['primary']
@@ -428,9 +428,9 @@ const WebDropdownOptions = ({
       web: {
         flex: 1,
         color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-        fontSize: Platform.OS === 'web' ? 13 : 14, // 13px web / 14px nativo
+        fontSize: 13,
         fontFamily: fontFamily['jakarta-regular'], // jakarta-regular
-        lineHeight: Platform.OS === 'web' ? 19 : 20, // 19px web / 20px nativo
+        lineHeight: 19,
         paddingVertical: 4,
         height: 30,
         marginLeft: 4,
@@ -439,9 +439,9 @@ const WebDropdownOptions = ({
       default: {
         flex: 1,
         color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-        fontSize: Platform.OS === 'web' ? 13 : 14, // 13px web / 14px nativo
+        fontSize: 15, // maior no nativo
         fontFamily: fontFamily['jakarta-regular'], // jakarta-regular
-        lineHeight: Platform.OS === 'web' ? 19 : 20, // 19px web / 20px nativo
+        lineHeight: 22,
         paddingVertical: 4,
         height: 30,
         marginLeft: 4,
@@ -1346,9 +1346,11 @@ export const Select = ({
       alignItems: 'center',
       ...getSelectBorderStyles(), // Mesmas bordas do Input
       backgroundColor: getSelectBackgroundColor(), // Mesma cor de fundo do Input
-      minHeight: Platform.OS === 'web' 
-        ? Number(spacing['10'].replace('px', '')) // 40px na web
-        : Number(spacing['12'].replace('px', '')), // 48px no nativo (igual ao Input)
+      minHeight: Platform.OS === 'web'
+        ? (isMobile 
+            ? Number(spacing['13'].replace('px', '')) // 52px em web-mobile
+            : Number(spacing['10'].replace('px', ''))) // 40px em web desktop
+        : Number(spacing['13'].replace('px', '')), // 52px no nativo
       paddingHorizontal: Number(spacing['3'].replace('px', '')), // 12px (igual ao Input)
       // Mesma sombra do Input
       shadowColor: getShadowColor('input'),

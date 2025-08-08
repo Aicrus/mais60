@@ -127,7 +127,11 @@ export const DateTimeInput = ({
         : isFocused
           ? isDark ? colors['primary-dark'] : colors['primary-light']
           : isDark ? colors['divider-dark'] : colors['divider-light'],
-      minHeight: Number(spacing['9'].replace('px', '')),
+      minHeight: Platform.OS === 'web'
+        ? ((require('react-native').Dimensions.get('window').width < 740) 
+            ? Number(spacing['13'].replace('px', ''))
+            : Number(spacing['10'].replace('px', '')))
+        : Number(spacing['13'].replace('px', '')),
       paddingHorizontal: Number(spacing['3'].replace('px', '')),
       shadowColor: getShadowColor('input'),
       shadowOffset: {
@@ -141,12 +145,16 @@ export const DateTimeInput = ({
     inputStyle: {
       flex: 1,
       color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-      fontSize: 13,
-      fontFamily: fontFamily['jakarta-regular'],
+      fontSize: Platform.OS === 'web' ? 13 : 16,
+      fontFamily: fontFamily['jakarta-medium'],
       paddingVertical: Platform.OS === 'web' 
         ? Number(spacing['2.5'].replace('px', ''))
-        : Number(spacing['3.5'].replace('px', '')),
-      height: Number(spacing['9'].replace('px', '')),
+        : Number(spacing['4'].replace('px', '')),
+      height: Platform.OS === 'web'
+        ? ((require('react-native').Dimensions.get('window').width < 740)
+            ? Number(spacing['13'].replace('px', ''))
+            : Number(spacing['10'].replace('px', '')))
+        : Number(spacing['13'].replace('px', '')),
       textAlignVertical: 'center',
     },
     labelStyle: {

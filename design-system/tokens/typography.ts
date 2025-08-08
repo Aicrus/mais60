@@ -16,13 +16,14 @@ export const fontFamily = {
   // Família Monospace
   'mono-regular': 'SpaceMono-Regular, monospace',
   // Mantém Jakarta Sans para compatibilidade (se necessário)
-  'jakarta-thin': 'PlusJakartaSans_200ExtraLight',
-  'jakarta-light': 'PlusJakartaSans_300Light',
-  'jakarta-regular': 'PlusJakartaSans_400Regular',
-  'jakarta-medium': 'PlusJakartaSans_500Medium',
-  'jakarta-semibold': 'PlusJakartaSans_600SemiBold',
-  'jakarta-bold': 'PlusJakartaSans_700Bold',
-  'jakarta-extrabold': 'PlusJakartaSans_800ExtraBold',
+  // Redireciona as chaves "jakarta-*" para Poppins para unificação visual
+  'jakarta-thin': 'Poppins_300Light',
+  'jakarta-light': 'Poppins_300Light',
+  'jakarta-regular': 'Poppins_400Regular',
+  'jakarta-medium': 'Poppins_500Medium',
+  'jakarta-semibold': 'Poppins_600SemiBold',
+  'jakarta-bold': 'Poppins_700Bold',
+  'jakarta-extrabold': 'Poppins_700Bold',
 } as const;
 
 // Configurações de tamanho de fonte e altura de linha
@@ -40,25 +41,25 @@ export const fontSize = {
   'headline-sm': { size: '24px', lineHeight: '32px', fontWeight: '700' },
   
   // Title - Títulos de seções
-  'title-lg': { size: '22px', lineHeight: '28px', fontWeight: '700' },
-  'title-md': { size: '20px', lineHeight: '26px', fontWeight: '700' },
-  'title-sm': { size: '18px', lineHeight: '24px', fontWeight: '700' },
+  'title-lg': { size: '22px', lineHeight: '30px', fontWeight: '700' },
+  'title-md': { size: '20px', lineHeight: '28px', fontWeight: '700' },
+  'title-sm': { size: '18px', lineHeight: '26px', fontWeight: '700' },
   
-  // Subtitle - Subtítulos
-  'subtitle-lg': { size: '18px', lineHeight: '24px', fontWeight: '600' },
-  'subtitle-md': { size: '16px', lineHeight: '22px', fontWeight: '600' },
-  'subtitle-sm': { size: '14px', lineHeight: '20px', fontWeight: '600' },
+  // Subtitle - Subtítulos (um passo maiores para mobile)
+  'subtitle-lg': { size: '20px', lineHeight: '28px', fontWeight: '600' },
+  'subtitle-md': { size: '18px', lineHeight: '26px', fontWeight: '600' },
+  'subtitle-sm': { size: '16px', lineHeight: '24px', fontWeight: '600' },
   
-  // Label - Rótulos (tamanhos aumentados para acessibilidade)
-  'label-lg': { size: '18px', lineHeight: '26px', fontWeight: '600' },
-  'label-md': { size: '16px', lineHeight: '22px', fontWeight: '600' },
-  'label-sm': { size: '14px', lineHeight: '20px', fontWeight: '600' },
+  // Label - Rótulos (um passo maiores)
+  'label-lg': { size: '20px', lineHeight: '30px', fontWeight: '600' },
+  'label-md': { size: '18px', lineHeight: '26px', fontWeight: '600' },
+  'label-sm': { size: '16px', lineHeight: '24px', fontWeight: '600' },
   
-  // Body - Texto de corpo (tamanhos aumentados para acessibilidade de idosos)
-  'body-lg': { size: '18px', lineHeight: '26px', fontWeight: '400' },
-  'body-md': { size: '16px', lineHeight: '22px', fontWeight: '400' },
-  'body-sm': { size: '14px', lineHeight: '20px', fontWeight: '400' },
-  'body-xs': { size: '12px', lineHeight: '18px', fontWeight: '400' },
+  // Body - Texto de corpo (maiores por padrão para legibilidade geral)
+  'body-lg': { size: '22px', lineHeight: '32px', fontWeight: '400' },
+  'body-md': { size: '20px', lineHeight: '30px', fontWeight: '400' },
+  'body-sm': { size: '18px', lineHeight: '28px', fontWeight: '400' },
+  'body-xs': { size: '15px', lineHeight: '22px', fontWeight: '400' },
   
   // Mono - Texto monoespaçado
   'mono-lg': { size: '16px', lineHeight: '24px', fontWeight: '400', fontFamily: 'monospace' },

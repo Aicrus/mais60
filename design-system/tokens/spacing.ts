@@ -35,6 +35,8 @@ export const spacing = {
   // Extra grandes (44-64px)
   '11': '44px',
   '12': '48px',
+  '13': '52px',
+  '15': '60px',
   '14': '56px',
   '16': '64px',
   
