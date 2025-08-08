@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View, Text } from 'react-native';
-import { Home as HomeIcon, Square as TestIcon } from 'lucide-react-native';
+import { Home as HomeIcon, User as PerfilIcon } from 'lucide-react-native';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useResponsive } from '../../hooks/useResponsive';
@@ -124,13 +124,13 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="test"
+          name="perfil"
           options={{
-            title: 'Test',
-            headerTitle: 'Test',
-            tabBarLabel: 'Test',
+            title: 'Perfil',
+            headerTitle: 'Perfil',
+            tabBarLabel: 'Perfil',
             tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
-              <TestIcon 
+              <PerfilIcon 
                 size={24} 
                 color={color} 
                 strokeWidth={focused ? 2 : 1.5} 

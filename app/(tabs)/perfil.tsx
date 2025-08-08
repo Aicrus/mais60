@@ -15,7 +15,7 @@ import {
   LogOut,
 } from 'lucide-react-native';
 
-export default function TestScreen() {
+export default function PerfilScreen() {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
 
@@ -140,7 +140,7 @@ export default function TestScreen() {
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
-          icon={<Fingerprint size={18} color={ui.textPrimary} />} 
+          icon={<Fingerprint size={18} color={ui.textPrimary} />}
           label="Face ID"
           right={
             <Switch

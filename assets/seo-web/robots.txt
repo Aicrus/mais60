@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mais60saude.vercel.app/sitemap.xml
+Sitemap: https://mais60.vercel.app/sitemap.xml

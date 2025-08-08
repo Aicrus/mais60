@@ -1,8 +1,8 @@
-# PRD - Aplicativo Mais 60 Saúde
+# PRD - Aplicativo Mais 60
 
 ## 📋 Visão Geral
 
-**Nome:** Mais 60 Saúde  
+**Nome:** Mais 60  
 **Plataforma:** React Native (Mobile Only)  
 **Público-Alvo:** Pessoas com 60+ anos  
 **Objetivo:** Aplicativo intuitivo para gerenciamento de saúde em 5 áreas-chave através de conteúdo multimídia
@@ -49,7 +49,7 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 1. **Customização do Design System (Adaptar base existente)**
    - ✅ Projeto já tem design system completo em `design-system/tokens/`
    - ✅ Projeto já tem componentes prontos (Button, Input, Header, etc.)
-   - 🔄 Atualizar cores para paleta Mais 60 Saúde
+- 🔄 Atualizar cores para paleta Mais 60
    - 🔄 Configurar fonte Poppins (substituir Plus Jakarta Sans)
    - 🔄 Ajustar tamanhos mínimos para acessibilidade de idosos
    - 🔄 Criar tabelas específicas do Mais 60 no Supabase
@@ -372,7 +372,7 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 
 ---
 
-### FASE 1: Customização para Mais 60 Saúde
+### FASE 1: Customização para Mais 60
 
 #### Task 1.1: Adaptar Design System Existente
 ```markdown

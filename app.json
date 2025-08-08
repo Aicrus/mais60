@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Mais 60 Saúde",
+    "name": "Mais 60",
     "slug": "mais60saude",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+      "icon": "./assets/images/logo-mais60.png",
     "scheme": "mais60saude",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -14,7 +14,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logo-mais60.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.seudominio.mais60saude"
@@ -23,7 +23,7 @@
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png",
-      "name": "Mais 60 Saúde — Saúde e bem-estar para pessoas 60+",
+      "name": "Mais 60 — Saúde e bem-estar para pessoas 60+",
       "description": "Aplicativo de saúde e bem-estar focado em pessoas com mais de 60 anos: acompanhamento de hábitos, consultas e qualidade de vida.",
       "lang": "pt-BR",
       "themeColor": "#2563eb",

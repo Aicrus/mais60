@@ -1,4 +1,4 @@
-# 🎨 Mais 60 Saúde
+# 🎨 Mais 60
 
 ## 📋 Índice
 - [👋 Introdução](#-introdução)
@@ -17,7 +17,7 @@
 
 ## 👋 Introdução
 
-Bem-vindo ao Mais 60 Saúde! Um aplicativo focado em saúde e bem-estar para pessoas com mais de 60 anos, com base moderna e flexível que funciona na web e em dispositivos móveis. Nosso objetivo é apoiar a qualidade de vida com acompanhamento de hábitos, consultas e informações úteis.
+Bem-vindo ao Mais 60! Um aplicativo focado em saúde e bem-estar para pessoas com mais de 60 anos, com base moderna e flexível que funciona na web e em dispositivos móveis. Nosso objetivo é apoiar a qualidade de vida com acompanhamento de hábitos, consultas e informações úteis.
 
 ## ✨ Destaques
 

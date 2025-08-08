@@ -112,7 +112,7 @@ export default function RootLayout() {
     <HelmetProvider context={helmetContext}>
       {Platform.OS === 'web' && (
         <Helmet>
-          <title>Mais 60 Saúde — Saúde e bem-estar para pessoas 60+</title>
+          <title>Mais 60 — Saúde e bem-estar para pessoas 60+</title>
           <meta name="description" content="Aplicativo de saúde e bem-estar focado em pessoas com mais de 60 anos: acompanhamento de hábitos, consultas e qualidade de vida." />
           <meta charSet="utf-8" />
           <html lang="pt-BR" />
