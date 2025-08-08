@@ -1,23 +1,23 @@
 {
   "expo": {
     "name": "Mais 60",
-    "slug": "mais60saude",
+    "slug": "mais60",
     "version": "1.0.0",
     "orientation": "portrait",
       "icon": "./assets/images/logo-mais60.png",
-    "scheme": "mais60saude",
+    "scheme": "mais60",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.seudominio.mais60saude"
+      "bundleIdentifier": "com.seudominio.mais60"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo-mais60.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.seudominio.mais60saude"
+      "package": "com.seudominio.mais60"
     },
     "web": {
       "bundler": "metro",

@@ -59,16 +59,16 @@ export default function Head() {
       
       {/* Open Graph - para compartilhamento em redes sociais */}
       <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://mais60saude.vercel.app" />
+      <meta property="og:url" content="https://mais60.vercel.app" />
       <meta property="og:title" content="Mais 60 - Saúde e bem-estar para pessoas 60+" />
       <meta property="og:description" content="Aplicativo de saúde e bem-estar focado em pessoas com mais de 60 anos: acompanhamento de hábitos, consultas e qualidade de vida." />
-      <meta property="og:image" content="https://mais60saude.vercel.app/og-image.png" />
+      <meta property="og:image" content="https://mais60.vercel.app/og-image.png" />
       
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content="Mais 60 - Saúde e bem-estar para pessoas 60+" />
       <meta name="twitter:description" content="Aplicativo de saúde e bem-estar focado em pessoas com mais de 60 anos: acompanhamento de hábitos, consultas e qualidade de vida." />
-      <meta name="twitter:image" content="https://mais60saude.vercel.app/og-image.png" />
+      <meta name="twitter:image" content="https://mais60.vercel.app/og-image.png" />
       
       {/* Idioma */}
       <meta property="og:locale" content="pt_BR" />
