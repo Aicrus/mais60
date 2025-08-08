@@ -183,62 +183,66 @@ export default function Home() {
   const handleSoon = () =>
     showToast({ type: 'info', message: 'Em breve', description: 'Conteúdo será adicionado nas próximas etapas.' });
 
-  const LogoBar = () => (
-    <View style={styles.logoBar}>
-      <Image source={logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />
+  const TopRow = () => (
+    <View style={styles.topRowHeader}>
+      <View style={styles.topSide}>
+        <Image source={{ uri: avatarUrl }} style={styles.avatarSmall} />
+      </View>
+      <View style={styles.topCenter}>
+        <Image source={logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />
+      </View>
+      <View style={styles.topSide}>
+        <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={handleSoon}>
+          <View style={[styles.bellWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>
+            <Bell size={18} color={ui.textPrimary} />
+          </View>
+        </Pressable>
+      </View>
     </View>
   );
 
-  const GreetingBar = () => (
-    <View style={styles.greetingBar}>
-      <Image source={{ uri: avatarUrl }} style={styles.greetingAvatar} />
-      <View style={{ flex: 1, marginLeft: 10 }}>
+  const WelcomeText = () => (
+    <View style={styles.welcomeWrap}>
+      <Text
+        style={{
+          color: ui.textPrimary,
+          fontFamily: dsFontFamily['jakarta-light'],
+          fontSize: greetType.fontSize.default - 1,
+          lineHeight: greetType.lineHeight.default - 1,
+        }}
+      >
+        Bem-vindo
+      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap' }}>
         <Text
           style={{
             color: ui.textPrimary,
             fontFamily: dsFontFamily['jakarta-light'],
-            fontSize: greetType.fontSize.default - 3,
-            lineHeight: greetType.lineHeight.default - 3,
+            fontSize: greetType.fontSize.default - 1,
+            lineHeight: greetType.lineHeight.default - 1,
           }}
         >
-          Bem-vindo
+          de volta,
         </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-          <Text
-            style={{
-              color: ui.textPrimary,
-              fontFamily: dsFontFamily['jakarta-light'],
-              fontSize: greetType.fontSize.default - 3,
-              lineHeight: greetType.lineHeight.default - 3,
-            }}
-          >
-            de volta,
-          </Text>
-          <Text
-            style={{
-              color: ui.textPrimary,
-              fontFamily: dsFontFamily['jakarta-bold'],
-              fontSize: greetType.fontSize.default - 3,
-              lineHeight: greetType.lineHeight.default - 3,
-            }}
-          >
-            {' '}{userName}!
-          </Text>
-          <Text
-            style={{
-              fontSize: greetType.fontSize.default - 3,
-              lineHeight: greetType.lineHeight.default - 3,
-            }}
-          >
-            {' '}👋
-          </Text>
-        </View>
+        <Text
+          style={{
+            color: ui.textPrimary,
+            fontFamily: dsFontFamily['jakarta-bold'],
+            fontSize: greetType.fontSize.default - 1,
+            lineHeight: greetType.lineHeight.default - 1,
+          }}
+        >
+          {' '}{userName}
+        </Text>
+        <Text
+          style={{
+            fontSize: greetType.fontSize.default - 1,
+            lineHeight: greetType.lineHeight.default - 1,
+          }}
+        >
+          {' '}👋
+        </Text>
       </View>
-      <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={handleSoon}>
-        <View style={[styles.bellWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>
-          <Bell size={18} color={ui.textPrimary} />
-        </View>
-      </Pressable>
     </View>
   );
 
@@ -267,8 +271,8 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
         accessibilityRole="scrollbar"
       >
-      <LogoBar />
-      <GreetingBar />
+      <TopRow />
+      <WelcomeText />
       <SearchBar />
 
       <Text style={[styles.sectionTitle, { color: ui.textSecondary, fontFamily: sectionType.fontFamily }]}>Seu resumo</Text>
@@ -376,9 +380,31 @@ const styles = StyleSheet.create({
     paddingBottom: 2,
     marginBottom: 8,
   },
+  topRowHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 2,
+    paddingTop: 8,
+    marginBottom: 6,
+  },
+  topSide: {
+    width: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topCenter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   logoImage: {
     width: 110,
     height: 22,
+  },
+  welcomeWrap: {
+    paddingHorizontal: 2,
+    paddingVertical: 10,
   },
   greetingBar: {
     flexDirection: 'row',
