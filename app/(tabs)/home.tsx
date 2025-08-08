@@ -256,24 +256,7 @@ export default function Home() {
     </View>
   );
 
-  const chips = ['Para você', 'Populares', 'Novidades', 'Cuidados', 'Dicas'];
-
-  const ChipsRow = () => (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.chipsRow}
-      accessibilityRole="scrollbar"
-    >
-      {chips.map((c) => (
-        <Pressable key={c} onPress={handleSoon} accessibilityRole="button">
-          <View style={[styles.chip, { backgroundColor: isDark ? '#111418' : '#F3F4F6', borderColor: ui.divider }]}>
-            <Text style={{ color: ui.textPrimary, fontFamily: subtitleType.fontFamily, fontSize: 13 }}>{c}</Text>
-          </View>
-        </Pressable>
-      ))}
-    </ScrollView>
-  );
+  // Removido: Chips de categorias/abas ('Para você', 'Populares', 'Novidades', ...)
 
   // Removido o HeroCard a pedido (sem destaque de boas-vindas)
 
@@ -287,7 +270,6 @@ export default function Home() {
       <LogoBar />
       <GreetingBar />
       <SearchBar />
-      <ChipsRow />
 
       <Text style={[styles.sectionTitle, { color: ui.textSecondary, fontFamily: sectionType.fontFamily }]}>Seu resumo</Text>
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
@@ -456,17 +438,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 8,
   },
-  chipsRow: {
-    gap: 8,
-    paddingVertical: 10,
-  },
-  chip: {
-    borderRadius: 20,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    marginRight: 4,
-  },
+  // Removidos estilos de chips/abas
   heroCard: {
     borderRadius: 18,
     padding: 16,
@@ -556,7 +528,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 50,
     paddingTop: 4,
   },
   // Layout antigo dos módulos (não usado)
