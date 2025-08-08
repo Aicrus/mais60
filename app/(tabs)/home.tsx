@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, Platform, Pressable, ScrollView, TextInp
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
-import { getResponsiveValues } from '@/design-system/tokens/typography';
+import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -26,6 +26,8 @@ export default function Home() {
   const titleType = getResponsiveValues('headline-lg');
   const subtitleType = getResponsiveValues('body-sm');
   const sectionType = getResponsiveValues('label-sm');
+  // Saudação: mesmo tamanho para as duas linhas, com a primeira mais fina
+  const greetType = getResponsiveValues('headline-lg');
 
   const ui = {
     bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
@@ -194,24 +196,43 @@ export default function Home() {
         <Text
           style={{
             color: ui.textPrimary,
-            fontFamily: subtitleType.fontFamily,
-            fontWeight: '400',
-            fontSize: 18,
+            fontFamily: dsFontFamily['jakarta-light'],
+            fontSize: greetType.fontSize.default - 3,
+            lineHeight: greetType.lineHeight.default - 3,
           }}
         >
-          Bem-vindo de volta,
+          Bem-vindo
         </Text>
-        <Text
-          style={{
-            color: ui.textPrimary,
-            fontFamily: titleType.fontFamily,
-            fontWeight: '700',
-            fontSize: 26,
-            lineHeight: 30,
-          }}
-        >
-          {userName}! 👋
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+          <Text
+            style={{
+              color: ui.textPrimary,
+              fontFamily: dsFontFamily['jakarta-light'],
+              fontSize: greetType.fontSize.default - 3,
+              lineHeight: greetType.lineHeight.default - 3,
+            }}
+          >
+            de volta,
+          </Text>
+          <Text
+            style={{
+              color: ui.textPrimary,
+              fontFamily: dsFontFamily['jakarta-bold'],
+              fontSize: greetType.fontSize.default - 3,
+              lineHeight: greetType.lineHeight.default - 3,
+            }}
+          >
+            {' '}{userName}!
+          </Text>
+          <Text
+            style={{
+              fontSize: greetType.fontSize.default - 3,
+              lineHeight: greetType.lineHeight.default - 3,
+            }}
+          >
+            {' '}👋
+          </Text>
+        </View>
       </View>
       <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={handleSoon}>
         <View style={[styles.bellWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>
@@ -257,7 +278,7 @@ export default function Home() {
   // Removido o HeroCard a pedido (sem destaque de boas-vindas)
 
   return (
-    <PageContainer withTabBarPadding style={{ backgroundColor: '#FFFFFF' }}>
+    <PageContainer style={{ backgroundColor: '#FFFFFF', paddingTop: 0, paddingBottom: 32 }}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -369,12 +390,13 @@ const styles = StyleSheet.create({
   logoBar: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 4,
-    paddingBottom: 4,
+    paddingTop: 0,
+    paddingBottom: 2,
+    marginBottom: 8,
   },
   logoImage: {
-    width: 120,
-    height: 30,
+    width: 110,
+    height: 22,
   },
   greetingBar: {
     flexDirection: 'row',
@@ -534,7 +556,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingBottom: 40,
+    paddingTop: 4,
   },
   // Layout antigo dos módulos (não usado)
   moduleCard: {
