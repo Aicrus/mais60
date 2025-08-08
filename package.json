@@ -3,7 +3,8 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "node -e \"var fs=require('fs');if(!fs.existsSync('node_modules/expo')){console.log('🚀 Instalando dependências...');require('child_process').execSync('npm install',{stdio:'inherit'});console.log('✅ Dependências instaladas!')}\" && npx expo start",
+    "prestart": "npm run clean-cache --silent",
+    "start": "node -e \"var fs=require('fs');if(!fs.existsSync('node_modules/expo')){console.log('🚀 Instalando dependências...');require('child_process').execSync('npm install',{stdio:'inherit'});console.log('✅ Dependências instaladas!')}\" && npx expo start -c",
     "reset-project": "node ./scripts/reset-project.js",
     "clean-cache": "node ./scripts/reset-cache.js",
     "android": "npx expo start --android",
