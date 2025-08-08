@@ -1,4 +1,4 @@
-# 🔒 REGRAS.md - Projeto Origem
+# 🔒 REGRAS.md - Mais 60 Saúde
 
 ## 🎯 Propósito e Escopo
 Este documento é o guia mestre OBRIGATÓRIO que estabelece as regras invioláveis para TODAS as modificações no projeto. Toda interação deve seguir estas diretrizes RIGOROSAMENTE.

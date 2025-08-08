@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://projeto-origem.vercel.app/sitemap.xml 
+Sitemap: https://mais60saude.vercel.app/sitemap.xml

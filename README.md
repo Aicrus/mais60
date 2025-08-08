@@ -1,4 +1,4 @@
-# 🎨 Projeto Origem
+# 🎨 Mais 60 Saúde
 
 ## 📋 Índice
 - [👋 Introdução](#-introdução)
@@ -17,7 +17,7 @@
 
 ## 👋 Introdução
 
-Bem-vindo ao Projeto Origem! Este é um template moderno e flexível para criar aplicações incríveis que funcionam tanto na web quanto em dispositivos móveis. Nosso objetivo é tornar o desenvolvimento mais fácil e divertido, fornecendo uma base sólida com as melhores práticas já implementadas.
+Bem-vindo ao Mais 60 Saúde! Um aplicativo focado em saúde e bem-estar para pessoas com mais de 60 anos, com base moderna e flexível que funciona na web e em dispositivos móveis. Nosso objetivo é apoiar a qualidade de vida com acompanhamento de hábitos, consultas e informações úteis.
 
 ## ✨ Destaques
 

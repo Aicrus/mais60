@@ -34,8 +34,8 @@ export default function Head() {
       {/* Metadados básicos */}
       <meta charSet="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-      <title>Projeto Origem - Aplicativo Multiplataforma</title>
-      <meta name="description" content="Projeto Origem para desenvolvimento de aplicativos React Native/Expo multiplataforma para iOS, Android e Web." />
+      <title>Mais 60 Saúde - Saúde e bem-estar para pessoas 60+</title>
+      <meta name="description" content="Aplicativo de saúde e bem-estar focado em pessoas com mais de 60 anos: acompanhamento de hábitos, consultas e qualidade de vida." />
       
       {/* Favicon e ícones */}
       <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
@@ -59,16 +59,16 @@ export default function Head() {
       
       {/* Open Graph - para compartilhamento em redes sociais */}
       <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://projeto-origem.vercel.app" />
-      <meta property="og:title" content="Projeto Origem - Aplicativo Multiplataforma" />
-      <meta property="og:description" content="Projeto Origem para desenvolvimento de aplicativos React Native/Expo multiplataforma para iOS, Android e Web." />
-      <meta property="og:image" content="https://projeto-origem.vercel.app/og-image.png" />
+      <meta property="og:url" content="https://mais60saude.vercel.app" />
+      <meta property="og:title" content="Mais 60 Saúde - Saúde e bem-estar para pessoas 60+" />
+      <meta property="og:description" content="Aplicativo de saúde e bem-estar focado em pessoas com mais de 60 anos: acompanhamento de hábitos, consultas e qualidade de vida." />
+      <meta property="og:image" content="https://mais60saude.vercel.app/og-image.png" />
       
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="Projeto Origem - Aplicativo Multiplataforma" />
-      <meta name="twitter:description" content="Projeto Origem para desenvolvimento de aplicativos React Native/Expo multiplataforma para iOS, Android e Web." />
-      <meta name="twitter:image" content="https://projeto-origem.vercel.app/og-image.png" />
+      <meta name="twitter:title" content="Mais 60 Saúde - Saúde e bem-estar para pessoas 60+" />
+      <meta name="twitter:description" content="Aplicativo de saúde e bem-estar focado em pessoas com mais de 60 anos: acompanhamento de hábitos, consultas e qualidade de vida." />
+      <meta name="twitter:image" content="https://mais60saude.vercel.app/og-image.png" />
       
       {/* Idioma */}
       <meta property="og:locale" content="pt_BR" />

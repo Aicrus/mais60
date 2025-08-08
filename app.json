@@ -1,30 +1,30 @@
 {
   "expo": {
-    "name": "Projeto Origem",
-    "slug": "projeto-origem",
+    "name": "Mais 60 Saúde",
+    "slug": "mais60saude",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "projeto-origem",
+    "scheme": "mais60saude",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.seudominio.projetoorigem"
+      "bundleIdentifier": "com.seudominio.mais60saude"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.seudominio.projetoorigem"
+      "package": "com.seudominio.mais60saude"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png",
-      "name": "Projeto Origem - Aplicativo Multiplataforma",
-      "description": "Projeto origem para desenvolvimento de aplicativos React Native/Expo multiplataforma para iOS, Android e Web.",
+      "name": "Mais 60 Saúde — Saúde e bem-estar para pessoas 60+",
+      "description": "Aplicativo de saúde e bem-estar focado em pessoas com mais de 60 anos: acompanhamento de hábitos, consultas e qualidade de vida.",
       "lang": "pt-BR",
       "themeColor": "#2563eb",
       "backgroundColor": "#ffffff",

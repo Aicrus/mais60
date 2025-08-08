@@ -1,7 +1,7 @@
 {
-  "name": "Projeto Origem",
-  "short_name": "Projeto Origem",
-  "description": "Projeto Origem para desenvolvimento de aplicativos React Native/Expo multiplataforma",
+  "name": "Mais 60 Saúde",
+  "short_name": "Mais 60 Saúde",
+  "description": "Aplicativo de saúde e bem-estar para pessoas com mais de 60 anos. Acompanhe hábitos, consultas e qualidade de vida.",
   "icons": [
     {
       "src": "/favicon-192x192.png",
