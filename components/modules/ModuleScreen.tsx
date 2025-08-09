@@ -222,7 +222,14 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                   borderColor: active ? BRAND.purple : (isDark ? colors['divider-dark'] : '#E5E7EB'),
                 },
               ]} accessibilityRole="button" accessibilityLabel={`Filtro: ${c.label}`} accessibilityState={{ selected: active }}>
-                <Text style={{ color: active ? '#FFFFFF' : BRAND.purple, fontFamily: dsFontFamily['jakarta-medium'] }}>{c.label}</Text>
+                <Text
+                  style={{
+                    color: active ? '#FFFFFF' : (isDark ? colors['text-secondary-dark'] : BRAND.purple),
+                    fontFamily: dsFontFamily['jakarta-medium'],
+                  }}
+                >
+                  {c.label}
+                </Text>
               </Pressable>
             );
           })}
