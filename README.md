@@ -14,6 +14,7 @@
 - [💻 Desenvolvimento](#-desenvolvimento)
 - [🔄 Renomeando o Projeto](#-renomeando-o-projeto)
 - [🤝 Suporte](#-suporte)
+ - [📐 Bloquear rotação (portrait)](docs/bloquear-rotacao-portrait.md)
 
 ## 👋 Introdução
 

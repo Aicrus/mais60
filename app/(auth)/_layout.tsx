@@ -1,12 +1,27 @@
 import { Stack } from 'expo-router';
 import { Platform } from 'react-native';
+import React, { useEffect } from 'react';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { OrientationManager } from '@/lib/orientation';
 
 export default function AuthLayout() {
+  // Reforça retrato quando a pilha de auth monta
+  useEffect(() => {
+    const relock = () => {
+      if (!OrientationManager.isTemporaryLandscapeAllowed()) {
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+      }
+    };
+    relock();
+    const sub = ScreenOrientation.addOrientationChangeListener(relock);
+    return () => ScreenOrientation.removeOrientationChangeListener(sub);
+  }, []);
   return (
     <Stack
       initialRouteName="index"
       screenOptions={{
         headerShown: false,
+        orientation: 'portrait',
         animation: Platform.OS === 'web' ? 'none' : 'fade',
         animationDuration: Platform.OS === 'web' ? 0 : 200,
         contentStyle: {

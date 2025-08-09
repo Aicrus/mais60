@@ -21,7 +21,11 @@ export default function Index() {
 
   if (!checked) return null;
 
-  return (
-    <Redirect href="/(auth)/onboarding/welcome" />
-  );
+  // Se ainda não concluiu o onboarding → vai para boas-vindas
+  if (shouldShowOnboarding) {
+    return <Redirect href="/(auth)/onboarding/welcome" />;
+  }
+
+  // Se já concluiu o onboarding → envia para o app (Tabs)
+  return <Redirect href="/(tabs)/home" />;
 }

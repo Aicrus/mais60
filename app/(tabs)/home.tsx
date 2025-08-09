@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, Platform, Pressable, ScrollView, ImageSourcePropType } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { useFocusEffect } from '@react-navigation/native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
@@ -34,6 +36,16 @@ export default function Home() {
   const rowLabelType = getResponsiveValues('body-md');
   const moduleTitleType = getResponsiveValues('title-sm');
   const moduleSubtitleType = getResponsiveValues('body-md');
+  // Reforça orientação retrato quando a Home ganha foco
+  useFocusEffect(
+    React.useCallback(() => {
+      if (Platform.OS !== 'web') {
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+      }
+      return () => {};
+    }, [])
+  );
+
 
   const ui = {
     bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],

@@ -1,14 +1,16 @@
 // Importar polyfills antes de tudo para garantir compatibilidade
 import '@/lib/polyfills';
 
-import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider, useFocusEffect } from '@react-navigation/native';
 // 🎯 IMPORT DINÂMICO - NUNCA MAIS PRECISA ALTERAR!
 import { useDynamicFonts } from '@/hooks/useDynamicFonts';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
-import { useEffect, useState, memo, useRef } from 'react';
+import React, { useEffect, useState, memo, useRef } from 'react';
 import { ActivityIndicator, Platform, View, StatusBar } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { OrientationManager } from '@/lib/orientation';
 import 'react-native-reanimated';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
@@ -92,6 +94,21 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
+    // Garante retrato por padrão, mas permite landscape quando autorizado temporariamente
+    if (Platform.OS !== 'web') {
+      const enforce = () => {
+        if (OrientationManager.isTemporaryLandscapeAllowed()) return; // não relocka; tela que abriu controla
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+      };
+      enforce();
+      const sub = ScreenOrientation.addOrientationChangeListener(enforce);
+      return () => {
+        ScreenOrientation.removeOrientationChangeListener(sub);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
     if (fontsLoaded && initialCheckDone) {
       SplashScreen.hideAsync().catch(console.error);
     }
@@ -142,6 +159,18 @@ const RootLayoutNav = memo(function RootLayoutNav() {
   const { isLoading, isInitialized, session } = useAuth();
   const isDark = currentTheme === 'dark';
 
+  // Reforça retrato sempre que a navegação principal ganha foco
+  useFocusEffect(
+    React.useCallback(() => {
+      if (Platform.OS !== 'web') {
+        if (!OrientationManager.isTemporaryLandscapeAllowed()) {
+          ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+        }
+      }
+      return () => {};
+    }, [])
+  );
+
   // Se ainda está carregando ou não foi inicializado, mantém a tela de loading
   if (isLoading || !isInitialized) {
     return <LoadingScreen />;
@@ -176,6 +205,8 @@ const RootLayoutNav = memo(function RootLayoutNav() {
         <Stack 
           screenOptions={{
             headerShown: false,
+            // Reforça orientação retrato nas telas deste Stack
+            orientation: 'portrait',
             contentStyle: { 
               flex: 1,
               backgroundColor: currentTheme === 'dark' ? '#14181B' : '#F7F8FA'

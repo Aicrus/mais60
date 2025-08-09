@@ -7,6 +7,7 @@ import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system
 import { Dumbbell, Utensils, Shield, Brain, Heart, ChevronLeft, Play, Check } from 'lucide-react-native';
 import { GradientView } from '@/components/effects/GradientView';
 import { useRouter } from 'expo-router';
+// Removidos imports de componentes excluídos; usando versões simples inline
 
 type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
 
@@ -59,6 +60,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           { id: 'fortalecimento', label: 'Fortalecimento' },
         ],
         list: [
+          { id: 'dQw4w9WgXcQ', title: 'Vídeo de demonstração', subtitle: 'YouTube • 4 min', type: 'video' },
           { id: '1', title: 'Alongamento matinal', subtitle: 'Função do exercício • 10 min', type: 'video' },
           { id: '2', title: 'Caminhada leve', subtitle: 'Função do exercício • 15 min', type: 'video' },
           { id: '3', title: 'Fortalecimento', subtitle: 'Função do exercício • 12 min', type: 'video' },
@@ -210,109 +212,152 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           </View>
         </View>
 
-        {/* Chips */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 2, gap: 10, marginTop: 6, marginBottom: 6 }}>
-          {config.categories.map((c) => {
-            const active = c.id === selected;
-            return (
-              <Pressable key={c.id} onPress={() => setSelected(c.id)} style={[
+        {/* Filtros por categoria (chips simples) */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 8 }}>
+          {config.categories.map((opt) => (
+            <Pressable
+              key={opt.id}
+              onPress={() => setSelected(opt.id)}
+              accessibilityRole="button"
+              accessibilityLabel={opt.label}
+              style={[
                 styles.chip,
                 {
-                  backgroundColor: active ? BRAND.purple : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'),
-                  borderColor: active ? BRAND.purple : (isDark ? colors['divider-dark'] : '#E5E7EB'),
+                  backgroundColor:
+                    selected === opt.id
+                      ? (isDark ? colors['primary-dark'] : colors['primary-light'])
+                      : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'),
+                  borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
                 },
-              ]} accessibilityRole="button" accessibilityLabel={`Filtro: ${c.label}`} accessibilityState={{ selected: active }}>
-                <Text
-                  style={{
-                    color: active ? '#FFFFFF' : (isDark ? colors['text-secondary-dark'] : BRAND.purple),
-                    fontFamily: dsFontFamily['jakarta-medium'],
-                  }}
-                >
-                  {c.label}
-                </Text>
-              </Pressable>
-            );
-          })}
+              ]}
+            >
+              <Text
+                style={{
+                  color: selected === opt.id ? '#FFFFFF' : (isDark ? colors['text-primary-dark'] : colors['text-primary-light']),
+                  fontFamily: dsFontFamily['jakarta-semibold'],
+                }}
+              >
+                {opt.label}
+              </Text>
+            </Pressable>
+          ))}
         </ScrollView>
 
-        {/* Lista - cards tipo player para vídeos e cards simples para checklists */}
+        {/* Lista por módulo (usando componentes dedicados) */}
         <View style={{ gap: 14, marginTop: 8 }}>
-          {config.list.map((item) => {
-            const isVideo = item.type === 'video' || config.rightIconType === 'play';
-            const placeholder = require('@/assets/images/placeholder-img.png');
-            const durationLabel = item.subtitle.includes('•')
-              ? item.subtitle.split('•')[1]?.trim()
-              : undefined;
-            if (isVideo) {
-              return (
+          {moduleKey === 'atividade-fisica' && (
+            <View style={{ gap: 10 }}>
+              {config.list
+                .filter((i) => i.type === 'video')
+                .map((i) => (
+                  <Pressable
+                    key={i.id}
+                    style={[
+                      styles.listItem,
+                      {
+                        borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
+                        backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+                      },
+                    ]}
+                    onPress={() => router.push({ pathname: '/player/video/[id]', params: { id: i.id } })}
+                  >
+                    <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-bold'] }}>{i.title}</Text>
+                    <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>{i.subtitle}</Text>
+                  </Pressable>
+                ))}
+            </View>
+          )}
+
+          {moduleKey === 'habitos-alimentares' && (
+            <View style={{ gap: 10 }}>
+              {config.list.map((i) => (
                 <Pressable
-                  key={item.id}
-                  style={styles.videoCard}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${item.title}. ${item.subtitle}. Toque para reproduzir`}
-                  onPress={() => {}}
+                  key={i.id}
+                  style={[
+                    styles.listItem,
+                    {
+                      borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
+                      backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+                    },
+                  ]}
+                  onPress={() => router.push((`/receita/${i.id}`) as any)}
                 >
-                  <Image source={placeholder} style={styles.videoImage} resizeMode="cover" accessibilityIgnoresInvertColors />
-                  <GradientView
-                    type="custom"
-                    colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.55)", "rgba(0,0,0,0.85)"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0, y: 1 }}
-                    style={styles.videoGradient}
-                  />
-                  {durationLabel ? (
-                    <View style={styles.durationPill}>
-                      <Text style={styles.durationText}>{durationLabel}</Text>
-                    </View>
-                  ) : null}
-                  <View style={styles.videoTextBox}>
-                    <Text
-                      style={{
-                        color: '#FFFFFF',
-                        fontFamily: dsFontFamily['jakarta-extrabold'],
-                        fontSize: listTitleType.fontSize.default,
-                        lineHeight: listTitleType.lineHeight.default,
-                      }}
-                    >
-                      {item.title}
-                    </Text>
-                    <Text
-                      style={{
-                        marginTop: 6,
-                        color: 'rgba(255,255,255,0.92)',
-                        fontFamily: dsFontFamily['jakarta-medium'],
-                        fontSize: listSubtitleType.fontSize.default,
-                        lineHeight: listSubtitleType.lineHeight.default,
-                      }}
-                    >
-                      {item.subtitle}
-                    </Text>
-                  </View>
-                  <View style={styles.videoPlayButton} accessible accessibilityRole="button" accessibilityLabel="Reproduzir vídeo">
-                    <Play size={30} color={BRAND.purple} />
-                  </View>
+                  <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-bold'] }}>{i.title}</Text>
+                  <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>{i.subtitle}</Text>
                 </Pressable>
-              );
-            }
-            // Card padrão para itens de checklist
-            return (
-              <Pressable
-                key={item.id}
-                style={[styles.card]}
-                accessibilityRole="button"
-                accessibilityLabel={`${item.title}. ${item.subtitle}`}
-                onPress={() => {}}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }}>{item.title}</Text>
-                  <Text style={{ marginTop: 6, color: 'rgba(255,255,255,0.9)', fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>{item.subtitle}</Text>
-                </View>
-                <View style={styles.rightCircle}>
-                  <Check size={26} color={BRAND.green} />
-                </View>
-              </Pressable>
-            );
-          })}
+              ))}
+            </View>
+          )}
+
+          {moduleKey === 'seguranca-domiciliar' && (
+            <View style={{ gap: 10 }}>
+              {config.list.map((i) => (
+                <Pressable
+                  key={i.id}
+                  style={[
+                    styles.listItem,
+                    {
+                      borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
+                      backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+                    },
+                  ]}
+                  onPress={() => router.push((`/checklist/${i.id}`) as any)}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    {config.rightIconType === 'check' ? (
+                      <Check size={18} color={colors['brand-green']} />
+                    ) : (
+                      <Play size={18} color={colors['brand-purple']} />
+                    )}
+                    <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-bold'] }}>{i.title}</Text>
+                  </View>
+                  <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>{i.subtitle}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+
+          {moduleKey === 'estimulacao-cognitiva' && (
+            <View style={{ gap: 10 }}>
+              {config.list.map((i) => (
+                <Pressable
+                  key={i.id}
+                  style={[
+                    styles.listItem,
+                    {
+                      borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
+                      backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+                    },
+                  ]}
+                  onPress={() => router.push((`/jogo/${i.id}`) as any)}
+                >
+                  <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-bold'] }}>{i.title}</Text>
+                  <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>{i.subtitle}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+
+          {moduleKey === 'saude-mental' && (
+            <View style={{ gap: 10 }}>
+              {config.list.map((i) => (
+                <Pressable
+                  key={i.id}
+                  style={[
+                    styles.listItem,
+                    {
+                      borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
+                      backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+                    },
+                  ]}
+                  onPress={() => router.push((`/audio/${i.id}`) as any)}
+                >
+                  <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-bold'] }}>{i.title}</Text>
+                  <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>{i.subtitle}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
         </View>
       </ScrollView>
     </PageContainer>
@@ -331,16 +376,7 @@ const styles = StyleSheet.create({
   moduleBadge: { width: 72, height: 72, borderRadius: 36, alignItems: 'center', justifyContent: 'center', position: 'absolute', top: 16, left: 16 },
   infoBar: { borderRadius: 16, paddingVertical: 16, paddingHorizontal: 14, position: 'absolute', left: 16, right: 16, bottom: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 8, elevation: 3 },
   chip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1 },
-  card: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#430593', borderRadius: 18, paddingVertical: 20, paddingHorizontal: 18, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
-  rightCircle: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' },
-  // Player de vídeo moderno
-  videoCard: { borderRadius: 20, overflow: 'hidden', height: 190, backgroundColor: '#000', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
-  videoImage: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' },
-  videoGradient: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '70%' },
-  videoTextBox: { position: 'absolute', left: 16, right: 16, bottom: 16 },
-  videoPlayButton: { position: 'absolute', bottom: 16, right: 16, width: 64, height: 64, borderRadius: 32, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
-  durationPill: { position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(255,255,255,0.96)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
-  durationText: { color: '#3E0A7A', fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 12 },
+  listItem: { borderWidth: 1, borderRadius: 12, paddingVertical: 12, paddingHorizontal: 12 },
 });
 
 

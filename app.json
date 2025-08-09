@@ -3,14 +3,27 @@
     "name": "Mais 60",
     "slug": "mais60",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
       "icon": "./assets/images/logo-mais60.png",
     "scheme": "mais60",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.seudominio.mais60"
+      "requireFullScreen": true,
+      "bundleIdentifier": "com.seudominio.mais60",
+      "infoPlist": {
+        "UISupportedInterfaceOrientations": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ],
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {

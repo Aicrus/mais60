@@ -1,6 +1,8 @@
 import { Tabs } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View, Text } from 'react-native';
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { OrientationManager } from '@/lib/orientation';
 import { Home as HomeIcon, User as PerfilIcon, BarChart3 as StatsIcon } from 'lucide-react-native';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -38,6 +40,20 @@ export default function TabsLayout() {
   // Log para debug apenas uma vez quando o componente é montado
   useEffect(() => {
     console.log(`[Tabs] Status inicial: ${isMobile ? 'Visível' : 'Oculto'} (${width}px / ${currentBreakpoint})`);
+  }, []);
+
+  // Reforça a orientação retrato no escopo das Tabs (inclui re-lock ao focar)
+  useEffect(() => {
+    if (Platform.OS !== 'web') {
+      const relock = () => {
+        if (!OrientationManager.isTemporaryLandscapeAllowed()) {
+          ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP).catch(() => {});
+        }
+      };
+      relock();
+      const sub = ScreenOrientation.addOrientationChangeListener(relock);
+      return () => ScreenOrientation.removeOrientationChangeListener(sub);
+    }
   }, []);
 
   return (
@@ -117,20 +133,7 @@ export default function TabsLayout() {
             ),
           }}
         />
-        <Tabs.Screen
-          name="estatisticas"
-          options={{
-            title: 'Estatísticas',
-            tabBarLabel: 'Estatísticas',
-            tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
-              <StatsIcon 
-                size={24}
-                color={color}
-                strokeWidth={focused ? 2 : 1.5}
-              />
-            ),
-          }}
-        />
+        {/* Estatísticas removida da Tab por decisão de produto nesta etapa */}
         <Tabs.Screen
           name="dev"
           options={{
