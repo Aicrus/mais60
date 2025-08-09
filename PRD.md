@@ -742,12 +742,15 @@ Status (Front-end): Concluído
    NOVO:  altura md: 48px (acessibilidade idosos)
 ```
 
-#### 📱 **Navegação - Expandir para 5 Módulos**
+#### 📱 **Navegação - Tabs e Módulos**
 ```
 🔄 app/(tabs)/_layout.tsx
-   ATUAL: 2 tabs (home, dev)
-   NOVO:  6 tabs (home + 5 módulos)
-   
+   ATUAL: 2 tabs (home, dev oculta) + perfil
+   NOVO:  Tabs finais: home e perfil. Sem tabs individuais para módulos.
+
+✅ Módulos acessados pela Home e abertos via rota genérica:
+   - app/modulo/[module].tsx → usa components/modules/ModuleScreen.tsx
+
 🔄 app/(tabs)/home.tsx  
    ATUAL: Tela simples de exemplo
    NOVO:  Dashboard com grid 2x3 dos módulos
@@ -757,13 +760,14 @@ Status (Front-end): Concluído
 
 ## 🔴 **PRECISA CRIAR DO ZERO**
 
-#### 📱 **5 Telas dos Módulos**
+#### 📱 **Telas dos Módulos (ajuste de arquitetura)**
 ```
-❌ app/(tabs)/physical-activity.tsx     → Lista vídeos exercícios + categorias
-❌ app/(tabs)/nutrition-habits.tsx      → Lista receitas + filtros refeição  
-❌ app/(tabs)/home-safety.tsx           → Checklists segurança + dicas
-❌ app/(tabs)/cognitive-stimulation.tsx → Jogos memória + progress tracker
-❌ app/(tabs)/mental-health.tsx         → Meditações + mood tracker
+ℹ️ Substituídas por UMA tela genérica de módulo (já existente):
+   ✅ app/modulo/[module].tsx  → Renderiza conteúdo de: 
+      - atividade-fisica, habitos-alimentares, seguranca-domiciliar,
+        estimulacao-cognitiva, saude-mental
+
+   Os 5 módulos compartilham a mesma UI base; muda apenas o conteúdo.
 ```
 
 #### 🧩 **Componentes Específicos dos Módulos**
@@ -841,19 +845,20 @@ Status (Front-end): Concluído
 
 ### 🎯 **ETAPA 2: NAVEGAÇÃO E TELAS (Semana 2-3)**
 
-#### 📋 **2.1 - Expandir Navegação** <a id="task-2-1"></a>
-- [ ] **2.1.1** - Atualizar `app/(tabs)/_layout.tsx` 
-  - [ ] Adicionar tab `atividade-fisica`
-  - [ ] Adicionar tab `habitos-alimentares`  
-  - [ ] Adicionar tab `seguranca-domiciliar`
-  - [ ] Adicionar tab `estimulacao-cognitiva`
-  - [ ] Adicionar tab `saude-mental`
-  - [ ] Configurar ícones grandes (32px+)
+#### 📋 **2.1 - Navegação (Tabs + Módulos)** <a id="task-2-1"></a>
+- [x] **2.1.1** - Definir tabs finais
+  - [x] Manter `home` e `perfil`
+  - [x] Remover a necessidade de tabs individuais para módulos
+  - [x] `dev` permanece oculta (href: null)
 
- - [x] **2.1.2** - Atualizar `app/(tabs)/home.tsx` <a id="task-2-1-2-home"></a>
-   - [x] Criar dashboard com grid 2x3 dos módulos
-   - [ ] Integrar QuickStats
-   - [ ] Integrar ModuleGrid
+- [x] **2.1.2** - Atualizar `app/(tabs)/home.tsx` <a id="task-2-1-2-home"></a>
+  - [x] Criar dashboard com grid 2x3 dos módulos
+  - [ ] Integrar QuickStats
+  - [ ] Integrar ModuleGrid
+
+- [x] **2.1.3** - Redirecionamento inicial para Onboarding
+  - [x] `app/index.tsx` verifica AsyncStorage e direciona para `/(auth)/onboarding/welcome` ou login
+  - [x] Rotas do onboarding registradas em `app/(auth)/_layout.tsx`
 
 #### 📋 **2.2 - Criar Componentes Base dos Módulos**
 - [ ] **2.2.1** - `components/modules/ModuleGrid.tsx`
@@ -869,31 +874,11 @@ Status (Front-end): Concluído
 - [ ] **2.2.11** - `components/filters/CategoryFilter.tsx`
 - [ ] **2.2.12** - `components/filters/MealFilter.tsx`
 
-#### 📋 **2.3 - Criar 5 Telas dos Módulos** <a id="task-2-3"></a>
-- [x] **2.3.1** - `app/atividade-fisica.tsx` <a id="task-2-3-1-atividade-fisica"></a>
-  - [x] Implementar UI inicial inspirada no mock (hero + lista)
-  - [ ] Integrar filtros de categoria
-  - [ ] Conectar com Supabase
-
-- [ ] **2.3.2** - `app/(tabs)/habitos-alimentares.tsx` <a id="task-2-3-2-habitos-alimentares"></a>
-  - [ ] Implementar lista de receitas
-  - [ ] Integrar filtros de refeição
-  - [ ] Conectar com Supabase
-
-- [ ] **2.3.3** - `app/(tabs)/seguranca-domiciliar.tsx` <a id="task-2-3-3-seguranca-domiciliar"></a>
-  - [ ] Implementar checklists interativos
-  - [ ] Integrar dicas de segurança
-  - [ ] Conectar com Supabase
-
-- [ ] **2.3.4** - `app/(tabs)/estimulacao-cognitiva.tsx` <a id="task-2-3-4-estimulacao-cognitiva"></a>
-  - [ ] Implementar lista de jogos
-  - [ ] Integrar progress tracker
-  - [ ] Conectar com Supabase
-
-- [ ] **2.3.5** - `app/(tabs)/saude-mental.tsx` <a id="task-2-3-5-saude-mental"></a>
-  - [ ] Implementar lista de meditações
-  - [ ] Integrar mood tracker
-  - [ ] Conectar com Supabase
+#### 📋 **2.3 - Tela Genérica de Módulo** <a id="task-2-3"></a>
+- [x] **2.3.1** - `app/modulo/[module].tsx` (router dinâmico para 5 módulos)
+  - [x] Conectar com `components/modules/ModuleScreen.tsx`
+  - [ ] Integrar filtros por módulo (ex.: CategoryFilter, MealFilter)
+  - [ ] Conectar com Supabase (listar por módulo/categoria)
 
 ---
 
@@ -1103,16 +1088,17 @@ COMPONENTES:
 - PermissionRequest
 - AccessibilitySetup
 
-TELAS:
-- screens/Onboarding/Welcome.tsx
-- screens/Onboarding/Permissions.tsx
-- screens/Onboarding/Accessibility.tsx
+TELAS (implementadas):
+- app/(auth)/onboarding/welcome.tsx
+- app/(auth)/onboarding/permissions.tsx
+- app/(auth)/onboarding/accessibility.tsx
 
 FUNCIONALIDADES:
-- Slider com 3 telas
-- Solicitação de permissões (câmera, localização, sensores)
-- Configuração inicial de acessibilidade
-- Skip opcional na última tela
+- Fluxo em 3 telas (welcome → permissions → accessibility)
+- Solicitação de permissões de notificações (opcional)
+- Configuração inicial de acessibilidade (tamanho de fonte, contraste, sons)
+- Botão de pular apresentação
+- Persistência de conclusão do onboarding via AsyncStorage
 ```
 
 #### Task 2.2: Home Screen

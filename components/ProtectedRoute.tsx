@@ -29,7 +29,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (!isAuthenticated && hasCheckedSession.current) {
       // Usa um timeout mínimo para evitar flashes de loading
       navigationTimeout.current = setTimeout(() => {
-        router.replace('/login');
+        router.replace('/(auth)/onboarding/welcome');
       }, 50) as unknown as NodeJS.Timeout;
     }
 

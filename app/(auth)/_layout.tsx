@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 export default function AuthLayout() {
   return (
     <Stack
+      initialRouteName="index"
       screenOptions={{
         headerShown: false,
         animation: Platform.OS === 'web' ? 'none' : 'fade',
@@ -13,6 +14,19 @@ export default function AuthLayout() {
         }
       }}
     >
+      <Stack.Screen name="index" options={{ title: 'Auth' }} />
+      <Stack.Screen
+        name="onboarding/welcome"
+        options={{ title: 'Boas-vindas' }}
+      />
+      <Stack.Screen
+        name="onboarding/permissions"
+        options={{ title: 'Permissões' }}
+      />
+      <Stack.Screen
+        name="onboarding/accessibility"
+        options={{ title: 'Acessibilidade' }}
+      />
       <Stack.Screen
         name="login"
         options={{

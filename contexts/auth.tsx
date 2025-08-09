@@ -65,7 +65,7 @@ export function AuthProvider({
     if (session && inAuthGroup) {
       router.replace('/(tabs)/home');
     } else if (!session && !inAuthGroup) {
-      router.replace('/(auth)/login');
+      router.replace('/(auth)/onboarding/welcome');
     }
   }, [isInitialized, isLoading, session, segments]);
 

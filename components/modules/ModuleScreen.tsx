@@ -235,27 +235,84 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           })}
         </ScrollView>
 
-        {/* Lista */}
+        {/* Lista - cards tipo player para vídeos e cards simples para checklists */}
         <View style={{ gap: 14, marginTop: 8 }}>
-          {config.list.map((item) => (
-            <Pressable key={item.id} style={[styles.card]}
-              accessibilityRole="button"
-              accessibilityLabel={`${item.title}. ${item.subtitle}`}
-              onPress={() => {}}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }}>{item.title}</Text>
-                <Text style={{ marginTop: 6, color: 'rgba(255,255,255,0.9)', fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>{item.subtitle}</Text>
-              </View>
-              <View style={styles.rightCircle}>
-                {config.rightIconType === 'check' ? (
-                  <Check size={24} color={BRAND.green} />
-                ) : (
-                  <Play size={26} color={BRAND.purple} />
-                )}
-              </View>
-            </Pressable>
-          ))}
+          {config.list.map((item) => {
+            const isVideo = item.type === 'video' || config.rightIconType === 'play';
+            const placeholder = require('@/assets/images/placeholder-img.png');
+            const durationLabel = item.subtitle.includes('•')
+              ? item.subtitle.split('•')[1]?.trim()
+              : undefined;
+            if (isVideo) {
+              return (
+                <Pressable
+                  key={item.id}
+                  style={styles.videoCard}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.title}. ${item.subtitle}. Toque para reproduzir`}
+                  onPress={() => {}}
+                >
+                  <Image source={placeholder} style={styles.videoImage} resizeMode="cover" accessibilityIgnoresInvertColors />
+                  <GradientView
+                    type="custom"
+                    colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.55)", "rgba(0,0,0,0.85)"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={styles.videoGradient}
+                  />
+                  {durationLabel ? (
+                    <View style={styles.durationPill}>
+                      <Text style={styles.durationText}>{durationLabel}</Text>
+                    </View>
+                  ) : null}
+                  <View style={styles.videoTextBox}>
+                    <Text
+                      style={{
+                        color: '#FFFFFF',
+                        fontFamily: dsFontFamily['jakarta-extrabold'],
+                        fontSize: listTitleType.fontSize.default,
+                        lineHeight: listTitleType.lineHeight.default,
+                      }}
+                    >
+                      {item.title}
+                    </Text>
+                    <Text
+                      style={{
+                        marginTop: 6,
+                        color: 'rgba(255,255,255,0.92)',
+                        fontFamily: dsFontFamily['jakarta-medium'],
+                        fontSize: listSubtitleType.fontSize.default,
+                        lineHeight: listSubtitleType.lineHeight.default,
+                      }}
+                    >
+                      {item.subtitle}
+                    </Text>
+                  </View>
+                  <View style={styles.videoPlayButton} accessible accessibilityRole="button" accessibilityLabel="Reproduzir vídeo">
+                    <Play size={30} color={BRAND.purple} />
+                  </View>
+                </Pressable>
+              );
+            }
+            // Card padrão para itens de checklist
+            return (
+              <Pressable
+                key={item.id}
+                style={[styles.card]}
+                accessibilityRole="button"
+                accessibilityLabel={`${item.title}. ${item.subtitle}`}
+                onPress={() => {}}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }}>{item.title}</Text>
+                  <Text style={{ marginTop: 6, color: 'rgba(255,255,255,0.9)', fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>{item.subtitle}</Text>
+                </View>
+                <View style={styles.rightCircle}>
+                  <Check size={26} color={BRAND.green} />
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
       </ScrollView>
     </PageContainer>
@@ -276,6 +333,14 @@ const styles = StyleSheet.create({
   chip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1 },
   card: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: '#430593', borderRadius: 18, paddingVertical: 20, paddingHorizontal: 18, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
   rightCircle: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFFFFF' },
+  // Player de vídeo moderno
+  videoCard: { borderRadius: 20, overflow: 'hidden', height: 190, backgroundColor: '#000', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  videoImage: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: '100%', height: '100%' },
+  videoGradient: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '70%' },
+  videoTextBox: { position: 'absolute', left: 16, right: 16, bottom: 16 },
+  videoPlayButton: { position: 'absolute', bottom: 16, right: 16, width: 64, height: 64, borderRadius: 32, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  durationPill: { position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(255,255,255,0.96)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999 },
+  durationText: { color: '#3E0A7A', fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 12 },
 });
 
 

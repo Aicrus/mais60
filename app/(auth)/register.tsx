@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/useToast';
 import { Input } from '@/components/inputs/Input';
 import { Button } from '@/components/buttons/Button';
 import { UserRound } from 'lucide-react-native';
+import { colors } from '@/design-system/tokens/colors';
+import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 
 export default function Register() {
   const [nome, setNome] = useState('');
@@ -33,6 +35,19 @@ export default function Register() {
   const router = useRouter();
   const isDark = currentTheme === 'dark';
   const isDesktopOrTablet = width >= 768;
+
+  // Tipografia responsiva
+  const titleType = getResponsiveValues('headline-md');
+  const bodyMdType = getResponsiveValues('body-md');
+  const bodySmType = getResponsiveValues('body-sm');
+
+  // Cores do design system
+  const ui = {
+    textPrimary: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
+    textSecondary: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
+    primary: isDark ? colors['primary-dark'] : colors['primary-light'],
+    divider: isDark ? colors['divider-dark'] : colors['divider-light'],
+  } as const;
 
   // Funções de validação em tempo real
   const validateNome = (nome: string) => {
@@ -221,11 +236,27 @@ export default function Register() {
           <View style={styles.formSection}>
             <View style={styles.formContainer}>
               {/* Títulos */}
-              <Text className={`text-headline-md font-jakarta-bold mb-2 ${isDark ? 'text-text-primary-dark' : 'text-text-primary-light'}`}>
+              <Text
+                style={{
+                  color: ui.textPrimary,
+                  fontFamily: dsFontFamily['jakarta-bold'],
+                  fontSize: titleType.fontSize.default,
+                  lineHeight: titleType.lineHeight.default,
+                  marginBottom: 8,
+                }}
+              >
                 Crie sua conta
               </Text>
-              
-              <Text className={`text-body-md font-jakarta-regular mb-8 ${isDark ? 'text-text-secondary-dark' : 'text-text-secondary-light'}`}>
+
+              <Text
+                style={{
+                  color: ui.textSecondary,
+                  fontFamily: dsFontFamily['jakarta-regular'],
+                  fontSize: bodyMdType.fontSize.default,
+                  lineHeight: bodyMdType.lineHeight.default,
+                  marginBottom: 32,
+                }}
+              >
                 Preencha seus dados para começar
               </Text>
 
@@ -321,7 +352,15 @@ export default function Register() {
               {/* Separador "ou" */}
               <View className="flex-row items-center my-6">
                 <View className={`flex-1 h-px ${isDark ? 'bg-divider-dark' : 'bg-divider-light'}`} />
-                <Text className={`mx-4 text-body-sm ${isDark ? 'text-text-secondary-dark' : 'text-text-secondary-light'}`}>
+                <Text
+                  style={{
+                    marginHorizontal: 16,
+                    color: ui.textSecondary,
+                    fontFamily: dsFontFamily['jakarta-regular'],
+                    fontSize: bodySmType.fontSize.default,
+                    lineHeight: bodySmType.lineHeight.default,
+                  }}
+                >
                   ou continue com
                 </Text>
                 <View className={`flex-1 h-px ${isDark ? 'bg-divider-dark' : 'bg-divider-light'}`} />
@@ -372,12 +411,26 @@ export default function Register() {
 
               {/* Link para login */}
               <View className="flex-row justify-center mt-4">
-                <Text className={`text-body-md ${isDark ? 'text-text-primary-dark' : 'text-text-primary-light'}`}>
+                <Text
+                  style={{
+                    color: ui.textPrimary,
+                    fontFamily: dsFontFamily['jakarta-regular'],
+                    fontSize: bodyMdType.fontSize.default,
+                    lineHeight: bodyMdType.lineHeight.default,
+                  }}
+                >
                   Já tem uma conta?{' '}
                 </Text>
                 <Link href="/login" asChild>
                   <Pressable>
-                    <Text className={`text-body-md font-jakarta-semibold ${isDark ? 'text-primary-dark' : 'text-primary-light'}`}>
+                    <Text
+                      style={{
+                        color: ui.primary,
+                        fontFamily: dsFontFamily['jakarta-semibold'],
+                        fontSize: bodyMdType.fontSize.default,
+                        lineHeight: bodyMdType.lineHeight.default,
+                      }}
+                    >
                       Faça login
                     </Text>
                   </Pressable>
