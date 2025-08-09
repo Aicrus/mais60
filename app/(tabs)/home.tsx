@@ -55,6 +55,8 @@ export default function Home() {
   // Logo central superior
   const logoRoxo = require('@/assets/images/Logo Mais 60 Roxo.png');
   const logoAmarelo = require('@/assets/images/Logo Mais 60 Amarelo (1).png');
+  // Imagem do idoso usada nos cards
+  const idosoImage = require('@/assets/images/Imagem idoso feliz 8 ago 2025.png');
   // Removidos assets remotos de módulos
   const userName = ((session?.user?.user_metadata as any)?.name as string) || 'você';
   const avatarUrl =
@@ -139,6 +141,14 @@ export default function Home() {
       hitSlop={8}
       style={[styles.moduleCardLarge, { backgroundColor: cardColor, height: 300 }]}
     >
+      <View pointerEvents="none" style={styles.rightImageWrap}>
+        <Image
+          source={idosoImage}
+          style={styles.rightImage}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+        />
+      </View>
       <View style={[styles.moduleBadge, { backgroundColor: badgeColor }]}> 
         {icon}
       </View>
@@ -596,6 +606,19 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 6,
     overflow: 'hidden',
+  },
+  rightImageWrap: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    right: 0,
+    width: '55%',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  rightImage: {
+    height: '100%',
+    aspectRatio: 3/4,
   },
   moduleBadge: {
     width: 72,

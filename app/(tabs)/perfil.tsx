@@ -25,9 +25,9 @@ export default function PerfilScreen() {
   const nameType = getResponsiveValues('headline-lg');
   const emailType = getResponsiveValues('body-sm');
   const sectionType = getResponsiveValues('title-sm');
-  const modalTitleType = getResponsiveValues('title-sm');
-  const modalDescType = getResponsiveValues('body-sm');
-  const modalButtonType = getResponsiveValues('label-md');
+  const modalTitleType = getResponsiveValues('title-md');
+  const modalDescType = getResponsiveValues('body-md');
+  const modalButtonType = getResponsiveValues('label-lg');
   const editButtonType = getResponsiveValues('label-md');
   const badgeTextType = getResponsiveValues('label-sm');
   const rowLabelType = getResponsiveValues('body-md');
@@ -121,7 +121,7 @@ export default function PerfilScreen() {
             fontFamily: dsFontFamily['jakarta-semibold'],
             fontSize: editButtonType.fontSize.default,
             lineHeight: editButtonType.lineHeight.default,
-          }}>Edit profile</Text>
+          }}>Editar perfil</Text>
         </Pressable>
       </View>
 
@@ -137,13 +137,13 @@ export default function PerfilScreen() {
             lineHeight: sectionType.lineHeight.default,
           }}
         >
-          Inventories
+          Inventário
         </Text>
 
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <Row
           icon={<Home size={20} color={ui.textPrimary} />}
-          label="My stores"
+          label="Minhas lojas"
           right={
             <View style={styles.rightGroup}>
               <View style={styles.badge}>
@@ -163,7 +163,7 @@ export default function PerfilScreen() {
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<LifeBuoy size={20} color={ui.textPrimary} />}
-          label="Support"
+          label="Suporte"
           right={<ChevronRight size={22} color={ui.textSecondary} />}
         />
       </View>
@@ -180,13 +180,13 @@ export default function PerfilScreen() {
           lineHeight: sectionType.lineHeight.default,
         }}
       >
-        Preferences
+        Preferências
       </Text>
 
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <Row
           icon={<Bell size={20} color={ui.textPrimary} />}
-          label="Push notifications"
+          label="Notificações"
           right={
             <Switch
               value={pushEnabled}
@@ -199,7 +199,7 @@ export default function PerfilScreen() {
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<Moon size={20} color={ui.textPrimary} />}
-          label="Dark mode"
+          label="Modo escuro"
           right={
             <Switch
               value={isDark}
@@ -212,7 +212,7 @@ export default function PerfilScreen() {
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<Fingerprint size={20} color={ui.textPrimary} />}
-          label="Face ID"
+          label="Reconhecimento facial"
           right={
             <Switch
               value={faceEnabled}
@@ -225,14 +225,14 @@ export default function PerfilScreen() {
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<Grid3x3 size={20} color={ui.textPrimary} />}
-          label="PIN Code"
+          label="Código PIN"
           right={<ChevronRight size={22} color={ui.textSecondary} />}
           onPress={() => {}}
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<LogOut size={18} color="#EF4444" />}
-          label="Logout"
+          label="Sair"
           destructive
           onPress={() => setShowLogoutConfirm(true)}
         />
