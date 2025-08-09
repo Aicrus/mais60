@@ -612,13 +612,14 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     right: 0,
-    width: '55%',
+    width: '72%',
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
   rightImage: {
     height: '100%',
-    aspectRatio: 3/4,
+    aspectRatio: 11/10,
+    transform: [{ translateY: -10 }],
   },
   moduleBadge: {
     width: 72,
