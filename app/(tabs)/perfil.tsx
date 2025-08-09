@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, Pressable, Switch, Platform } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, Switch, Platform, ScrollView, Modal } from 'react-native';
 import { PageContainer } from '../../components/layout/PageContainer';
-import { Button } from '../../components/HapticTab';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { colors } from '../../design-system/tokens/colors';
-import { getResponsiveValues } from '../../design-system/tokens/typography';
+import { ThemeSelector } from '@/components/theme/ThemeSelector';
+import { getResponsiveValues, fontFamily as dsFontFamily } from '../../design-system/tokens/typography';
+import { useAuth } from '../../contexts/auth';
 import {
   Home,
   LifeBuoy,
@@ -13,18 +14,27 @@ import {
   Grid3x3,
   ChevronRight,
   LogOut,
+  Moon,
 } from 'lucide-react-native';
 
 export default function PerfilScreen() {
-  const { currentTheme } = useTheme();
+  const { currentTheme, setThemeMode } = useTheme();
   const isDark = currentTheme === 'dark';
+  const { signOut } = useAuth();
 
   const nameType = getResponsiveValues('headline-lg');
   const emailType = getResponsiveValues('body-sm');
-  const sectionType = getResponsiveValues('label-sm');
+  const sectionType = getResponsiveValues('title-sm');
+  const modalTitleType = getResponsiveValues('title-sm');
+  const modalDescType = getResponsiveValues('body-sm');
+  const modalButtonType = getResponsiveValues('label-md');
+  const editButtonType = getResponsiveValues('label-md');
+  const badgeTextType = getResponsiveValues('label-sm');
+  const rowLabelType = getResponsiveValues('body-md');
 
   const [pushEnabled, setPushEnabled] = useState(true);
   const [faceEnabled, setFaceEnabled] = useState(true);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const ui = {
     bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
@@ -47,15 +57,21 @@ export default function PerfilScreen() {
     onPress?: () => void;
     destructive?: boolean;
   }) => (
-    <Pressable onPress={onPress} style={styles.row} accessibilityRole={onPress ? 'button' : undefined}>
+    <Pressable
+      onPress={onPress}
+      style={styles.row}
+      accessibilityRole={onPress ? 'button' : undefined}
+      hitSlop={8}
+    >
       <View style={[styles.iconWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>{icon}</View>
       <Text
         style={{
           flex: 1,
           color: destructive ? '#EF4444' : ui.textPrimary,
-          fontFamily: nameType.fontFamily,
-          fontWeight: '500',
-          fontSize: 15,
+          fontFamily: dsFontFamily['jakarta-medium'],
+          fontWeight: '600',
+          fontSize: rowLabelType.fontSize.default,
+          lineHeight: rowLabelType.lineHeight.default,
         }}
       >
         {label}
@@ -66,6 +82,7 @@ export default function PerfilScreen() {
 
   return (
     <PageContainer>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <View style={styles.avatarOuter}>
           <Image
@@ -73,22 +90,23 @@ export default function PerfilScreen() {
             style={styles.avatar}
           />
         </View>
-        <Text
-          style={{
-            color: ui.textPrimary,
-            fontFamily: nameType.fontFamily,
-            fontWeight: '700',
-            fontSize: Platform.select({ default: 24, web: nameType.fontSize.default }) as number,
-            marginTop: 12,
-          }}
-        >
+      <Text
+        style={{
+          color: ui.textPrimary,
+          fontFamily: dsFontFamily['jakarta-bold'],
+          fontSize: nameType.fontSize.default,
+          lineHeight: nameType.lineHeight.default,
+          marginTop: 12,
+        }}
+      >
           Coffeestories
         </Text>
         <Text
           style={{
             color: ui.textSecondary,
-            fontFamily: emailType.fontFamily,
-            fontSize: 14,
+          fontFamily: dsFontFamily['jakarta-medium'],
+          fontSize: emailType.fontSize.default,
+          lineHeight: emailType.lineHeight.default,
             marginTop: 4,
           }}
         >
@@ -98,36 +116,76 @@ export default function PerfilScreen() {
         <Pressable style={[styles.editButton, { backgroundColor: isDark ? colors['primary-dark'] : colors['primary-light'] }]}
           accessibilityRole="button"
         >
-          <Text style={styles.editButtonText}>Edit profile</Text>
+          <Text style={{
+            color: '#FFFFFF',
+            fontFamily: dsFontFamily['jakarta-semibold'],
+            fontSize: editButtonType.fontSize.default,
+            lineHeight: editButtonType.lineHeight.default,
+          }}>Edit profile</Text>
         </Pressable>
       </View>
 
-      <Text style={[styles.sectionTitle, { color: ui.textSecondary, fontFamily: sectionType.fontFamily }]}>Inventories</Text>
+        <Text
+          accessibilityRole="header"
+          style={{
+            marginTop: 8,
+            marginBottom: 8,
+            paddingHorizontal: 4,
+            color: ui.textSecondary,
+            fontFamily: sectionType.fontFamily,
+            fontSize: sectionType.fontSize.default,
+            lineHeight: sectionType.lineHeight.default,
+          }}
+        >
+          Inventories
+        </Text>
 
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <Row
-          icon={<Home size={18} color={ui.textPrimary} />}
+          icon={<Home size={20} color={ui.textPrimary} />}
           label="My stores"
           right={
             <View style={styles.rightGroup}>
-              <View style={styles.badge}><Text style={styles.badgeText}>2</Text></View>
-              <ChevronRight size={18} color={ui.textSecondary} />
+              <View style={styles.badge}>
+                <Text style={[
+                  styles.badgeText,
+                  {
+                    fontFamily: dsFontFamily['jakarta-bold'],
+                    fontSize: badgeTextType.fontSize.default,
+                    lineHeight: badgeTextType.lineHeight.default,
+                  }
+                ]}>2</Text>
+              </View>
+              <ChevronRight size={22} color={ui.textSecondary} />
             </View>
           }
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
-          icon={<LifeBuoy size={18} color={ui.textPrimary} />}
+          icon={<LifeBuoy size={20} color={ui.textPrimary} />}
           label="Support"
-          right={<ChevronRight size={18} color={ui.textSecondary} />}
+          right={<ChevronRight size={22} color={ui.textSecondary} />}
         />
       </View>
 
-      <Text style={[styles.sectionTitle, { color: ui.textSecondary, fontFamily: sectionType.fontFamily }]}>Preferences</Text>
+      <Text
+        accessibilityRole="header"
+        style={{
+          marginTop: 8,
+          marginBottom: 8,
+          paddingHorizontal: 4,
+          color: ui.textSecondary,
+          fontFamily: sectionType.fontFamily,
+          fontSize: sectionType.fontSize.default,
+          lineHeight: sectionType.lineHeight.default,
+        }}
+      >
+        Preferences
+      </Text>
 
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <Row
-          icon={<Bell size={18} color={ui.textPrimary} />}
+          icon={<Bell size={20} color={ui.textPrimary} />}
           label="Push notifications"
           right={
             <Switch
@@ -140,7 +198,20 @@ export default function PerfilScreen() {
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
-          icon={<Fingerprint size={18} color={ui.textPrimary} />}
+          icon={<Moon size={20} color={ui.textPrimary} />}
+          label="Dark mode"
+          right={
+            <Switch
+              value={isDark}
+              onValueChange={(value) => setThemeMode(value ? 'dark' : 'light')}
+              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
+              thumbColor={"#FFFFFF"}
+            />
+          }
+        />
+        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
+        <Row
+          icon={<Fingerprint size={20} color={ui.textPrimary} />}
           label="Face ID"
           right={
             <Switch
@@ -153,9 +224,9 @@ export default function PerfilScreen() {
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
-          icon={<Grid3x3 size={18} color={ui.textPrimary} />}
+          icon={<Grid3x3 size={20} color={ui.textPrimary} />}
           label="PIN Code"
-          right={<ChevronRight size={18} color={ui.textSecondary} />}
+          right={<ChevronRight size={22} color={ui.textSecondary} />}
           onPress={() => {}}
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
@@ -163,14 +234,101 @@ export default function PerfilScreen() {
           icon={<LogOut size={18} color="#EF4444" />}
           label="Logout"
           destructive
-          onPress={() => {}}
+          onPress={() => setShowLogoutConfirm(true)}
         />
       </View>
+      {/* Modal de confirmação de logout */}
+      <Modal
+        visible={showLogoutConfirm}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLogoutConfirm(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[
+            styles.confirmCard,
+            { backgroundColor: ui.bgSecondary, borderColor: ui.divider }
+          ]}>
+            <Text
+              style={{
+                color: ui.textPrimary,
+                fontFamily: modalTitleType.fontFamily,
+                fontSize: modalTitleType.fontSize.default,
+                lineHeight: modalTitleType.lineHeight.default,
+              }}
+            >
+              Sair da conta?
+            </Text>
+            <Text
+              style={{
+                marginTop: 6,
+                color: ui.textSecondary,
+                fontFamily: modalDescType.fontFamily,
+                fontSize: modalDescType.fontSize.default,
+                lineHeight: modalDescType.lineHeight.default,
+              }}
+            >
+              Tem certeza de que deseja sair? Você precisará fazer login novamente para acessar sua conta.
+            </Text>
+
+            <View style={styles.confirmActions}>
+              <Pressable
+                onPress={() => setShowLogoutConfirm(false)}
+                style={[
+                  styles.confirmButton,
+                  styles.confirmButtonSecondary,
+                  { borderColor: ui.divider }
+                ]}
+                accessibilityRole="button"
+              >
+                <Text
+                  style={{
+                    color: ui.textPrimary,
+                    fontFamily: modalButtonType.fontFamily,
+                    fontSize: modalButtonType.fontSize.default,
+                    lineHeight: modalButtonType.lineHeight.default,
+                  }}
+                >
+                  Cancelar
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={async () => {
+                  setShowLogoutConfirm(false);
+                  await signOut();
+                }}
+                style={[
+                  styles.confirmButton,
+                  { backgroundColor: isDark ? colors['primary-dark'] : colors['primary-light'] }
+                ]}
+                accessibilityRole="button"
+              >
+                <Text
+                  style={{
+                    color: '#FFFFFF',
+                    fontFamily: modalButtonType.fontFamily,
+                    fontSize: modalButtonType.fontSize.default,
+                    lineHeight: modalButtonType.lineHeight.default,
+                  }}
+                >
+                  Sair
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      </ScrollView>
     </PageContainer>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 90,
+    paddingTop: 4,
+  },
   header: {
     alignItems: 'center',
     paddingTop: 12,
@@ -197,13 +355,12 @@ const styles = StyleSheet.create({
   },
   editButtonText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontFamily: dsFontFamily['jakarta-semibold'],
   },
   sectionTitle: {
     marginTop: 8,
     marginBottom: 8,
     paddingHorizontal: 4,
-    fontSize: 12,
     textTransform: 'none',
   },
   card: {
@@ -216,7 +373,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
-    height: 56,
+    height: 64,
     gap: 12,
   },
   iconWrap: {
@@ -243,11 +400,40 @@ const styles = StyleSheet.create({
   badgeText: {
     color: '#FFFFFF',
     fontWeight: '700',
-    fontSize: 12,
   },
   separator: {
     height: 1,
     width: '100%',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  confirmCard: {
+    width: '100%',
+    maxWidth: 420,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 16,
+  },
+  confirmActions: {
+    marginTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+  },
+  confirmButton: {
+    height: 44,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  confirmButtonSecondary: {
+    borderWidth: 1,
   },
 });
 

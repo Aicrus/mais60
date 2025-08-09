@@ -18,6 +18,10 @@
 
 import { isMobileWidth, isTabletWidth, isDesktopWidth } from './breakpoints';
 
+// Escala tipográfica global
+// Ajuste este valor para aumentar ou diminuir o tamanho de todas as fontes do app
+export const TYPOGRAPHY_SCALE = 1.0; // 15% maior por padrão
+
 // ============================================================================
 // 🎯 CONFIGURAÇÃO CENTRAL - MUDE SÓ AQUI PARA TROCAR A FONTE DO APP INTEIRO!
 // ============================================================================
@@ -303,14 +307,14 @@ export const responsiveFontSize = {
     fontFamily: 'jakarta-bold' as const
   },
   'headline-lg': {
-    size: { mobile: 24, tablet: 28, desktop: 32, default: 26 },
-    lineHeight: { mobile: 30, tablet: 34, desktop: 40, default: 32 },
+    size: { mobile: 26, tablet: 28, desktop: 32, default: 28 },
+    lineHeight: { mobile: 32, tablet: 34, desktop: 40, default: 34 },
     fontWeight: '700',
     fontFamily: 'jakarta-bold' as const
   },
   'headline-md': {
-    size: { mobile: 22, tablet: 24, desktop: 28, default: 24 },
-    lineHeight: { mobile: 28, tablet: 30, desktop: 36, default: 30 },
+    size: { mobile: 24, tablet: 24, desktop: 28, default: 26 },
+    lineHeight: { mobile: 30, tablet: 30, desktop: 36, default: 32 },
     fontWeight: '700',
     fontFamily: 'jakarta-bold' as const
   },
@@ -323,106 +327,106 @@ export const responsiveFontSize = {
   
   // Title - Títulos de seções
   'title-lg': {
-    size: { mobile: 18, tablet: 20, desktop: 22, default: 20 },
-    lineHeight: { mobile: 24, tablet: 26, desktop: 28, default: 26 },
+    size: { mobile: 20, tablet: 20, desktop: 22, default: 22 },
+    lineHeight: { mobile: 26, tablet: 26, desktop: 28, default: 28 },
     fontWeight: '700',
     fontFamily: 'jakarta-bold' as const
   },
   'title-md': {
-    size: { mobile: 16, tablet: 18, desktop: 20, default: 18 },
-    lineHeight: { mobile: 22, tablet: 24, desktop: 26, default: 24 },
+    size: { mobile: 20, tablet: 20, desktop: 22, default: 22 },
+    lineHeight: { mobile: 28, tablet: 28, desktop: 30, default: 28 },
     fontWeight: '700',
     fontFamily: 'jakarta-bold' as const
   },
   'title-sm': {
-    size: { mobile: 14, tablet: 16, desktop: 18, default: 16 },
-    lineHeight: { mobile: 20, tablet: 22, desktop: 24, default: 22 },
+    size: { mobile: 18, tablet: 18, desktop: 20, default: 20 },
+    lineHeight: { mobile: 26, tablet: 26, desktop: 28, default: 26 },
     fontWeight: '700',
     fontFamily: 'jakarta-bold' as const
   },
   
   // Subtitle - Subtítulos
   'subtitle-lg': {
-    size: { mobile: 16, tablet: 17, desktop: 18, default: 17 },
-    lineHeight: { mobile: 22, tablet: 23, desktop: 24, default: 23 },
+    size: { mobile: 18, tablet: 18, desktop: 18, default: 18 },
+    lineHeight: { mobile: 24, tablet: 24, desktop: 24, default: 24 },
     fontWeight: '600',
     fontFamily: 'jakarta-semibold' as const
   },
   'subtitle-md': {
-    size: { mobile: 14, tablet: 15, desktop: 16, default: 15 },
-    lineHeight: { mobile: 20, tablet: 21, desktop: 22, default: 21 },
+    size: { mobile: 18, tablet: 18, desktop: 18, default: 18 },
+    lineHeight: { mobile: 24, tablet: 24, desktop: 24, default: 24 },
     fontWeight: '600',
     fontFamily: 'jakarta-semibold' as const
   },
   'subtitle-sm': {
-    size: { mobile: 12, tablet: 13, desktop: 14, default: 13 },
-    lineHeight: { mobile: 18, tablet: 19, desktop: 20, default: 19 },
+    size: { mobile: 16, tablet: 16, desktop: 16, default: 16 },
+    lineHeight: { mobile: 22, tablet: 22, desktop: 22, default: 22 },
     fontWeight: '600',
     fontFamily: 'jakarta-semibold' as const
   },
   
   // Label - Rótulos
   'label-lg': {
-    size: { mobile: 14, tablet: 15, desktop: 16, default: 15 },
-    lineHeight: { mobile: 20, tablet: 22, desktop: 24, default: 22 },
+    size: { mobile: 16, tablet: 16, desktop: 16, default: 16 },
+    lineHeight: { mobile: 22, tablet: 22, desktop: 24, default: 24 },
     fontWeight: '600',
     fontFamily: 'jakarta-semibold' as const
   },
   'label-md': {
-    size: { mobile: 12, tablet: 13, desktop: 14, default: 13 },
-    lineHeight: { mobile: 18, tablet: 19, desktop: 20, default: 19 },
+    size: { mobile: 16, tablet: 16, desktop: 16, default: 16 },
+    lineHeight: { mobile: 22, tablet: 22, desktop: 22, default: 22 },
     fontWeight: '600',
     fontFamily: 'jakarta-semibold' as const
   },
   'label-sm': {
-    size: { mobile: 11, tablet: 12, desktop: 13, default: 12 },
-    lineHeight: { mobile: 16, tablet: 17, desktop: 17, default: 17 },
+    size: { mobile: 14, tablet: 14, desktop: 14, default: 14 },
+    lineHeight: { mobile: 20, tablet: 20, desktop: 20, default: 20 },
     fontWeight: '600',
     fontFamily: 'jakarta-semibold' as const
   },
   
   // Body - Texto de corpo
   'body-lg': {
-    size: { mobile: 15, tablet: 15, desktop: 16, default: 16 },
-    lineHeight: { mobile: 22, tablet: 23, desktop: 24, default: 24 },
+    size: { mobile: 19, tablet: 18, desktop: 18, default: 19 },
+    lineHeight: { mobile: 28, tablet: 26, desktop: 26, default: 28 },
     fontWeight: '400',
     fontFamily: 'jakarta-regular' as const
   },
   'body-md': {
-    size: { mobile: 13, tablet: 13, desktop: 14, default: 14 },
-    lineHeight: { mobile: 19, tablet: 19, desktop: 20, default: 20 },
+    size: { mobile: 17, tablet: 16, desktop: 16, default: 17 },
+    lineHeight: { mobile: 24, tablet: 22, desktop: 22, default: 24 },
     fontWeight: '400',
     fontFamily: 'jakarta-regular' as const
   },
   'body-sm': {
-    size: { mobile: 11, tablet: 12, desktop: 12, default: 12 },
-    lineHeight: { mobile: 16, tablet: 17, desktop: 18, default: 18 },
+    size: { mobile: 13, tablet: 12, desktop: 12, default: 13 },
+    lineHeight: { mobile: 20, tablet: 18, desktop: 18, default: 20 },
     fontWeight: '400',
     fontFamily: 'jakarta-regular' as const
   },
   'body-xs': {
-    size: { mobile: 9, tablet: 10, desktop: 10, default: 10 },
-    lineHeight: { mobile: 13, tablet: 14, desktop: 14, default: 14 },
+    size: { mobile: 12, tablet: 11, desktop: 10, default: 12 },
+    lineHeight: { mobile: 16, tablet: 15, desktop: 14, default: 16 },
     fontWeight: '400',
     fontFamily: 'jakarta-regular' as const
   },
   
   // Mono - Texto monoespaçado
   'mono-lg': {
-    size: { mobile: 15, tablet: 15, desktop: 16, default: 16 },
-    lineHeight: { mobile: 22, tablet: 23, desktop: 24, default: 24 },
+    size: { mobile: 17, tablet: 16, desktop: 16, default: 17 },
+    lineHeight: { mobile: 26, tablet: 24, desktop: 24, default: 26 },
     fontWeight: '400',
     fontFamily: 'mono-regular' as const
   },
   'mono-md': {
-    size: { mobile: 13, tablet: 13, desktop: 14, default: 14 },
-    lineHeight: { mobile: 19, tablet: 19, desktop: 20, default: 20 },
+    size: { mobile: 15, tablet: 14, desktop: 14, default: 15 },
+    lineHeight: { mobile: 22, tablet: 20, desktop: 20, default: 22 },
     fontWeight: '400',
     fontFamily: 'mono-regular' as const
   },
   'mono-sm': {
-    size: { mobile: 11, tablet: 12, desktop: 12, default: 12 },
-    lineHeight: { mobile: 16, tablet: 17, desktop: 18, default: 18 },
+    size: { mobile: 13, tablet: 12, desktop: 12, default: 13 },
+    lineHeight: { mobile: 20, tablet: 18, desktop: 18, default: 20 },
     fontWeight: '400',
     fontFamily: 'mono-regular' as const
   },
@@ -508,7 +512,10 @@ export function getResponsiveTypography(
     fontSize = config.size.default;
     lineHeight = config.lineHeight.default;
   }
-  
+  // Aplica escala global
+  fontSize = fontSize * TYPOGRAPHY_SCALE;
+  lineHeight = lineHeight * TYPOGRAPHY_SCALE;
+
   return {
     fontSize,
     lineHeight,
@@ -532,17 +539,17 @@ export function createResponsiveTypography(size: ResponsiveFontSizeType) {
     const config = responsiveFontSize[size];
     
     const fontSize = responsiveFunction({
-      mobile: config.size.mobile,
-      tablet: config.size.tablet,
-      desktop: config.size.desktop,
-      default: config.size.default,
+      mobile: config.size.mobile * TYPOGRAPHY_SCALE,
+      tablet: config.size.tablet * TYPOGRAPHY_SCALE,
+      desktop: config.size.desktop * TYPOGRAPHY_SCALE,
+      default: config.size.default * TYPOGRAPHY_SCALE,
     });
     
     const lineHeight = responsiveFunction({
-      mobile: config.lineHeight.mobile,
-      tablet: config.lineHeight.tablet,
-      desktop: config.lineHeight.desktop,
-      default: config.lineHeight.default,
+      mobile: config.lineHeight.mobile * TYPOGRAPHY_SCALE,
+      tablet: config.lineHeight.tablet * TYPOGRAPHY_SCALE,
+      desktop: config.lineHeight.desktop * TYPOGRAPHY_SCALE,
+      default: config.lineHeight.default * TYPOGRAPHY_SCALE,
     });
     
     return {
@@ -565,16 +572,16 @@ export function getResponsiveValues(size: ResponsiveFontSizeType) {
   
   return {
     fontSize: {
-      mobile: config.size.mobile,
-      tablet: config.size.tablet,
-      desktop: config.size.desktop,
-      default: config.size.default,
+      mobile: config.size.mobile * TYPOGRAPHY_SCALE,
+      tablet: config.size.tablet * TYPOGRAPHY_SCALE,
+      desktop: config.size.desktop * TYPOGRAPHY_SCALE,
+      default: config.size.default * TYPOGRAPHY_SCALE,
     },
     lineHeight: {
-      mobile: config.lineHeight.mobile,
-      tablet: config.lineHeight.tablet,
-      desktop: config.lineHeight.desktop,
-      default: config.lineHeight.default,
+      mobile: config.lineHeight.mobile * TYPOGRAPHY_SCALE,
+      tablet: config.lineHeight.tablet * TYPOGRAPHY_SCALE,
+      desktop: config.lineHeight.desktop * TYPOGRAPHY_SCALE,
+      default: config.lineHeight.default * TYPOGRAPHY_SCALE,
     },
     fontWeight: config.fontWeight,
     fontFamily: config.fontFamily ? fontFamily[config.fontFamily] : fontFamily['jakarta-regular'],

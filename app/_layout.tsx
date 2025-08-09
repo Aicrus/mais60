@@ -39,7 +39,7 @@ const LoadingScreen = memo(function LoadingScreen() {
     <View className={`flex-1 justify-center items-center ${isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}`}>
       <ExpoStatusBar 
         style={isDark ? 'light' : 'dark'}
-        backgroundColor={isDark ? '#1C1E26' : '#FFFFFF'}
+        backgroundColor={isDark ? '#1C1E26' : '#F7F8FA'}
       />
       <ActivityIndicator 
         size="large" 
@@ -149,8 +149,8 @@ const RootLayoutNav = memo(function RootLayoutNav() {
 
   // Cores do tema conforme definidos em tailwind.config.js e theme.ts
   const headerColors = {
-    light: '#FFFFFF', // bg-secondary-light no tailwind.config.js
-    dark: '#1C1E26'   // bg-primary-dark no tailwind.config.js
+    light: '#F7F8FA', // igual ao fundo claro da tela (bg primary light)
+    dark: '#1C1E26'   // igual ao fundo escuro do app
   };
 
   // Configurar a StatusBar nativa para ter a mesma cor do Header

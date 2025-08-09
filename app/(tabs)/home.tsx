@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, Platform, Pressable, ScrollView, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Image, Platform, Pressable, ScrollView } from 'react-native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
@@ -14,7 +14,6 @@ import {
   Brain,
   Heart,
   Bell,
-  Search as SearchIcon,
 } from 'lucide-react-native';
 
 export default function Home() {
@@ -24,10 +23,15 @@ export default function Home() {
   const { showToast } = useToast();
 
   const titleType = getResponsiveValues('headline-lg');
-  const subtitleType = getResponsiveValues('body-sm');
-  const sectionType = getResponsiveValues('label-sm');
+  const subtitleType = getResponsiveValues('subtitle-sm');
+  const sectionType = getResponsiveValues('title-sm');
   // Saudação: mesmo tamanho para as duas linhas, com a primeira mais fina
   const greetType = getResponsiveValues('headline-lg');
+  const statValueType = getResponsiveValues('title-sm');
+  const statLabelType = getResponsiveValues('label-lg');
+  const rowLabelType = getResponsiveValues('body-md');
+  const moduleTitleType = getResponsiveValues('title-sm');
+  const moduleSubtitleType = getResponsiveValues('body-md');
 
   const ui = {
     bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
@@ -50,6 +54,8 @@ export default function Home() {
 
   // Logo central superior
   const logoRoxo = require('@/assets/images/Logo Mais 60 Roxo.png');
+  const logoAmarelo = require('@/assets/images/Logo Mais 60 Amarelo (1).png');
+  // Removidos assets remotos de módulos
   const userName = ((session?.user?.user_metadata as any)?.name as string) || 'você';
   const avatarUrl =
     ((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20';
@@ -65,15 +71,22 @@ export default function Home() {
     right?: React.ReactNode;
     onPress?: () => void;
   }) => (
-    <Pressable onPress={onPress} style={styles.row} accessibilityRole={onPress ? 'button' : undefined}>
+    <Pressable
+      onPress={onPress}
+      style={styles.row}
+      accessibilityRole={onPress ? 'button' : undefined}
+      hitSlop={8}
+    >
       <View style={[styles.iconWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>{icon}</View>
       <Text
         style={{
           flex: 1,
           color: ui.textPrimary,
-          fontFamily: titleType.fontFamily,
-          fontWeight: '500',
-          fontSize: 15,
+          fontFamily: dsFontFamily['jakarta-medium'],
+          fontWeight: '600',
+          fontSize: rowLabelType.fontSize.default,
+          lineHeight: rowLabelType.lineHeight.default,
+          textAlign: 'left',
         }}
       >
         {label}
@@ -84,98 +97,66 @@ export default function Home() {
 
   const Stat = ({ value, label }: { value: string; label: string }) => (
     <View style={styles.statItem}>
-      <Text style={[styles.statValue, { color: ui.textPrimary }]}>{value}</Text>
-      <Text style={[styles.statLabel, { color: ui.textSecondary }]}>{label}</Text>
+      <Text style={{
+        color: ui.textPrimary,
+        fontFamily: dsFontFamily['jakarta-bold'],
+        fontSize: statValueType.fontSize.default,
+        lineHeight: statValueType.lineHeight.default,
+        textAlign: 'center',
+      }}>{value}</Text>
+      <Text style={{
+        marginTop: 2,
+        color: ui.textSecondary,
+        fontFamily: dsFontFamily['jakarta-medium'],
+        fontSize: statLabelType.fontSize.default,
+        lineHeight: statLabelType.lineHeight.default,
+        textAlign: 'center',
+      }}>{label}</Text>
     </View>
   );
 
-  const ModuleTile = ({
-    icon,
-    label,
-    onPress,
-  }: {
-    icon: React.ReactNode;
-    label: string;
-    onPress?: () => void;
-  }) => (
-    <Pressable
-      onPress={onPress}
-      style={[styles.moduleTile, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}
-      accessibilityRole="button"
-    >
-      <View style={[styles.moduleIconWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>{icon}</View>
-      <Text
-        style={{
-          marginTop: 8,
-          color: ui.textPrimary,
-          fontFamily: titleType.fontFamily,
-          fontWeight: '600',
-          fontSize: 14,
-          textAlign: 'center',
-        }}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-
-  // Novo card vertical com imagem para layout moderno
+  // Card padrão para todos os módulos (acessível e consistente)
   const ModuleCard = ({
     icon,
-    label,
-    description,
+    title,
+    subtitle,
     color,
-    imageUri,
     onPress,
   }: {
     icon: React.ReactNode;
-    label: string;
-    description: string;
+    title: string;
+    subtitle: string;
     color: string;
-    imageUri: string;
     onPress?: () => void;
   }) => (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      style={[styles.moduleCardLarge, { backgroundColor: color }]}
+      accessibilityLabel={`${title}. ${subtitle}`}
+      accessibilityHint="Toque para abrir"
+      hitSlop={8}
+      style={[styles.moduleStandard, { borderColor: ui.divider, backgroundColor: ui.bgSecondary }]}
     >
-      {/* Ícone circular destacado */}
-      <View style={[styles.moduleBadge, { backgroundColor: BRAND.purple }]}> 
+      <View style={[styles.moduleIconBadge, { backgroundColor: color }]}>
         {icon}
       </View>
-
-      {/* Imagem grande à direita */}
-      <Image
-        source={{ uri: imageUri }}
-        resizeMode="cover"
-        style={styles.moduleHeroImage}
-        accessible
-        accessibilityLabel={`Imagem ilustrativa de ${label}`}
-      />
-
-      {/* Faixa informativa branca */}
-      <View style={styles.moduleInfoBar}>
-        <Text
-          style={{
-            color: BRAND.purple,
-            fontFamily: titleType.fontFamily,
-            fontWeight: '800',
-            fontSize: 20,
-          }}
-        >
-          {label}
-        </Text>
-        <Text
-          style={{
-            color: '#6B7280',
-            fontFamily: subtitleType.fontFamily,
-            fontSize: 15,
-            marginTop: 2,
-          }}
-        >
-          {description}
-        </Text>
+      <View style={{ flex: 1 }}>
+        <Text style={{
+          color: ui.textPrimary,
+          fontFamily: dsFontFamily['jakarta-bold'],
+          fontSize: moduleTitleType.fontSize.default,
+          lineHeight: moduleTitleType.lineHeight.default,
+        }}>{title}</Text>
+        <Text style={{
+          marginTop: 4,
+          color: ui.textSecondary,
+          fontFamily: dsFontFamily['jakarta-medium'],
+          fontSize: moduleSubtitleType.fontSize.default,
+          lineHeight: moduleSubtitleType.lineHeight.default,
+        }}>{subtitle}</Text>
+      </View>
+      <View style={[styles.chevronCircle, { backgroundColor: isDark ? '#111827' : '#EEF2FF' }]}>
+        <ChevronRight size={18} color={isDark ? '#9CA3AF' : '#6B7280'} />
       </View>
     </Pressable>
   );
@@ -189,7 +170,7 @@ export default function Home() {
         <Image source={{ uri: avatarUrl }} style={styles.avatarSmall} />
       </View>
       <View style={styles.topCenter}>
-        <Image source={logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />
+        <Image source={isDark ? logoAmarelo : logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />
       </View>
       <View style={styles.topSide}>
         <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={handleSoon}>
@@ -202,13 +183,13 @@ export default function Home() {
   );
 
   const WelcomeText = () => (
-    <View style={styles.welcomeWrap}>
+    <View style={[styles.welcomeWrap, { marginTop: 10 }]}>
       <Text
         style={{
           color: ui.textPrimary,
           fontFamily: dsFontFamily['jakarta-light'],
-          fontSize: greetType.fontSize.default - 1,
-          lineHeight: greetType.lineHeight.default - 1,
+          fontSize: greetType.fontSize.default,
+          lineHeight: greetType.lineHeight.default,
         }}
       >
         Bem-vindo
@@ -218,8 +199,8 @@ export default function Home() {
           style={{
             color: ui.textPrimary,
             fontFamily: dsFontFamily['jakarta-light'],
-            fontSize: greetType.fontSize.default - 1,
-            lineHeight: greetType.lineHeight.default - 1,
+            fontSize: greetType.fontSize.default,
+            lineHeight: greetType.lineHeight.default,
           }}
         >
           de volta,
@@ -228,16 +209,16 @@ export default function Home() {
           style={{
             color: ui.textPrimary,
             fontFamily: dsFontFamily['jakarta-bold'],
-            fontSize: greetType.fontSize.default - 1,
-            lineHeight: greetType.lineHeight.default - 1,
+            fontSize: greetType.fontSize.default,
+            lineHeight: greetType.lineHeight.default,
           }}
         >
           {' '}{userName}
         </Text>
         <Text
           style={{
-            fontSize: greetType.fontSize.default - 1,
-            lineHeight: greetType.lineHeight.default - 1,
+            fontSize: greetType.fontSize.default,
+            lineHeight: greetType.lineHeight.default,
           }}
         >
           {' '}👋
@@ -246,111 +227,116 @@ export default function Home() {
     </View>
   );
 
-  const SearchBar = () => (
-    <View style={[styles.searchBar, { borderColor: ui.divider, backgroundColor: isDark ? '#0F1216' : '#FFFFFF' }]}> 
-      <SearchIcon size={18} color={ui.textSecondary} />
-      <TextInput
-        placeholder="Buscar atividades, receitas, dicas..."
-        placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
-        style={{ flex: 1, color: ui.textPrimary, fontFamily: subtitleType.fontFamily, fontSize: 14 }}
-        accessibilityLabel="Campo de busca"
-        returnKeyType="search"
-        onSubmitEditing={handleSoon}
-      />
-    </View>
-  );
 
   // Removido: Chips de categorias/abas ('Para você', 'Populares', 'Novidades', ...)
 
   // Removido o HeroCard a pedido (sem destaque de boas-vindas)
 
   return (
-    <PageContainer style={{ backgroundColor: '#FFFFFF', paddingTop: 0, paddingBottom: 32 }}>
+    <PageContainer>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         accessibilityRole="scrollbar"
+        keyboardShouldPersistTaps="handled"
       >
       <TopRow />
       <WelcomeText />
-      <SearchBar />
 
-      <Text style={[styles.sectionTitle, { color: ui.textSecondary, fontFamily: sectionType.fontFamily }]}>Seu resumo</Text>
+      <Text accessibilityRole="header" style={{
+        marginTop: 10,
+        marginBottom: 8,
+        paddingHorizontal: 4,
+        color: ui.textSecondary,
+        fontFamily: sectionType.fontFamily,
+        fontSize: sectionType.fontSize.default,
+        lineHeight: sectionType.lineHeight.default,
+      }}>Resumo</Text>
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <View style={styles.statsRow}>
-          <Stat value="18 min" label="Tempo hoje" />
+          <Stat value="18 min" label="Hoje" />
           <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
-          <Stat value="12" label="Atividades/semana" />
+          <Stat value="12" label="Atividades" />
           <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
           <Stat value="7" label="Favoritos" />
         </View>
       </View>
 
-      <Text style={[styles.sectionTitle, { color: ui.textSecondary, fontFamily: sectionType.fontFamily }]}>Módulos</Text>
+      <Text accessibilityRole="header" style={{
+        marginTop: 10,
+        marginBottom: 8,
+        paddingHorizontal: 4,
+        color: ui.textSecondary,
+        fontFamily: sectionType.fontFamily,
+        fontSize: sectionType.fontSize.default,
+        lineHeight: sectionType.lineHeight.default,
+      }}>Módulos</Text>
       <View style={styles.modulesList}>
         <ModuleCard
-          icon={<Dumbbell size={28} color="#FFFFFF" />}
-          label="Movimente‑se"
-          description="Aulas de exercícios e movimentos"
+          icon={<Dumbbell size={22} color="#FFFFFF" />}
+          title="Movimente‑se"
+          subtitle="Aulas e alongamentos"
           color={BRAND.green}
-          imageUri="https://images.unsplash.com/photo-1559599101-f09722fb4948?q=80&w=1200&auto=format&fit=crop"
           onPress={handleSoon}
         />
         <ModuleCard
-          icon={<Utensils size={28} color="#FFFFFF" />}
-          label="Alimente‑se"
-          description="Receitas e hábitos saudáveis"
+          icon={<Utensils size={22} color="#FFFFFF" />}
+          title="Alimente‑se"
+          subtitle="Receitas e hábitos"
           color={BRAND.orange}
-          imageUri="https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1200&auto=format&fit=crop"
           onPress={handleSoon}
         />
         <ModuleCard
-          icon={<Shield size={28} color="#FFFFFF" />}
-          label="Segurança em casa"
-          description="Dicas e checklists de prevenção"
+          icon={<Shield size={22} color="#FFFFFF" />}
+          title="Segurança em casa"
+          subtitle="Dicas e checklists"
           color={BRAND.blue}
-          imageUri="https://images.unsplash.com/photo-1623119623412-8cf0ec3de6dc?q=80&w=1200&auto=format&fit=crop"
           onPress={handleSoon}
         />
         <ModuleCard
-          icon={<Brain size={28} color="#FFFFFF" />}
-          label="Mente ativa"
-          description="Jogos e estímulos cognitivos"
+          icon={<Brain size={22} color="#FFFFFF" />}
+          title="Mente ativa"
+          subtitle="Jogos e desafios"
           color={BRAND.purple}
-          imageUri="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop"
           onPress={handleSoon}
         />
         <ModuleCard
-          icon={<Heart size={28} color="#FFFFFF" />}
-          label="Bem‑estar"
-          description="Respiração, relaxamento e humor"
+          icon={<Heart size={22} color="#FFFFFF" />}
+          title="Bem‑estar"
+          subtitle="Respiração e relaxamento"
           color={BRAND.coral}
-          imageUri="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop"
           onPress={handleSoon}
         />
-        {/* Favoritos removido conforme solicitação */}
       </View>
 
-      <Text style={[styles.sectionTitle, { color: ui.textSecondary, fontFamily: sectionType.fontFamily }]}>Acesso rápido</Text>
+      <Text accessibilityRole="header" style={{
+        marginTop: 10,
+        marginBottom: 8,
+        paddingHorizontal: 4,
+        color: ui.textSecondary,
+        fontFamily: sectionType.fontFamily,
+        fontSize: sectionType.fontSize.default,
+        lineHeight: sectionType.lineHeight.default,
+      }}>Acesso rápido</Text>
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <Row
-          icon={<Dumbbell size={18} color={ui.textPrimary} />}
+          icon={<Dumbbell size={20} color={ui.textPrimary} />}
           label="Alongamento matinal"
-          right={<ChevronRight size={18} color={ui.textSecondary} />}
+          right={<ChevronRight size={20} color={ui.textSecondary} />}
           onPress={handleSoon}
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
-          icon={<Utensils size={18} color={ui.textPrimary} />}
+          icon={<Utensils size={20} color={ui.textPrimary} />}
           label="Receita: Sopa nutritiva"
-          right={<ChevronRight size={18} color={ui.textSecondary} />}
+          right={<ChevronRight size={20} color={ui.textSecondary} />}
           onPress={handleSoon}
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
-          icon={<Brain size={18} color={ui.textPrimary} />}
+          icon={<Brain size={20} color={ui.textPrimary} />}
           label="Jogo de memória"
-          right={<ChevronRight size={18} color={ui.textSecondary} />}
+          right={<ChevronRight size={20} color={ui.textSecondary} />}
           onPress={handleSoon}
         />
       </View>
@@ -424,9 +410,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   bellWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -445,7 +431,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 8,
     paddingHorizontal: 4,
-    fontSize: 12,
     textTransform: 'none',
   },
   card: {
@@ -487,6 +472,30 @@ const styles = StyleSheet.create({
   modulesList: {
     gap: 14,
     marginBottom: 8,
+  },
+  // Padrão de card de módulo
+  moduleStandard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+  },
+  moduleIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chevronCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   statsRow: {
     flexDirection: 'row',
@@ -554,7 +563,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scrollContent: {
-    paddingBottom: 50,
+    paddingBottom: 90,
     paddingTop: 4,
   },
   // Layout antigo dos módulos (não usado)
@@ -595,7 +604,7 @@ const styles = StyleSheet.create({
   },
   moduleHeroImage: {
     width: '100%',
-    height: 220,
+    height: 260,
     borderRadius: 18,
   },
   moduleInfoBar: {
@@ -605,7 +614,99 @@ const styles = StyleSheet.create({
     bottom: 16,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  // Promo card styles
+  promoCard: {
+    borderRadius: 24,
+    borderWidth: 1,
+    paddingVertical: 24,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+  },
+  promoSphere: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    marginBottom: 16,
+  },
+  promoTitle: {
+    fontFamily: dsFontFamily['jakarta-bold'],
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 6,
+  },
+  promoSubtitle: {
+    fontFamily: dsFontFamily['jakarta-medium'],
+    fontSize: 14,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  promoButton: {
+    width: '70%',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+  promoButtonBg: {
+    paddingVertical: 12,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  promoButtonText: {
+    color: '#FFFFFF',
+    fontFamily: dsFontFamily['jakarta-bold'],
+    fontSize: 16,
+  },
+  movementGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 180,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  movementTextBox: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 16,
+  },
+  movementTitle: {
+    color: '#3E0A7A', // tom roxo mais escuro próximo ao BRAND.purple para contraste
+    fontFamily: dsFontFamily['jakarta-extrabold'],
+    fontSize: 22,
+  },
+  movementSubtitle: {
+    marginTop: 4,
+    color: 'rgba(17,24,39,0.75)',
+    fontFamily: dsFontFamily['jakarta-medium'],
+    fontSize: 15,
+  },
+  textOnlyContent: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 16,
+  },
+  textOnlyTitle: {
+    color: '#FFFFFF',
+    fontFamily: dsFontFamily['jakarta-extrabold'],
+    fontSize: 22,
+  },
+  textOnlySubtitle: {
+    marginTop: 4,
+    color: 'rgba(255,255,255,0.9)',
+    fontFamily: dsFontFamily['jakarta-medium'],
+    fontSize: 15,
   },
 });

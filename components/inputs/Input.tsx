@@ -145,7 +145,7 @@ export interface InputProps {
   /** Se o input está desabilitado */
   disabled?: boolean;
   /** Tipo de input - determina o comportamento e ícones */
-  type?: 'text' | 'password' | 'search' | 'number' | 'email' | 'date';
+  type?: 'text' | 'password' | 'search' | 'number' | 'email' | 'date' | 'time';
   /** Máscara aplicada ao texto digitado */
   mask?: 'cpf' | 'cnpj' | 'phone' | 'cep' | 'currency' | 'date' | 'none';
   /** Número máximo de caracteres permitidos */
@@ -203,6 +203,8 @@ export interface InputProps {
 
   /** Função chamada quando o ícone de calendário é pressionado (para type="date") */
   onCalendarPress?: () => void;
+  /** Função chamada quando o ícone/recurso de hora é pressionado (para type="time") */
+  onTimePress?: () => void;
 
   /** Se o input deve ser redimensionável (funciona em todas as plataformas quando multiline=true) */
   resizable?: boolean;
@@ -859,7 +861,7 @@ export const Input = ({
     
     if (type === 'number') return 'numeric';
     if (type === 'email') return 'email-address';
-    if (type === 'date') return 'numeric';
+    if (type === 'date' || type === 'time') return 'numeric';
     
     return 'default';
   };

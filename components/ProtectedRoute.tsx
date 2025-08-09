@@ -14,7 +14,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
   const hasCheckedSession = useRef(false);
-  const navigationTimeout = useRef<NodeJS.Timeout>();
+  const navigationTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Memoiza o estado de autenticação para evitar recálculos
   const isAuthenticated = useMemo(() => Boolean(session), [session]);
@@ -30,7 +30,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       // Usa um timeout mínimo para evitar flashes de loading
       navigationTimeout.current = setTimeout(() => {
         router.replace('/login');
-      }, 50);
+      }, 50) as unknown as NodeJS.Timeout;
     }
 
     // Marca que já verificou a sessão

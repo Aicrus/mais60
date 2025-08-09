@@ -23,4 +23,4 @@ export function useColorScheme(): ColorSchemeType {
   return theme;
 }
 
-export default useColorScheme; 
+export default useColorScheme;

@@ -564,6 +564,6 @@ const styles = StyleSheet.create({
   viewAll: {
     textAlign: 'center',
     padding: 8,
-    fontFamily: 'PlusJakartaSans_500Medium',
+    fontFamily: 'Poppins_500Medium',
   },
 }); 

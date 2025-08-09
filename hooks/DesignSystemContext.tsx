@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useColorScheme as useDeviceColorScheme, Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Appearance } from 'react-native';
 
 // Importar tokens diretamente do design system
 import { colors } from '../design-system/tokens/colors';
@@ -102,7 +102,7 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
   };
 
   // Determina o tema atual baseado no modo e tema do sistema
-  const currentTheme: ColorScheme = themeMode === 'system' ? systemTheme : themeMode as ColorScheme;
+  const currentTheme: ColorScheme = themeMode === 'system' ? systemTheme : (themeMode as ColorScheme);
   
   // Função utilitária para obter valores baseados no tema
   const getThemed = <T,>(lightValue: T, darkValue: T): T => {
@@ -151,7 +151,7 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
         transitionDuration,
         // Funções utilitárias
         getThemedValue: getThemed,
-        getColorByMode: (colorBase: string, colorScheme?: ColorScheme) => {
+         getColorByMode: (colorBase: string, colorScheme?: ColorScheme) => {
           const scheme = colorScheme || currentTheme;
           const colorKey = `${colorBase}-${scheme}` as keyof typeof colors;
           return colors[colorKey] || '';
