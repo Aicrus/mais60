@@ -1908,7 +1908,42 @@ export default function DevPage() {
 
           {/* Seção de Cores */}
           <SectionTitle title="Cores" textColor={textPrimary} />
-          
+
+          {/* Paleta da Marca */}
+          <Text className={`text-subtitle-md font-jakarta-bold ${textPrimary} mb-md`}>Paleta da Marca</Text>
+          <View className="flex-row flex-wrap gap-md mb-lg">
+            <DynamicColorCard 
+              name="Brand Purple" 
+              colorValue={designColors['brand-purple']} 
+              textColor={textPrimary} 
+            />
+            <DynamicColorCard 
+              name="Brand Green" 
+              colorValue={designColors['brand-green']} 
+              textColor={textPrimary} 
+            />
+            <DynamicColorCard 
+              name="Brand Light" 
+              colorValue={designColors['brand-light']} 
+              textColor={textPrimary} 
+            />
+            <DynamicColorCard 
+              name="Brand Coral" 
+              colorValue={designColors['brand-coral']} 
+              textColor={textPrimary} 
+            />
+            <DynamicColorCard 
+              name="Brand Blue" 
+              colorValue={designColors['brand-blue']} 
+              textColor={textPrimary} 
+            />
+            <DynamicColorCard 
+              name="Brand Orange" 
+              colorValue={designColors['brand-orange']} 
+              textColor={textPrimary} 
+            />
+          </View>
+
           {/* Cores Primárias - Light/Dark theme */}
           <Text className={`text-subtitle-md font-jakarta-bold ${textPrimary} mb-md`}>Cores Primárias</Text>
           <View className="flex-row flex-wrap gap-md mb-lg">

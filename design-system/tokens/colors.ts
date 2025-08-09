@@ -6,24 +6,33 @@
  */
 
 export const colors = {
+  // ===== PALETA DA MARCA (fixa) =====
+  // Cores oficiais fornecidas pelo time de design. Usadas em botões, badges e elementos de destaque.
+  'brand-purple': '#430593',
+  'brand-green': '#27CC95',
+  'brand-light': '#E8F3F5',
+  'brand-coral': '#FB5C3D',
+  'brand-blue': '#06AAFC',
+  'brand-orange': '#FFA300',
+
   // ===== TEMA CLARO =====
   // Cores primárias - Tema Claro
-  'primary-light': '#687789',
-  'primary-light-hover': '#3D5C8C',
-  'primary-light-active': '#345078',
+  'primary-light': '#430593',
+  'primary-light-hover': '#3A047F',
+  'primary-light-active': '#32046F',
   
   // Cores secundárias - Tema Claro
-  'secondary-light': '#22D3EE',
-  'secondary-light-hover': '#06B6D4',
-  'secondary-light-active': '#0891B2',
+  'secondary-light': '#27CC95',
+  'secondary-light-hover': '#22B784',
+  'secondary-light-active': '#1FA276',
   
   // Cores terciárias - Tema Claro
-  'tertiary-light': '#D3545D',
-  'tertiary-light-hover': '#C1414A',
-  'tertiary-light-active': '#AB343C',
+  'tertiary-light': '#FB5C3D',
+  'tertiary-light-hover': '#FF6D52',
+  'tertiary-light-active': '#E24F34',
   
   // Cores alternativas - Tema Claro
-  'alternate-light': '#E0E3E7',
+  'alternate-light': '#E8F3F5',
   
   // Cores de texto - Tema Claro
   'text-primary-light': '#14181B',
@@ -43,19 +52,19 @@ export const colors = {
   
   // ===== TEMA ESCURO =====
   // Cores primárias - Tema Escuro
-  'primary-dark': '#606c38',
-  'primary-dark-hover': '#5B80B6', 
-  'primary-dark-active': '#6C91C7',
+  'primary-dark': '#6A2DCB',
+  'primary-dark-hover': '#7A3CDA', 
+  'primary-dark-active': '#5717A8',
   
   // Cores secundárias - Tema Escuro
-  'secondary-dark': '#2C3E50',
-  'secondary-dark-hover': '#3D4F61',
-  'secondary-dark-active': '#4E6072',
+  'secondary-dark': '#33E0A6',
+  'secondary-dark-hover': '#44E6B0',
+  'secondary-dark-active': '#2BD29A',
   
   // Cores terciárias - Tema Escuro
-  'tertiary-dark': '#D3545D',
-  'tertiary-dark-hover': '#E4656E',
-  'tertiary-dark-active': '#F5767F',
+  'tertiary-dark': '#FF6D52',
+  'tertiary-dark-hover': '#FF8068',
+  'tertiary-dark-active': '#E95A41',
   
   // Cores alternativas - Tema Escuro
   'alternate-dark': '#262D34',

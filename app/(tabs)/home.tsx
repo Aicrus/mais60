@@ -42,14 +42,14 @@ export default function Home() {
     tint: isDark ? colors['primary-dark'] : colors['primary-light'],
   };
 
-  // Paleta fixa (sem gradientes) enviada
+  // Paleta fixa da marca vinda do design-system
   const BRAND = {
-    purple: '#430593',
-    green: '#27CC95',
-    light: '#E8F3F5',
-    coral: '#FB5C3D',
-    blue: '#06AAFC',
-    orange: '#FFA300',
+    purple: colors['brand-purple'],
+    green: colors['brand-green'],
+    light: colors['brand-light'],
+    coral: colors['brand-coral'],
+    blue: colors['brand-blue'],
+    orange: colors['brand-orange'],
   } as const;
 
   // Logo central superior
@@ -120,13 +120,15 @@ export default function Home() {
     icon,
     title,
     subtitle,
-    color,
+    badgeColor,
+    cardColor,
     onPress,
   }: {
     icon: React.ReactNode;
     title: string;
     subtitle: string;
-    color: string;
+    badgeColor: string;
+    cardColor: string;
     onPress?: () => void;
   }) => (
     <Pressable
@@ -135,28 +137,25 @@ export default function Home() {
       accessibilityLabel={`${title}. ${subtitle}`}
       accessibilityHint="Toque para abrir"
       hitSlop={8}
-      style={[styles.moduleStandard, { borderColor: ui.divider, backgroundColor: ui.bgSecondary }]}
+      style={[styles.moduleCardLarge, { backgroundColor: cardColor, height: 300 }]}
     >
-      <View style={[styles.moduleIconBadge, { backgroundColor: color }]}>
+      <View style={[styles.moduleBadge, { backgroundColor: badgeColor }]}> 
         {icon}
       </View>
-      <View style={{ flex: 1 }}>
+      <View style={styles.moduleInfoBar}>
         <Text style={{
-          color: ui.textPrimary,
+          color: '#111827',
           fontFamily: dsFontFamily['jakarta-bold'],
           fontSize: moduleTitleType.fontSize.default,
           lineHeight: moduleTitleType.lineHeight.default,
         }}>{title}</Text>
         <Text style={{
           marginTop: 4,
-          color: ui.textSecondary,
+          color: '#6B7280',
           fontFamily: dsFontFamily['jakarta-medium'],
           fontSize: moduleSubtitleType.fontSize.default,
           lineHeight: moduleSubtitleType.lineHeight.default,
         }}>{subtitle}</Text>
-      </View>
-      <View style={[styles.chevronCircle, { backgroundColor: isDark ? '#111827' : '#EEF2FF' }]}>
-        <ChevronRight size={18} color={isDark ? '#9CA3AF' : '#6B7280'} />
       </View>
     </Pressable>
   );
@@ -276,35 +275,40 @@ export default function Home() {
           icon={<Dumbbell size={22} color="#FFFFFF" />}
           title="Movimente‑se"
           subtitle="Aulas e alongamentos"
-          color={BRAND.green}
+          badgeColor="#430593"
+          cardColor="#27CC95"
           onPress={handleSoon}
         />
         <ModuleCard
           icon={<Utensils size={22} color="#FFFFFF" />}
           title="Alimente‑se"
           subtitle="Receitas e hábitos"
-          color={BRAND.orange}
+          badgeColor="#430593"
+          cardColor="#27CC95"
           onPress={handleSoon}
         />
         <ModuleCard
           icon={<Shield size={22} color="#FFFFFF" />}
           title="Segurança em casa"
           subtitle="Dicas e checklists"
-          color={BRAND.blue}
+          badgeColor="#430593"
+          cardColor="#27CC95"
           onPress={handleSoon}
         />
         <ModuleCard
           icon={<Brain size={22} color="#FFFFFF" />}
           title="Mente ativa"
           subtitle="Jogos e desafios"
-          color={BRAND.purple}
+          badgeColor="#430593"
+          cardColor="#27CC95"
           onPress={handleSoon}
         />
         <ModuleCard
           icon={<Heart size={22} color="#FFFFFF" />}
           title="Bem‑estar"
           subtitle="Respiração e relaxamento"
-          color={BRAND.coral}
+          badgeColor="#430593"
+          cardColor="#27CC95"
           onPress={handleSoon}
         />
       </View>
@@ -480,6 +484,7 @@ const styles = StyleSheet.create({
     gap: 12,
     borderRadius: 16,
     borderWidth: 1,
+    height: 300,
     paddingVertical: 14,
     paddingHorizontal: 14,
   },
