@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Pressable } from 'react-native';
+import { View, Text, Image, Pressable, ScrollView } from 'react-native';
 import { Sparkles } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/DesignSystemContext';
@@ -28,7 +28,11 @@ export default function OnboardingWelcome() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'], padding: 24, justifyContent: 'space-between' }}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'] }}
+      contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: 'space-between' }}
+      bounces={false}
+    >
       <View style={{ alignItems: 'center', marginTop: 8 }}>
         <View style={{ width: 88, height: 36, borderRadius: 999, backgroundColor: isDark ? 'rgba(67,5,147,0.18)' : 'rgba(67,5,147,0.08)', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
           <Sparkles size={16} color={'#430593'} />
@@ -52,7 +56,7 @@ export default function OnboardingWelcome() {
           <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 18 }}>Avançar</Text>
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

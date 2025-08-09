@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Type, Contrast, Volume2 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -47,7 +47,11 @@ export default function OnboardingAccessibility() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'], padding: 20, justifyContent: 'space-between' }}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'] }}
+      contentContainerStyle={{ flexGrow: 1, padding: 20, justifyContent: 'space-between' }}
+      bounces={false}
+    >
       <View style={{ gap: 18 }}>
         <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: title.fontSize.default, lineHeight: title.lineHeight.default }}>
           Deixe o app do seu jeito
@@ -105,7 +109,7 @@ export default function OnboardingAccessibility() {
           <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 17 }}>Pronto, vamos começar!</Text>
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
