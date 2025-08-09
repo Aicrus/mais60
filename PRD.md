@@ -133,6 +133,7 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 - Ícones grandes e claros (48px)
 
 ---
+Status (Front-end): Concluído
 
 ### 🏃 **TELA ATIVIDADE FÍSICA - "Movimente-se"**
 **Baseada na segunda imagem - layout simples e direto**
@@ -602,6 +603,7 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 - Opções claras de sim/não
 
 ---
+Status (Front-end): Concluído
 
 ### 📱 **TELA ESTATÍSTICAS**
 
@@ -848,10 +850,10 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
   - [ ] Adicionar tab `saude-mental`
   - [ ] Configurar ícones grandes (32px+)
 
-- [ ] **2.1.2** - Atualizar `app/(tabs)/home.tsx` <a id="task-2-1-2-home"></a>
-  - [ ] Criar dashboard com grid 2x3 dos módulos
-  - [ ] Integrar QuickStats
-  - [ ] Integrar ModuleGrid
+ - [x] **2.1.2** - Atualizar `app/(tabs)/home.tsx` <a id="task-2-1-2-home"></a>
+   - [x] Criar dashboard com grid 2x3 dos módulos
+   - [ ] Integrar QuickStats
+   - [ ] Integrar ModuleGrid
 
 #### 📋 **2.2 - Criar Componentes Base dos Módulos**
 - [ ] **2.2.1** - `components/modules/ModuleGrid.tsx`

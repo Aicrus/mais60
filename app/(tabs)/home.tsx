@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, Platform, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, Platform, Pressable, ScrollView, ImageSourcePropType } from 'react-native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
@@ -59,6 +59,7 @@ export default function Home() {
   const logoAmarelo = require('@/assets/images/Logo Mais 60 Amarelo (1).png');
   // Imagem do idoso usada nos cards
   const idosoImage = require('@/assets/images/Imagem idoso feliz 8 ago 2025.png');
+  const idosoImageAlt = require('@/assets/images/Imagem idoso feliz 8 ago 2025 (1).png');
   // Removidos assets remotos de módulos
   const userName = ((session?.user?.user_metadata as any)?.name as string) || 'você';
   const avatarUrl =
@@ -127,6 +128,7 @@ export default function Home() {
     badgeColor,
     cardColor,
     onPress,
+    imageSource,
   }: {
     icon: React.ReactNode;
     title: string;
@@ -134,6 +136,7 @@ export default function Home() {
     badgeColor: string;
     cardColor: string;
     onPress?: () => void;
+    imageSource?: ImageSourcePropType;
   }) => (
     <Pressable
       onPress={onPress}
@@ -145,7 +148,7 @@ export default function Home() {
     >
       <View pointerEvents="none" style={styles.rightImageWrap}>
         <Image
-          source={idosoImage}
+          source={imageSource ?? idosoImage}
           style={styles.rightImage}
           resizeMode="contain"
           accessibilityIgnoresInvertColors
@@ -289,7 +292,7 @@ export default function Home() {
           subtitle="Aulas e alongamentos"
           badgeColor="#430593"
           cardColor="#27CC95"
-          onPress={() => router.push('/atividade-fisica')}
+          onPress={() => router.push('/modulo/atividade-fisica')}
         />
         <ModuleCard
           icon={<Utensils size={22} color="#FFFFFF" />}
@@ -297,7 +300,8 @@ export default function Home() {
           subtitle="Receitas e hábitos"
           badgeColor="#430593"
           cardColor="#27CC95"
-          onPress={handleSoon}
+          onPress={() => router.push('/modulo/habitos-alimentares')}
+          imageSource={idosoImageAlt}
         />
         <ModuleCard
           icon={<Shield size={22} color="#FFFFFF" />}
@@ -305,7 +309,7 @@ export default function Home() {
           subtitle="Dicas e checklists"
           badgeColor="#430593"
           cardColor="#27CC95"
-          onPress={handleSoon}
+          onPress={() => router.push('/modulo/seguranca-domiciliar')}
         />
         <ModuleCard
           icon={<Brain size={22} color="#FFFFFF" />}
@@ -313,7 +317,7 @@ export default function Home() {
           subtitle="Jogos e desafios"
           badgeColor="#430593"
           cardColor="#27CC95"
-          onPress={handleSoon}
+          onPress={() => router.push('/modulo/estimulacao-cognitiva')}
         />
         <ModuleCard
           icon={<Heart size={22} color="#FFFFFF" />}
@@ -321,7 +325,7 @@ export default function Home() {
           subtitle="Respiração e relaxamento"
           badgeColor="#430593"
           cardColor="#27CC95"
-          onPress={handleSoon}
+          onPress={() => router.push('/modulo/saude-mental')}
         />
       </View>
 
