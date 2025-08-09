@@ -31,6 +31,7 @@ export default function VideoPlayerScreen() {
   const [fsStartAt, setFsStartAt] = useState<number>(0);
   const [fsAutoPlay, setFsAutoPlay] = useState<boolean>(true);
   const [isLandscapeDevice, setIsLandscapeDevice] = useState<boolean>(false);
+  const [pendingFsClose, setPendingFsClose] = useState<boolean>(false);
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
   // Tempos de espera de rotação, ajustados por plataforma
@@ -202,8 +203,11 @@ export default function VideoPlayerScreen() {
           // Pega o estado/tempo atual e abre fullscreen via onMessage -> 'current'
           sendJS('window.getState()');
         } else if (showFullscreen && !isLandscape) {
-          // Em retrato, fecha o fullscreen (sem rotacionar a UI)
-          setShowFullscreen(false);
+          // Em retrato, sincroniza FS->embed e fecha
+          if (!pendingFsClose) {
+            setPendingFsClose(true);
+            fsWebviewRef.current?.injectJavaScript('window.ReactNativeWebView && window.getCurrent ? window.getCurrent() : (function(){var t=player?player.getCurrentTime():0; var s=player?player.getPlayerState():2; window.ReactNativeWebView.postMessage(JSON.stringify({type:\'fsCurrent\', data:{time:t,state:s}}));})(); true;');
+          }
         }
       } catch {}
     };
@@ -216,7 +220,7 @@ export default function VideoPlayerScreen() {
     return () => {
       ScreenOrientation.removeOrientationChangeListener(sub);
     };
-  }, [showFullscreen, sendJS]);
+  }, [showFullscreen, sendJS, pendingFsClose]);
 
   const openFullscreenFromState = useCallback(async (timeSeconds: number, playerState: number) => {
     // playerState: 1=playing, 3=buffering
@@ -281,6 +285,17 @@ export default function VideoPlayerScreen() {
                 setIsPlaying(playing);
                 if (playing || msg.data === 3) { // 3 = buffering
                   setPlayerVisible(true);
+                }
+              } else if (msg?.type === 'fsCurrent') {
+                // Sincroniza estado do FS no embed e garante play visível
+                const t = Number(msg?.data?.time) || 0;
+                sendJS(`window.seekTo(${Math.floor(t)});`);
+                sendJS('window.playVideo()');
+                setIsPlaying(true);
+                setPlayerVisible(true);
+                if (pendingFsClose) {
+                  setPendingFsClose(false);
+                  setShowFullscreen(false);
                 }
               } else if (msg?.type === 'ready') {
                 // Exibe thumbnail/play sem mostrar telas de erro transitórias
@@ -418,6 +433,7 @@ export default function VideoPlayerScreen() {
       window.pauseVideo = function(){ if(player){ player.pauseVideo(); } };
       window.togglePlay = function(){ if(!player) return; var s = player.getPlayerState(); if(s===1){ player.pauseVideo(); } else { player.playVideo(); } };
       window.seekBy = function(sec){ if(!player) return; var t = player.getCurrentTime(); player.seekTo(t + sec, true); };
+      window.getCurrent = function(){ try { var t = player ? player.getCurrentTime() : 0; var s = player ? player.getPlayerState() : 2; post({ type: 'fsCurrent', data: { time: t, state: s } }); } catch(e){ post({ type: 'fsCurrent', data: { time: 0, state: 2 } }); } };
     </script>
   </body>
 </html>`, baseUrl: 'https://www.youtube.com' }}
