@@ -6,6 +6,7 @@ import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { useAuth } from '@/contexts/auth';
 import { useToast } from '@/hooks/useToast';
+import { useRouter } from 'expo-router';
 import {
   ChevronRight,
   Dumbbell,
@@ -21,6 +22,7 @@ export default function Home() {
   const isDark = currentTheme === 'dark';
   const { session } = useAuth();
   const { showToast } = useToast();
+  const router = useRouter();
 
   const titleType = getResponsiveValues('headline-lg');
   const subtitleType = getResponsiveValues('subtitle-sm');
@@ -287,7 +289,7 @@ export default function Home() {
           subtitle="Aulas e alongamentos"
           badgeColor="#430593"
           cardColor="#27CC95"
-          onPress={handleSoon}
+          onPress={() => router.push('/atividade-fisica')}
         />
         <ModuleCard
           icon={<Utensils size={22} color="#FFFFFF" />}

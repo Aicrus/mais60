@@ -868,8 +868,8 @@ Dessa forma, o fluxo de desenvolvimento seguirá três macro-etapas:
 - [ ] **2.2.12** - `components/filters/MealFilter.tsx`
 
 #### 📋 **2.3 - Criar 5 Telas dos Módulos** <a id="task-2-3"></a>
-- [ ] **2.3.1** - `app/(tabs)/atividade-fisica.tsx` <a id="task-2-3-1-atividade-fisica"></a>
-  - [ ] Implementar lista de vídeos
+- [x] **2.3.1** - `app/atividade-fisica.tsx` <a id="task-2-3-1-atividade-fisica"></a>
+  - [x] Implementar UI inicial inspirada no mock (hero + lista)
   - [ ] Integrar filtros de categoria
   - [ ] Conectar com Supabase
 

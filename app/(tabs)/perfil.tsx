@@ -29,11 +29,13 @@ export default function PerfilScreen() {
   const modalDescType = getResponsiveValues('body-md');
   const modalButtonType = getResponsiveValues('label-lg');
   const editButtonType = getResponsiveValues('label-md');
-  const badgeTextType = getResponsiveValues('label-sm');
   const rowLabelType = getResponsiveValues('body-md');
 
-  const [pushEnabled, setPushEnabled] = useState(true);
-  const [faceEnabled, setFaceEnabled] = useState(true);
+  // Estados simples para acessibilidade e notificações
+  const [highContrast, setHighContrast] = useState(false);
+  const [soundsEnabled, setSoundsEnabled] = useState(true);
+  const [notifyExercises, setNotifyExercises] = useState(false);
+  const [notifyRecipes, setNotifyRecipes] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const ui = {
@@ -125,48 +127,7 @@ export default function PerfilScreen() {
         </Pressable>
       </View>
 
-        <Text
-          accessibilityRole="header"
-          style={{
-            marginTop: 8,
-            marginBottom: 8,
-            paddingHorizontal: 4,
-            color: ui.textSecondary,
-            fontFamily: sectionType.fontFamily,
-            fontSize: sectionType.fontSize.default,
-            lineHeight: sectionType.lineHeight.default,
-          }}
-        >
-          Inventário
-        </Text>
-
-      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
-        <Row
-          icon={<Home size={20} color={ui.textPrimary} />}
-          label="Minhas lojas"
-          right={
-            <View style={styles.rightGroup}>
-              <View style={styles.badge}>
-                <Text style={[
-                  styles.badgeText,
-                  {
-                    fontFamily: dsFontFamily['jakarta-bold'],
-                    fontSize: badgeTextType.fontSize.default,
-                    lineHeight: badgeTextType.lineHeight.default,
-                  }
-                ]}>2</Text>
-              </View>
-              <ChevronRight size={22} color={ui.textSecondary} />
-            </View>
-          }
-        />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
-        <Row
-          icon={<LifeBuoy size={20} color={ui.textPrimary} />}
-          label="Suporte"
-          right={<ChevronRight size={22} color={ui.textSecondary} />}
-        />
-      </View>
+        {/* Removido bloco de Inventário (não faz sentido no PRD) */}
 
       <Text
         accessibilityRole="header"
@@ -180,23 +141,10 @@ export default function PerfilScreen() {
           lineHeight: sectionType.lineHeight.default,
         }}
       >
-        Preferências
+        Acessibilidade
       </Text>
 
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
-        <Row
-          icon={<Bell size={20} color={ui.textPrimary} />}
-          label="Notificações"
-          right={
-            <Switch
-              value={pushEnabled}
-              onValueChange={setPushEnabled}
-              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
-              thumbColor={pushEnabled ? '#FFFFFF' : '#FFFFFF'}
-            />
-          }
-        />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<Moon size={20} color={ui.textPrimary} />}
           label="Modo escuro"
@@ -211,25 +159,126 @@ export default function PerfilScreen() {
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
-          icon={<Fingerprint size={20} color={ui.textPrimary} />}
-          label="Reconhecimento facial"
+          icon={<Bell size={20} color={ui.textPrimary} />}
+          label="Sons"
           right={
             <Switch
-              value={faceEnabled}
-              onValueChange={setFaceEnabled}
+              value={soundsEnabled}
+              onValueChange={setSoundsEnabled}
               trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
-              thumbColor={faceEnabled ? '#FFFFFF' : '#FFFFFF'}
+              thumbColor={'#FFFFFF'}
             />
           }
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
-          icon={<Grid3x3 size={20} color={ui.textPrimary} />}
-          label="Código PIN"
-          right={<ChevronRight size={22} color={ui.textSecondary} />}
-          onPress={() => {}}
+          icon={<Moon size={20} color={ui.textPrimary} />}
+          label="Alto contraste"
+          right={
+            <Switch
+              value={highContrast}
+              onValueChange={setHighContrast}
+              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
+              thumbColor={'#FFFFFF'}
+            />
+          }
+        />
+      </View>
+
+      {/* Notificações */}
+      <Text
+        accessibilityRole="header"
+        style={{
+          marginTop: 8,
+          marginBottom: 8,
+          paddingHorizontal: 4,
+          color: ui.textSecondary,
+          fontFamily: sectionType.fontFamily,
+          fontSize: sectionType.fontSize.default,
+          lineHeight: sectionType.lineHeight.default,
+        }}
+      >
+        Notificações
+      </Text>
+      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
+        <Row
+          icon={<Bell size={20} color={ui.textPrimary} />}
+          label="Lembretes de exercícios"
+          right={
+            <Switch
+              value={notifyExercises}
+              onValueChange={setNotifyExercises}
+              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
+              thumbColor={'#FFFFFF'}
+            />
+          }
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
+        <Row
+          icon={<Bell size={20} color={ui.textPrimary} />}
+          label="Novas receitas"
+          right={
+            <Switch
+              value={notifyRecipes}
+              onValueChange={setNotifyRecipes}
+              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
+              thumbColor={'#FFFFFF'}
+            />
+          }
+        />
+      </View>
+
+      {/* Sobre o App */}
+      <Text
+        accessibilityRole="header"
+        style={{
+          marginTop: 8,
+          marginBottom: 8,
+          paddingHorizontal: 4,
+          color: ui.textSecondary,
+          fontFamily: sectionType.fontFamily,
+          fontSize: sectionType.fontSize.default,
+          lineHeight: sectionType.lineHeight.default,
+        }}
+      >
+        Sobre o App
+      </Text>
+      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
+        <Row
+          icon={<Home size={20} color={ui.textPrimary} />}
+          label="Versão"
+          right={<ChevronRight size={22} color={ui.textSecondary} />}
+        />
+        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
+        <Row
+          icon={<Home size={20} color={ui.textPrimary} />}
+          label="Termos de uso"
+          right={<ChevronRight size={22} color={ui.textSecondary} />}
+        />
+        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
+        <Row
+          icon={<Home size={20} color={ui.textPrimary} />}
+          label="Política de privacidade"
+          right={<ChevronRight size={22} color={ui.textSecondary} />}
+        />
+      </View>
+
+      {/* Conta */}
+      <Text
+        accessibilityRole="header"
+        style={{
+          marginTop: 8,
+          marginBottom: 8,
+          paddingHorizontal: 4,
+          color: ui.textSecondary,
+          fontFamily: sectionType.fontFamily,
+          fontSize: sectionType.fontSize.default,
+          lineHeight: sectionType.lineHeight.default,
+        }}
+      >
+        Conta
+      </Text>
+      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <Row
           icon={<LogOut size={18} color="#EF4444" />}
           label="Sair"
