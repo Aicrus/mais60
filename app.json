@@ -13,6 +13,7 @@
       "requireFullScreen": true,
       "bundleIdentifier": "com.seudominio.mais60",
       "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Precisamos acessar sua biblioteca para escolher uma foto de perfil.",
         "NSLocationWhenInUseUsageDescription": "Usamos sua localização opcionalmente para registrar caminhadas e melhorar suas estatísticas.",
         "NSMotionUsageDescription": "Usamos os sensores de movimento para estimar passos e atividade.",
         "NSHealthUpdateUsageDescription": "Precisamos de acesso para atualizar seus dados de saúde.",

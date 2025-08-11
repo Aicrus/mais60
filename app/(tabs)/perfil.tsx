@@ -144,6 +144,7 @@ export default function PerfilScreen() {
 
         <Pressable style={[styles.editButton, { backgroundColor: isDark ? colors['primary-dark'] : colors['primary-light'] }]}
           accessibilityRole="button"
+          onPress={() => router.push('/perfil/editar')}
         >
           <Text style={{
             color: '#FFFFFF',

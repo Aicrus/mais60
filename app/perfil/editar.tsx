@@ -1,0 +1,321 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, Image, StyleSheet, Pressable, Platform, ScrollView, ActivityIndicator } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
+import { useAuth } from '@/contexts/auth';
+import { supabase } from '@/lib/supabase';
+import { PageContainer } from '@/components/layout/PageContainer';
+import { Input } from '@/components/inputs/Input';
+import { Button } from '@/components/buttons/Button';
+import { useTheme } from '@/hooks/DesignSystemContext';
+import { colors } from '@/design-system/tokens/colors';
+import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
+import { ChevronLeft, Upload } from 'lucide-react-native';
+
+export default function EditarPerfilScreen() {
+  const router = useRouter();
+  const { session } = useAuth();
+  const { currentTheme } = useTheme();
+  const isDark = currentTheme === 'dark';
+
+  const titleType = getResponsiveValues('headline-lg');
+  const descType = getResponsiveValues('body-md');
+  const labelType = getResponsiveValues('label-md');
+
+  const ui = useMemo(() => ({
+    bgPrimary: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
+    bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
+    divider: isDark ? colors['divider-dark'] : colors['divider-light'],
+    textPrimary: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
+    textSecondary: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
+    primary: isDark ? colors['primary-dark'] : colors['primary-light'],
+  }), [isDark]);
+
+  const [nome, setNome] = useState('');
+  const [email, setEmail] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [nomeError, setNomeError] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const userId = session?.user?.id;
+        const emailFromAuth = session?.user?.email || '';
+        const nameFromAuth = ((session?.user?.user_metadata as any)?.name as string) || '';
+        const avatarFromAuth = ((session?.user?.user_metadata as any)?.avatar_url as string) || '';
+
+        if (!userId) return;
+
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select('nome, email, imagem_url')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (!mounted) return;
+        if (!error && data) {
+          setNome(data.nome || nameFromAuth || '');
+          setEmail(data.email || emailFromAuth || '');
+          setAvatarUrl(data.imagem_url || avatarFromAuth || '');
+        } else {
+          setNome(nameFromAuth || '');
+          setEmail(emailFromAuth || '');
+          setAvatarUrl(avatarFromAuth || '');
+        }
+      } catch (e) {
+        // mantém estados padrão
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [session]);
+
+  const validate = () => {
+    let ok = true;
+    if (!nome || nome.trim().length < 3) {
+      setNomeError('Informe seu nome completo (mínimo 3 caracteres).');
+      ok = false;
+    } else {
+      setNomeError('');
+    }
+    if (!email) {
+      setEmailError('Email é obrigatório.');
+      ok = false;
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setEmailError('Digite um email válido.');
+        ok = false;
+      } else {
+        setEmailError('');
+      }
+    }
+    return ok;
+  };
+
+  const handlePickImageWeb = () => {
+    if (Platform.OS !== 'web') return;
+    if (!fileInputRef.current) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async () => {
+        const file = (input.files && input.files[0]) || null;
+        if (!file) return;
+        const url = await uploadToSupabaseStorage(file, file.type);
+        if (url) setAvatarUrl(url);
+      };
+      fileInputRef.current = input;
+    }
+    fileInputRef.current!.click();
+  };
+
+  const handlePickImageNative = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Permissão para acessar a galeria foi negada.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: [ImagePicker.MediaType.Images], quality: 0.8 });
+      if (result.canceled || !result.assets?.length) return;
+      const asset = result.assets[0];
+      const response = await fetch(asset.uri);
+      const blob = await response.blob();
+      const publicUrl = await uploadToSupabaseStorage(blob as any, blob.type || 'image/jpeg');
+      if (publicUrl) setAvatarUrl(publicUrl);
+    } catch (e) {
+      alert('Não foi possível abrir o seletor de imagens.');
+    }
+  };
+
+  const uploadToSupabaseStorage = async (file: Blob | File, contentType: string): Promise<string | null> => {
+    try {
+      const userId = session?.user?.id;
+      if (!userId) return null;
+      const fileExt = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : contentType.includes('gif') ? 'gif' : 'jpg';
+      const filePath = `avatars/${userId}/${Date.now()}.${fileExt}`;
+      const { data, error } = await supabase.storage.from('public').upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType,
+      });
+      if (error) {
+        console.error('Erro no upload:', error);
+        alert('Falha ao enviar a imagem. Tente novamente.');
+        return null;
+      }
+      const { data: pub } = supabase.storage.from('public').getPublicUrl(filePath);
+      return pub?.publicUrl || null;
+    } catch (e) {
+      console.error('Erro no upload:', e);
+      return null;
+    }
+  };
+
+  const handleSave = async () => {
+    if (!validate()) return;
+    try {
+      setSaving(true);
+      const userId = session?.user?.id;
+      if (!userId) return;
+
+      // Atualiza Auth (email e metadados)
+      const currentEmail = session?.user?.email || '';
+      const updatePayload: any = { data: { name: nome, display_name: nome, avatar_url: avatarUrl || null } };
+      if (email && email !== currentEmail) {
+        updatePayload.email = email.toLowerCase().trim();
+      }
+      const { error: authErr } = await supabase.auth.updateUser(updatePayload);
+      if (authErr) {
+        console.error('Erro ao atualizar usuário (auth):', authErr);
+        alert('Não foi possível atualizar seus dados de acesso. Verifique o email ou tente novamente.');
+        return;
+      }
+
+      // Upsert na tabela de usuários do app
+      const { error: dbErr } = await supabase
+        .from('usuarios')
+        .upsert({ id: userId, nome: nome.trim(), email: email.trim(), imagem_url: avatarUrl || null })
+        .eq('id', userId);
+      if (dbErr) {
+        console.error('Erro ao salvar no banco:', dbErr);
+        alert('Não foi possível salvar suas informações.');
+        return;
+      }
+
+      alert('Perfil atualizado com sucesso!');
+      router.back();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const pickImage = () => {
+    if (Platform.OS === 'web') return handlePickImageWeb();
+    return handlePickImageNative();
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: ui.bgPrimary }}>
+        <ActivityIndicator color={ui.primary} />
+      </View>
+    );
+  }
+
+  return (
+    <PageContainer>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.headerRow}>
+          <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backBtn}>
+            <ChevronLeft size={22} color={ui.textPrimary} />
+          </Pressable>
+          <Text style={{ color: ui.textPrimary, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>
+            Editar perfil
+          </Text>
+        </View>
+
+        <Text style={{ marginTop: 6, color: ui.textSecondary, fontFamily: dsFontFamily['jakarta-medium'], fontSize: descType.fontSize.default, lineHeight: descType.lineHeight.default }}>
+          Atualize sua foto, nome completo e email. Essas informações ajudam a personalizar sua experiência.
+        </Text>
+
+        <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
+          <Text style={{ color: ui.textPrimary, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: labelType.fontSize.default, lineHeight: labelType.lineHeight.default, marginBottom: 12 }}>
+            Foto do perfil
+          </Text>
+
+          <View style={styles.avatarRow}>
+            <View style={styles.avatarOuter}>
+              <Image source={{ uri: avatarUrl || 'https://i.pravatar.cc/160?img=12' }} style={styles.avatar} />
+            </View>
+            <Button variant="outline" onPress={pickImage} leftIcon={<Upload size={16} color={ui.textPrimary} />}>
+              Trocar foto
+            </Button>
+          </View>
+        </View>
+
+        <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
+          <View style={{ marginBottom: 12 }}>
+            <Input
+              label="Nome completo"
+              value={nome}
+              onChangeText={(t) => { setNome(t); if (nomeError) setNomeError(''); }}
+              placeholder="Seu nome e sobrenome"
+              autoCapitalize="words"
+              error={nomeError}
+              returnKeyType="next"
+            />
+          </View>
+          <View>
+            <Input
+              label="Email"
+              value={email}
+              onChangeText={(t) => { setEmail(t); if (emailError) setEmailError(''); }}
+              placeholder="seuemail@exemplo.com"
+              type="email"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              error={emailError}
+            />
+          </View>
+        </View>
+
+        <View style={{ gap: 12 }}>
+          <Button variant="primary" onPress={handleSave} loading={saving} loadingText="Salvando..." fullWidth>
+            Salvar alterações
+          </Button>
+          <Button variant="ghost" onPress={() => router.back()} fullWidth>
+            Cancelar
+          </Button>
+        </View>
+      </ScrollView>
+    </PageContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 90,
+    gap: 16,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  backBtn: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
+  },
+  card: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 14,
+  },
+  avatarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  avatarOuter: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    overflow: 'hidden',
+    backgroundColor: '#E5E7EB',
+  },
+  avatar: { width: '100%', height: '100%' },
+});
+
+
