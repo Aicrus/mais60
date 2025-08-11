@@ -69,7 +69,7 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
 
   // Battery level
   useEffect(() => {
-    let sub: Battery.Subscription | null = null;
+    let sub: any = null;
     (async () => {
       try {
         const level = await Battery.getBatteryLevelAsync();
@@ -77,7 +77,7 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
         sub = Battery.addBatteryLevelListener(({ batteryLevel }) => setBatteryLevel(batteryLevel));
       } catch {}
     })();
-    return () => { if (sub) Battery.removeBatteryLevelListener(sub); };
+    return () => { try { sub && sub.remove && sub.remove(); } catch {} };
   }, []);
 
   // Battery low alert (15%)

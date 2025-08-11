@@ -257,7 +257,7 @@ export const Button = ({
       spacing: 5, // 5px - bem próximo
     },
     md: {
-      height: isIconOnly ? Number(spacing['10'].replace('px', '')) : 42,
+      height: isIconOnly ? Number(spacing['10'].replace('px', '')) : 48,
       paddingHorizontal: isIconOnly ? 0 : Number(spacing['4'].replace('px', '')),
       typography: typographyConfigs.md,
       iconSize: Number(spacing['4'].replace('px', '')),

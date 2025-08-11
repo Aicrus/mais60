@@ -5,6 +5,7 @@ import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { Input } from '@/components/inputs/Input';
+import CodeInput from '@/components/inputs/CodeInput';
 import { Button } from '@/components/buttons/Button';
 import { useToast } from '@/hooks/useToast';
 import { supabase } from '@/lib/supabase';
@@ -41,6 +42,8 @@ export default function LoginTelefone() {
   const [code, setCode] = useState('');
   const [generated, setGenerated] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resendIn, setResendIn] = useState<number>(0);
+  const [timerId, setTimerId] = useState<any>(null);
 
   const sendCode = async () => {
     const normalized = normalizePhone(phone);
@@ -51,7 +54,21 @@ export default function LoginTelefone() {
     // Simula geração de código
     const simulated = String(Math.floor(1000 + Math.random() * 9000));
     setGenerated(simulated);
+    setCode('');
     setStep('code');
+    // inicia timer de 20s para reenvio
+    setResendIn(20);
+    if (timerId) clearInterval(timerId);
+    const id = setInterval(() => {
+      setResendIn((s) => {
+        if (s <= 1) {
+          clearInterval(id);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+    setTimerId(id);
   };
 
   const confirmCode = async () => {
@@ -64,24 +81,30 @@ export default function LoginTelefone() {
       // Fluxo anônimo
       const { data, error } = await supabase.auth.signInAnonymously();
       if (error || !data?.user) {
-        showToast({ type: 'error', message: 'Erro ao entrar', description: 'Não foi possível iniciar a sessão.' });
+        console.error('signInAnonymously error:', error);
+        showToast({ type: 'error', message: 'Erro ao entrar', description: 'Ative o login anônimo no Supabase (Auth > Providers) e tente novamente.' });
         return;
       }
 
       const userId = data.user.id;
       const normalized = normalizePhone(phone);
-      await supabase
+      const { error: upsertErr } = await supabase
         .from('usuarios')
         .upsert({ id: userId, telefone: normalized, perfil_concluido: false }, { onConflict: 'id' });
+      if (upsertErr) {
+        console.error('upsert usuarios error:', upsertErr);
+      }
 
       showToast({ type: 'success', message: 'Pronto!', description: 'Login realizado com telefone.' });
-      router.replace('/(tabs)/home');
+      router.replace('/perfil/editar');
     } finally {
       setLoading(false);
     }
   };
 
   const handlePressOutside = () => { if (Platform.OS !== 'web') Keyboard.dismiss(); };
+
+  React.useEffect(() => () => { if (timerId) clearInterval(timerId); }, [timerId]);
 
   return (
     <TouchableWithoutFeedback onPress={handlePressOutside}>
@@ -92,7 +115,7 @@ export default function LoginTelefone() {
               Entrar com telefone
             </Text>
             <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'], fontSize: bodyMdType.fontSize.default, lineHeight: bodyMdType.lineHeight.default, marginBottom: 18 }}>
-              Informe seu número e valide o código.
+              Informe seu número de telefone e valide o código. Use o código exibido abaixo (estamos em testes).
             </Text>
 
             {step === 'phone' ? (
@@ -105,25 +128,30 @@ export default function LoginTelefone() {
               </>
             ) : (
               <>
-                <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 8 }}>
-                  Use este código: {generated} — estamos em teste
+                <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-extrabold'], marginBottom: 8 }}>
+                  Use este código: {generated}
                 </Text>
-                <Input label="Código" value={code} onChangeText={setCode} keyboardType="number-pad" placeholder="0000" />
+                <CodeInput value={code} onChange={setCode} length={4} />
                 <View style={{ height: 12 }} />
                 <Button variant="primary" onPress={confirmCode} fullWidth loading={loading} loadingText="Entrando...">
                   Confirmar
                 </Button>
                 <View style={{ height: 12 }} />
-                <Pressable onPress={() => setStep('phone')}>
-                  <Text style={{ color: ui.primary, fontFamily: dsFontFamily['jakarta-semibold'] }}>Alterar telefone</Text>
-                </Pressable>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Pressable onPress={() => { setStep('phone'); setCode(''); setGenerated(''); setResendIn(0); if (timerId) { clearInterval(timerId); setTimerId(null); } }}>
+                    <Text style={{ color: ui.primary, fontFamily: dsFontFamily['jakarta-semibold'] }}>Alterar telefone</Text>
+                  </Pressable>
+                  {resendIn > 0 ? (
+                    <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Reenviar em {resendIn}s</Text>
+                  ) : (
+                    <Pressable onPress={sendCode}>
+                      <Text style={{ color: ui.primary, fontFamily: dsFontFamily['jakarta-semibold'] }}>Reenviar código</Text>
+                    </Pressable>
+                  )}
+                </View>
               </>
             )}
 
-            <View style={{ height: 18 }} />
-            <Pressable onPress={() => router.replace('/(auth)/login')}>
-              <Text style={{ color: ui.primary, fontFamily: dsFontFamily['jakarta-semibold'] }}>Entrar com email e senha</Text>
-            </Pressable>
           </View>
         </View>
       </View>

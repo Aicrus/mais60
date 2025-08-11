@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Pressable, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
@@ -12,6 +12,8 @@ import { supabase } from '@/lib/supabase';
 // Removidos imports de componentes excluídos; usando versões simples inline
 import SafetyChecklist from '@/components/modules/SafetyChecklist';
 import Sheet from '@/components/sheets/Sheet';
+import ConfirmModal from '@/components/modals/ConfirmModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
 
@@ -162,7 +164,15 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
         const emailOk = !!(data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
         const telOk = !!(data?.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
         const concluded = (data as any)?.perfil_concluido ?? (nomeOk && emailOk && telOk);
-        if (!concluded) setShowCompleteModal(true);
+        if (!concluded) {
+          try {
+            const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
+            const next = nextStr ? parseInt(nextStr, 10) : 0;
+            if (!next || Date.now() >= next) setShowCompleteModal(true);
+          } catch {
+            setShowCompleteModal(true);
+          }
+        }
       } catch {}
     })();
   }, []);
@@ -365,28 +375,22 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
         </Sheet>
       </ScrollView>
 
-      {/* Modal para concluir perfil */}
-      <Modal
+      <ConfirmModal
         visible={showCompleteModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowCompleteModal(false)}
-      >
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <View style={{ width: '100%', maxWidth: 420, borderRadius: 14, borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : colors['divider-light'], backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', padding: 16 }}>
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'] }}>Precisamos finalizar seu perfil</Text>
-            <Text style={{ marginTop: 6, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>Complete nome, email e telefone para continuar usando todos os recursos.</Text>
-            <View style={{ marginTop: 14, flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
-              <Pressable onPress={() => setShowCompleteModal(false)} style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : colors['divider-light'], alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>Depois</Text>
-              </Pressable>
-              <Pressable onPress={() => { setShowCompleteModal(false); router.push('/perfil/editar'); }} style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Concluir agora</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        title="Precisamos finalizar seu perfil"
+        description="Complete o nome, e-mail e telefone para continuar usando todos os recursos."
+        cancelLabel="Depois"
+        confirmLabel="Concluir agora"
+        onCancel={async () => {
+          setShowCompleteModal(false);
+          try { await AsyncStorage.setItem('@profile_prompt_next', String(Date.now() + 60_000)); } catch {}
+        }}
+        onConfirm={async () => {
+          setShowCompleteModal(false);
+          try { await AsyncStorage.setItem('@profile_prompt_next', String(Date.now() + 60_000)); } catch {}
+          router.push('/perfil/editar');
+        }}
+      />
     </PageContainer>
   );
 }

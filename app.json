@@ -75,10 +75,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/Logo Mais 60 Roxo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "image": "./assets/images/Logo Mais 60 Branco.png",
+            "backgroundColor": "#000000"
+          }
         }
       ],
       "expo-font",

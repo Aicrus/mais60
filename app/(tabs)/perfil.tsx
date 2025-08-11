@@ -10,6 +10,8 @@ import { useAuth } from '../../contexts/auth';
 import { supabase } from '@/lib/supabase';
 import { Home, Bell, ChevronRight, LogOut, Moon, Cog, Shield } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import ConfirmModal from '@/components/modals/ConfirmModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PerfilScreen() {
   const router = useRouter();
@@ -112,7 +114,13 @@ export default function PerfilScreen() {
             const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
             const concluded = data.perfil_concluido ?? (nomeOk && emailOk && telOk);
             setNeedsCompletion(!concluded);
-            if (!concluded) setShowCompleteModal(true);
+            if (!concluded) {
+              try {
+                const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
+                const next = nextStr ? parseInt(nextStr, 10) : 0;
+                if (!next || Date.now() >= next) setShowCompleteModal(true);
+              } catch {}
+            }
           } else {
             setProfileName(nameFromAuth || 'Usuário');
             setProfileEmail(emailFromAuth);
@@ -425,32 +433,22 @@ export default function PerfilScreen() {
         </View>
       </Modal>
 
-      {/* Modal para concluir perfil */}
-      <Modal
+      <ConfirmModal
         visible={showCompleteModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowCompleteModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.confirmCard, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
-            <Text style={{ color: ui.textPrimary, fontFamily: modalTitleType.fontFamily, fontSize: modalTitleType.fontSize.default, lineHeight: modalTitleType.lineHeight.default }}>
-              Precisamos finalizar seu perfil
-            </Text>
-            <Text style={{ marginTop: 6, color: ui.textSecondary, fontFamily: modalDescType.fontFamily, fontSize: modalDescType.fontSize.default, lineHeight: modalDescType.lineHeight.default }}>
-              Complete nome, email e telefone para continuar usando todos os recursos.
-            </Text>
-            <View style={styles.confirmActions}>
-              <Pressable onPress={() => setShowCompleteModal(false)} style={[styles.confirmButton, styles.confirmButtonSecondary, { borderColor: ui.divider }]}>
-                <Text style={{ color: ui.textPrimary, fontFamily: modalButtonType.fontFamily, fontSize: modalButtonType.fontSize.default, lineHeight: modalButtonType.lineHeight.default }}>Depois</Text>
-              </Pressable>
-              <Pressable onPress={() => { setShowCompleteModal(false); router.push('/perfil/editar'); }} style={[styles.confirmButton, { backgroundColor: isDark ? colors['primary-dark'] : colors['primary-light'] }]}>
-                <Text style={{ color: '#FFFFFF', fontFamily: modalButtonType.fontFamily, fontSize: modalButtonType.fontSize.default, lineHeight: modalButtonType.lineHeight.default }}>Concluir agora</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        title="Precisamos finalizar seu perfil"
+        description="Complete o nome, e-mail e telefone para continuar usando todos os recursos."
+        cancelLabel="Depois"
+        confirmLabel="Concluir agora"
+        onCancel={async () => {
+          setShowCompleteModal(false);
+          try { await AsyncStorage.setItem('@profile_prompt_next', String(Date.now() + 60_000)); } catch {}
+        }}
+        onConfirm={async () => {
+          setShowCompleteModal(false);
+          try { await AsyncStorage.setItem('@profile_prompt_next', String(Date.now() + 60_000)); } catch {}
+          router.push('/perfil/editar');
+        }}
+      />
       </ScrollView>
     </PageContainer>
   );
@@ -564,8 +562,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  confirmButtonLarge: {
+    height: 50,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   confirmButtonSecondary: {
     borderWidth: 1,
+  },
+  confirmCardLarge: {
+    width: '100%',
+    maxWidth: 520,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingVertical: 20,
+    paddingHorizontal: 18,
   },
 });
 
