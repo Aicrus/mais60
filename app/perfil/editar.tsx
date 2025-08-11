@@ -1,6 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
+import { toByteArray } from 'base64-js';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/lib/supabase';
@@ -34,6 +37,7 @@ export default function EditarPerfilScreen() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const [telefone, setTelefone] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [nomeError, setNomeError] = useState('');
@@ -54,7 +58,7 @@ export default function EditarPerfilScreen() {
 
         const { data, error } = await supabase
           .from('usuarios')
-          .select('nome, email, imagem_url')
+          .select('nome, email, imagem_url, telefone')
           .eq('id', userId)
           .maybeSingle();
 
@@ -63,10 +67,12 @@ export default function EditarPerfilScreen() {
           setNome(data.nome || nameFromAuth || '');
           setEmail(data.email || emailFromAuth || '');
           setAvatarUrl(data.imagem_url || avatarFromAuth || '');
+          setTelefone(data.telefone || '');
         } else {
           setNome(nameFromAuth || '');
           setEmail(emailFromAuth || '');
           setAvatarUrl(avatarFromAuth || '');
+          setTelefone('');
         }
       } catch (e) {
         // mantém estados padrão
@@ -120,29 +126,45 @@ export default function EditarPerfilScreen() {
   const handlePickImageNative = async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== 'granted') {
-        alert('Permissão para acessar a galeria foi negada.');
+      // iOS pode retornar 'limited' quando o usuário escolhe fotos específicas
+      if (!(status === 'granted' || status === 'limited')) {
+        alert('Permissão para acessar a galeria foi negada. Você pode permitir o acesso nas Configurações.');
         return;
       }
-      const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: [ImagePicker.MediaType.Images], quality: 0.8 });
+      const pickerOptions: any = { quality: 0.8 };
+      // Compat: SDKs mais antigos usam MediaTypeOptions; SDKs recentes usam MediaType (e aceita array)
+      if ((ImagePicker as any).MediaType) {
+        pickerOptions.mediaTypes = [(ImagePicker as any).MediaType.Images];
+      } else {
+        pickerOptions.mediaTypes = (ImagePicker as any).MediaTypeOptions?.Images;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync(pickerOptions);
       if (result.canceled || !result.assets?.length) return;
       const asset = result.assets[0];
-      const response = await fetch(asset.uri);
-      const blob = await response.blob();
-      const publicUrl = await uploadToSupabaseStorage(blob as any, blob.type || 'image/jpeg');
+      // Normaliza formato para JPEG (corrige HEIC/HEIF e CMYK)
+      const manipulated = await ImageManipulator.manipulateAsync(
+        asset.uri,
+        [],
+        { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      // Lê como base64 para garantir bytes válidos no RN e converte para Blob
+      const base64 = await FileSystem.readAsStringAsync(manipulated.uri, { encoding: FileSystem.EncodingType.Base64 });
+      const bytes = toByteArray(base64); // Uint8Array com bytes válidos
+      const publicUrl = await uploadToSupabaseStorage(bytes as unknown as Blob, 'image/jpeg');
       if (publicUrl) setAvatarUrl(publicUrl);
     } catch (e) {
+      console.error('Erro ao abrir seletor de imagens:', e);
       alert('Não foi possível abrir o seletor de imagens.');
     }
   };
 
-  const uploadToSupabaseStorage = async (file: Blob | File, contentType: string): Promise<string | null> => {
+  const uploadToSupabaseStorage = async (file: Blob | File | Uint8Array, contentType: string): Promise<string | null> => {
     try {
       const userId = session?.user?.id;
       if (!userId) return null;
-      const fileExt = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : contentType.includes('gif') ? 'gif' : 'jpg';
+      const fileExt = 'jpg';
       const filePath = `avatars/${userId}/${Date.now()}.${fileExt}`;
-      const { data, error } = await supabase.storage.from('public').upload(filePath, file, {
+      const { data, error } = await supabase.storage.from('public').upload(filePath, file as any, {
         cacheControl: '3600',
         upsert: true,
         contentType,
@@ -183,7 +205,7 @@ export default function EditarPerfilScreen() {
       // Upsert na tabela de usuários do app
       const { error: dbErr } = await supabase
         .from('usuarios')
-        .upsert({ id: userId, nome: nome.trim(), email: email.trim(), imagem_url: avatarUrl || null })
+        .upsert({ id: userId, nome: nome.trim(), email: email.trim(), imagem_url: avatarUrl || null, telefone: telefone.trim() || null })
         .eq('id', userId);
       if (dbErr) {
         console.error('Erro ao salvar no banco:', dbErr);
@@ -264,6 +286,17 @@ export default function EditarPerfilScreen() {
               keyboardType="email-address"
               autoCapitalize="none"
               error={emailError}
+            />
+          </View>
+          <View style={{ marginTop: 12 }}>
+            <Input
+              label="Telefone"
+              value={telefone}
+              onChangeText={setTelefone}
+              placeholder="(11) 91234-5678"
+              mask="phone"
+              keyboardType="phone-pad"
+              returnKeyType="done"
             />
           </View>
         </View>

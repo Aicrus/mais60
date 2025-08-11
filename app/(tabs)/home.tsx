@@ -8,6 +8,8 @@ import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/lib/supabase';
+import { useUsage } from '@/contexts/usage';
+import { useFavorites } from '@/contexts/favorites';
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'expo-router';
 import {
@@ -26,6 +28,8 @@ export default function Home() {
   const { session } = useAuth();
   const { showToast } = useToast();
   const router = useRouter();
+  const { aggregates } = useUsage();
+  const { favorites } = useFavorites();
 
   const titleType = getResponsiveValues('headline-lg');
   const subtitleType = getResponsiveValues('subtitle-sm');
@@ -84,32 +88,44 @@ export default function Home() {
     return parts.slice(0, 2).join(' ');
   };
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const userId = session?.user?.id;
-        if (!userId) return;
-        const { data, error } = await supabase
-          .from('usuarios')
-          .select('nome, imagem_url, email')
-          .eq('id', userId)
-          .maybeSingle();
-        if (!mounted) return;
-        if (!error && data) {
-          setUserName(data.nome || ((session?.user?.user_metadata as any)?.name as string) || 'você');
-          setAvatarUrl(data.imagem_url || ((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
-        } else {
-          setUserName(((session?.user?.user_metadata as any)?.name as string) || 'você');
-          setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
-        }
-      } catch {
+  const loadProfile = async () => {
+    try {
+      const userId = session?.user?.id;
+      if (!userId) return;
+      const { data, error } = await supabase
+        .from('usuarios')
+        .select('nome, imagem_url, email')
+        .eq('id', userId)
+        .maybeSingle();
+      if (!error && data) {
+        setUserName(data.nome || ((session?.user?.user_metadata as any)?.name as string) || 'você');
+        const url = data.imagem_url || ((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20';
+        setAvatarUrl(url ? `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}` : url);
+      } else {
         setUserName(((session?.user?.user_metadata as any)?.name as string) || 'você');
         setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
       }
+    } catch {
+      setUserName(((session?.user?.user_metadata as any)?.name as string) || 'você');
+      setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      await loadProfile();
     })();
     return () => { mounted = false; };
   }, [session]);
+
+  // Recarrega quando a Home ganha foco
+  useFocusEffect(
+    React.useCallback(() => {
+      loadProfile();
+      return () => {};
+    }, [session])
+  );
 
   const Row = ({
     icon,
@@ -314,11 +330,23 @@ export default function Home() {
       }}>Resumo</Text>
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <View style={styles.statsRow}>
-          <Stat value="18 min" label="Hoje" />
-          <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
-          <Stat value="12" label="Atividades" />
-          <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
-          <Stat value="7" label="Favoritos" />
+          {(() => {
+            const todayMin = Math.floor((aggregates?.todaySeconds || 0) / 60);
+            const todayLabel = `${todayMin} min`;
+            // Contagem de atividades de hoje: número de vídeos registrados hoje
+            const todayKey = new Date().toISOString().slice(0, 10);
+            const todayActivities = (aggregates?.recentVideos || []).filter(v => v.date === todayKey).length;
+            const favCount = favorites?.length || 0;
+            return (
+              <>
+                <Stat value={todayLabel} label="Hoje" />
+                <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
+                <Stat value={String(todayActivities)} label="Atividades" />
+                <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
+                <Stat value={String(favCount)} label="Favoritos" />
+              </>
+            );
+          })()}
         </View>
       </View>
 

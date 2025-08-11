@@ -87,13 +87,19 @@ export default function FavoritosScreen() {
                       lineHeight: listTitleType.lineHeight.default,
                     }}>{item.title}</Text>
                     {!!item.subtitle && (
-                      <Text style={{
-                        marginTop: 6,
-                        color: ui.text2,
-                        fontFamily: dsFontFamily['jakarta-medium'],
-                        fontSize: listSubtitleType.fontSize.default,
-                        lineHeight: listSubtitleType.lineHeight.default,
-                      }}>{item.subtitle}</Text>
+                      <Text
+                        style={{
+                          marginTop: 6,
+                          color: ui.text2,
+                          fontFamily: dsFontFamily['jakarta-medium'],
+                          fontSize: listSubtitleType.fontSize.default,
+                          lineHeight: listSubtitleType.lineHeight.default,
+                        }}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                      >
+                        {item.subtitle}
+                      </Text>
                     )}
                   </View>
                   <Pressable

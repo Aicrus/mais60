@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, Switch, Platform, ScrollView, Modal } from 'react-native';
 import { PageContainer } from '../../components/layout/PageContainer';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { colors } from '../../design-system/tokens/colors';
 import { ThemeSelector } from '@/components/theme/ThemeSelector';
@@ -27,9 +28,7 @@ export default function PerfilScreen() {
 
   // Estados simples para acessibilidade e notificações
   const [highContrast, setHighContrast] = useState(false);
-  const [soundsEnabled, setSoundsEnabled] = useState(true);
-  const [notifyExercises, setNotifyExercises] = useState(false);
-  const [notifyRecipes, setNotifyRecipes] = useState(false);
+  // removido: sons
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const ui = {
@@ -111,6 +110,36 @@ export default function PerfilScreen() {
     })();
     return () => { mounted = false; };
   }, [session]);
+
+  // Recarrega quando a tela ganha foco (ex.: após salvar no editar)
+  useFocusEffect(
+    React.useCallback(() => {
+      let isActive = true;
+      (async () => {
+        try {
+          const userId = session?.user?.id;
+          const emailFromAuth = session?.user?.email || '';
+          const nameFromAuth = ((session?.user?.user_metadata as any)?.name as string) || '';
+          const avatarFromAuth = ((session?.user?.user_metadata as any)?.avatar_url as string) || '';
+          if (!userId) return;
+          const { data, error } = await supabase
+            .from('usuarios')
+            .select('nome, email, imagem_url')
+            .eq('id', userId)
+            .maybeSingle();
+          if (!isActive) return;
+          if (!error && data) {
+            setProfileName(data.nome || nameFromAuth || 'Usuário');
+            setProfileEmail(data.email || emailFromAuth);
+            const url = data.imagem_url || avatarFromAuth || 'https://i.pravatar.cc/160?img=12';
+            // força refresh do cache da imagem
+            setProfileAvatar(url ? `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}` : url);
+          }
+        } catch {}
+      })();
+      return () => { isActive = false; };
+    }, [session])
+  );
 
   return (
     <PageContainer>
@@ -199,20 +228,7 @@ export default function PerfilScreen() {
             />
           }
         />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
-        <Row
-          icon={<Bell size={20} color={ui.textPrimary} />}
-          label="Sons"
-          right={
-            <Switch
-              value={soundsEnabled}
-              onValueChange={setSoundsEnabled}
-              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
-              thumbColor={'#FFFFFF'}
-            />
-          }
-        />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
+        {/* removido: Sons */}
         <Row
           icon={<Moon size={20} color={ui.textPrimary} />}
           label="Alto contraste"
@@ -227,48 +243,7 @@ export default function PerfilScreen() {
         />
       </View>
 
-      {/* Notificações */}
-      <Text
-        accessibilityRole="header"
-        style={{
-          marginTop: 8,
-          marginBottom: 8,
-          paddingHorizontal: 4,
-          color: ui.textSecondary,
-          fontFamily: sectionType.fontFamily,
-          fontSize: sectionType.fontSize.default,
-          lineHeight: sectionType.lineHeight.default,
-        }}
-      >
-        Notificações
-      </Text>
-      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
-        <Row
-          icon={<Bell size={20} color={ui.textPrimary} />}
-          label="Lembretes de exercícios"
-          right={
-            <Switch
-              value={notifyExercises}
-              onValueChange={setNotifyExercises}
-              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
-              thumbColor={'#FFFFFF'}
-            />
-          }
-        />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
-        <Row
-          icon={<Bell size={20} color={ui.textPrimary} />}
-          label="Novas receitas"
-          right={
-            <Switch
-              value={notifyRecipes}
-              onValueChange={setNotifyRecipes}
-              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
-              thumbColor={'#FFFFFF'}
-            />
-          }
-        />
-      </View>
+      {/* Removido: seção Notificações */}
 
       {/* Sobre o App */}
       <Text
@@ -290,18 +265,29 @@ export default function PerfilScreen() {
           icon={<Home size={20} color={ui.textPrimary} />}
           label="Versão"
           right={<ChevronRight size={22} color={ui.textSecondary} />}
+          onPress={async () => {
+            try {
+              const { data } = await supabase.from('config_app').select('valor').eq('chave','versao').maybeSingle();
+              const versao = (data?.valor as string) || '—';
+              // Exibe alerta simples nativo
+              const Alert = require('react-native').Alert;
+              Alert.alert('Versão do aplicativo', versao);
+            } catch {}
+          }}
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<Home size={20} color={ui.textPrimary} />}
           label="Termos de uso"
           right={<ChevronRight size={22} color={ui.textSecondary} />}
+          onPress={() => router.push(`/sobre/termos-de-uso` as any)}
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<Home size={20} color={ui.textPrimary} />}
           label="Política de privacidade"
           right={<ChevronRight size={22} color={ui.textSecondary} />}
+          onPress={() => router.push(`/sobre/politica-de-privacidade` as any)}
         />
       </View>
 

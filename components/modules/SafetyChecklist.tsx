@@ -6,34 +6,12 @@ import { fontFamily as dsFontFamily, getResponsiveValues } from '@/design-system
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { Checkbox } from '@/components/checkboxes/Checkbox';
 import { useAuth } from '@/contexts/auth';
+import { supabase } from '@/lib/supabase';
 
 type SafetyCategory = 'banheiro' | 'cozinha' | 'quarto';
 
 type ChecklistState = Record<string, boolean>; // key: itemId -> checked
-
-const DEFAULT_ITEMS: Record<SafetyCategory, Array<{ id: string; label: string }>> = {
-  banheiro: [
-    { id: 'barras-apoio', label: 'Instalar barras de apoio próximas ao vaso e chuveiro' },
-    { id: 'tapete-antiderrapante', label: 'Usar tapete antiderrapante dentro e fora do box' },
-    { id: 'iluminacao', label: 'Garantir boa iluminação noturna (luz de presença)' },
-    { id: 'objetos-alcance', label: 'Deixar objetos de uso diário ao alcance' },
-    { id: 'sem-poças', label: 'Secar poças de água imediatamente' },
-  ],
-  cozinha: [
-    { id: 'cabos-voltados', label: 'Manter cabos de panelas voltados para dentro do fogão' },
-    { id: 'itens-frequentes-altura', label: 'Guardar itens de uso frequente à altura da cintura' },
-    { id: 'sem-fios-soltos', label: 'Evitar fios soltos ou extensões no caminho' },
-    { id: 'piso-seco', label: 'Manter o piso seco para evitar escorregões' },
-    { id: 'boa-iluminacao', label: 'Manter boa iluminação sobre a bancada' },
-  ],
-  quarto: [
-    { id: 'tapete-firme', label: 'Usar tapetes firmes com base antiderrapante' },
-    { id: 'caminho-livre', label: 'Manter o caminho da cama ao banheiro livre' },
-    { id: 'luz-de-apoio', label: 'Ter luz de apoio acessível a partir da cama' },
-    { id: 'calçados-adequados', label: 'Usar calçados fechados ao levantar' },
-    { id: 'altura-cama', label: 'Verificar altura adequada da cama para sentar e levantar' },
-  ],
-};
+type ChecklistItem = { id: string; label: string };
 
 function useStorageKey(userId: string | null | undefined, categoryId: SafetyCategory) {
   return useMemo(() => `@mais60:checklist:${userId || 'anon'}:${categoryId}:v1`, [userId, categoryId]);
@@ -50,24 +28,64 @@ export function SafetyChecklist({ categoryId }: { categoryId: SafetyCategory }) 
   const itemType = getResponsiveValues('body-lg');
 
   const [state, setState] = useState<ChecklistState>({});
-  const defaults = DEFAULT_ITEMS[categoryId];
+  const [items, setItems] = useState<ChecklistItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
+  // Carrega itens do Supabase; mantém fallback em cache local se offline
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('checklist_itens')
+          .select('id,label')
+          .eq('categoria', categoryId)
+          .order('ordem', { ascending: true });
+        if (!mounted) return;
+        if (!error && Array.isArray(data)) {
+          setItems(data.map((d: any) => ({ id: d.id as string, label: d.label as string })));
+        } else {
+          setItems([]);
+        }
+      } catch {
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [categoryId]);
+
+  // Carrega progresso: do Supabase se logado, senão do cache local
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        if (userId) {
+          const { data, error } = await supabase
+            .from('checklist_progresso')
+            .select('item_id, checked')
+            .eq('usuario_id', userId);
+          if (!mounted) return;
+          if (!error && Array.isArray(data)) {
+            const map: ChecklistState = {};
+            data.forEach((row: any) => { map[row.item_id as string] = !!row.checked; });
+            setState(map);
+            await AsyncStorage.setItem(storageKey, JSON.stringify(map));
+            return;
+          }
+        }
+        // Fallback: cache local
         const raw = await AsyncStorage.getItem(storageKey);
         if (!mounted) return;
-        if (raw) setState(JSON.parse(raw));
-        else setState({});
+        setState(raw ? JSON.parse(raw) : {});
       } catch {
         setState({});
       }
     })();
-    return () => {
-      mounted = false;
-    };
-  }, [storageKey]);
+    return () => { mounted = false; };
+  }, [storageKey, userId]);
 
   const persist = useCallback(async (next: ChecklistState) => {
     setState(next);
@@ -84,10 +102,10 @@ export function SafetyChecklist({ categoryId }: { categoryId: SafetyCategory }) 
   }, [persist]);
 
   const progress = useMemo(() => {
-    const total = defaults.length;
-    const done = defaults.reduce((acc, it) => acc + (state[it.id] ? 1 : 0), 0);
+    const total = items.length;
+    const done = items.reduce((acc, it) => acc + (state[it.id] ? 1 : 0), 0);
     return { done, total };
-  }, [defaults, state]);
+  }, [items, state]);
 
   const brand = {
     bg: colors['brand-blue'],
@@ -107,11 +125,24 @@ export function SafetyChecklist({ categoryId }: { categoryId: SafetyCategory }) 
       </View>
 
       <View style={{ marginTop: 12, gap: 12 }}>
-        {defaults.map((item) => (
+        {items.map((item) => (
           <View key={item.id} style={styles.itemRow}>
             <Checkbox
               checked={!!state[item.id]}
-              onCheckedChange={(val) => toggle(item.id, val)}
+              onCheckedChange={async (val) => {
+                // Persistência local imediata
+                toggle(item.id, val);
+                // Sincroniza no Supabase se logado
+                try {
+                  if (userId) {
+                    await supabase.rpc('toggle_checklist_item', {
+                      p_usuario_id: userId,
+                      p_item_id: item.id,
+                      p_checked: !!val,
+                    });
+                  }
+                } catch {}
+              }}
               aria-label={item.label}
             />
             <Text style={{
