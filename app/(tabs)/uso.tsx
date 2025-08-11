@@ -6,8 +6,6 @@ import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { useUsage } from '@/contexts/usage';
 import { useSensors } from '@/contexts/sensors';
-import { Modal } from 'react-native';
-import { useState, useEffect } from 'react';
 import { Activity, Database } from 'lucide-react-native';
 
 function formatMinutes(totalSeconds: number) {
@@ -20,11 +18,6 @@ export default function UsoScreen() {
   const isDark = currentTheme === 'dark';
   const { aggregates, clearUsage } = useUsage();
   const sensors = useSensors();
-  const [showPermModal, setShowPermModal] = useState(false);
-  useEffect(() => {
-    // Ao abrir a tela de Uso, solicita permissões básicas (mock UI)
-    setShowPermModal(true);
-  }, []);
 
   const titleType = getResponsiveValues('headline-lg');
   const statValueType = getResponsiveValues('title-sm');
@@ -109,34 +102,6 @@ export default function UsoScreen() {
           <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Limpar estatísticas</Text>
         </Pressable>
       </ScrollView>
-      {/* Modal de permissões (mock inicial) */}
-      <Modal visible={showPermModal} transparent animationType="fade" onRequestClose={() => setShowPermModal(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
-          <View style={{ width: '100%', maxWidth: 420, borderRadius: 16, borderWidth: 1, borderColor: ui.divider, backgroundColor: ui.card, padding: 16 }}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: 18 }}>Permissões necessárias</Text>
-            <View style={{ height: 8 }} />
-            <View style={{ gap: 12 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Activity size={18} color={ui.text} />
-                <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Sensores de movimento (passos/atividade)</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Database size={18} color={ui.text} />
-                <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Armazenamento local para estatísticas</Text>
-              </View>
-            </View>
-            <View style={{ height: 16 }} />
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
-              <Pressable onPress={() => setShowPermModal(false)} style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>Agora não</Text>
-              </Pressable>
-              <Pressable onPress={() => setShowPermModal(false)} style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Permitir</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </PageContainer>
   );
 }

@@ -97,10 +97,10 @@
 - [x] **Pedômetro:** Contador de passos diários (para complementar o módulo de Atividade Física)
 - [x] **Acelerômetro/Giroscópio:** Detecção de movimentos e tendências de atividade (não para segurança crítica)
 - [ ] **Localização (Opcional):** Registro de percursos de caminhada, se o usuário permitir
-- [x] **Monitor de Bateria:** Nível atual da bateria + alerta quando bateria baixa (para não interromper atividades) — alerta pendente, nível exibido
+- [x] **Monitor de Bateria:** Nível atual da bateria + alerta quando bateria baixa (toast ao atingir 15%)
 
 **Observações Importantes:**
-- [x] Todos os dados de sensores devem ter permissão explícita do usuário (solicitado na primeira abertura da aba Uso e disponível em Perfil > Permissões)
+- [x] Todos os dados de sensores devem ter permissão explícita do usuário (solicitado em Perfil > Permissões)
 - [x] Ênfase na privacidade - dados ficam no dispositivo
-- [ ] Alertas de bateria baixa para incentivar carregamento
+- [x] Alertas de bateria baixa para incentivar carregamento (toast 15%)
 - [ ] Interface deve mostrar dados de forma gráfica e simples para idosos (gráficos simples pendentes)

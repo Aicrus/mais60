@@ -4,6 +4,7 @@ import { Pedometer } from 'expo-sensors';
 import { Accelerometer } from 'expo-sensors';
 import * as Location from 'expo-location';
 import * as Battery from 'expo-battery';
+import { useToast } from '@/hooks/useToast';
 
 type SensorsState = {
   stepsToday: number | null;
@@ -19,6 +20,8 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
   const [accelMagnitude, setAccelMagnitude] = useState<number | null>(null);
   const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null);
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
+  const { showToast } = useToast();
+  const [batteryWarned, setBatteryWarned] = useState<boolean>(false);
 
   // Pedometer
   useEffect(() => {
@@ -76,6 +79,26 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     })();
     return () => { if (sub) Battery.removeBatteryLevelListener(sub); };
   }, []);
+
+  // Battery low alert (15%)
+  useEffect(() => {
+    if (batteryLevel == null) return;
+    if (!batteryWarned && batteryLevel <= 0.15) {
+      showToast({
+        type: 'warning',
+        message: 'Bateria baixa',
+        description: 'Conecte o carregador para não interromper suas atividades.',
+        position: Platform.OS === 'web' ? 'bottom-right' : 'top',
+        duration: 5000,
+        closable: true,
+      });
+      setBatteryWarned(true);
+    }
+    if (batteryWarned && batteryLevel > 0.20) {
+      // Reseta aviso quando subir acima de 20%
+      setBatteryWarned(false);
+    }
+  }, [batteryLevel, batteryWarned, showToast]);
 
   const value = useMemo(() => ({ stepsToday, accelMagnitude, locationEnabled, batteryLevel }), [stepsToday, accelMagnitude, locationEnabled, batteryLevel]);
   return (
