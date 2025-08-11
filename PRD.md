@@ -90,17 +90,17 @@
 **Tempo de Uso do App:**
 - [x] Tempo total de uso do app no dia atual
 - [x] Tempo total de uso do app na semana atual
-- [ ] Resumo gráfico do tempo de uso por área/módulo
-- [ ] Histórico de uso diário/semanal
+- [x] Resumo gráfico do tempo de uso por área/módulo
+- [x] Histórico de uso diário/semanal
 
 **Dados dos Sensores do Celular:**
 - [x] **Pedômetro:** Contador de passos diários (para complementar o módulo de Atividade Física)
 - [x] **Acelerômetro/Giroscópio:** Detecção de movimentos e tendências de atividade (não para segurança crítica)
-- [ ] **Localização (Opcional):** Registro de percursos de caminhada, se o usuário permitir
+- [x] **Localização (Opcional):** Registro de percursos de caminhada, se o usuário permitir (tracking diário + distância)
 - [x] **Monitor de Bateria:** Nível atual da bateria + alerta quando bateria baixa (toast ao atingir 15%)
 
 **Observações Importantes:**
 - [x] Todos os dados de sensores devem ter permissão explícita do usuário (solicitado em Perfil > Permissões)
 - [x] Ênfase na privacidade - dados ficam no dispositivo
 - [x] Alertas de bateria baixa para incentivar carregamento (toast 15%)
-- [ ] Interface deve mostrar dados de forma gráfica e simples para idosos (gráficos simples pendentes)
+- [x] Interface deve mostrar dados de forma gráfica e simples para idosos (gráficos simples implementados)

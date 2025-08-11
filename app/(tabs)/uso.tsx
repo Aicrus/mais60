@@ -123,7 +123,7 @@ export default function UsoScreen() {
               const widthPct = Math.min(100, Math.max(8, min));
               return (
                 <View key={k} style={{ marginBottom: 8 }}>
-                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], marginBottom: 4 }}>{k}</Text>
+                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], marginBottom: 4 }}>{k} • {aggregates.perModuleCountToday?.[k] || 0} acessos</Text>
                   <View style={{ height: 12, backgroundColor: '#E5E7EB', borderRadius: 999 }}>
                     <View style={{ height: 12, width: `${widthPct}%`, backgroundColor: colors['brand-purple'], borderRadius: 999 }} />
                   </View>

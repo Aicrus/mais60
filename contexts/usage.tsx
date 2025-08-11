@@ -29,6 +29,7 @@ type Aggregates = {
   weekSeconds: number;
   recentVideos: Array<VideoUsage & { date: string }>; // últimos 14 dias
   perModuleToday: Record<string, number>; // seconds
+  perModuleCountToday: Record<string, number>; // access count
   last7Days: Array<{ date: string; seconds: number }>;
   last4Weeks: Array<{ weekStart: string; seconds: number }>;
 };
@@ -160,7 +161,8 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     // Por módulo hoje
     const perModuleToday = { ...(usage.days[todayKey]?.modules || {}) } as Record<string, { count: number; seconds: number }>;
     const perModuleSeconds: Record<string, number> = {};
-    Object.entries(perModuleToday).forEach(([k, v]) => { perModuleSeconds[k] = v.seconds; });
+    const perModuleCount: Record<string, number> = {};
+    Object.entries(perModuleToday).forEach(([k, v]) => { perModuleSeconds[k] = v.seconds; perModuleCount[k] = v.count; });
     // Últimos 7 dias
     const last7Days: Array<{ date: string; seconds: number }> = [];
     for (let i = 6; i >= 0; i--) {
@@ -184,7 +186,7 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
       });
       last4Weeks.unshift({ weekStart: formatDate(ws), seconds: sum });
     }
-    return { todaySeconds, weekSeconds, recentVideos: list.slice(0, 20), perModuleToday: perModuleSeconds, last7Days, last4Weeks };
+    return { todaySeconds, weekSeconds, recentVideos: list.slice(0, 20), perModuleToday: perModuleSeconds, perModuleCountToday: perModuleCount, last7Days, last4Weeks };
   }, [usage]);
 
   const clearUsage = useCallback(async () => {
