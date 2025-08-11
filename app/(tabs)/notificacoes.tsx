@@ -4,7 +4,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
-import { ArrowLeft, Bell, Clock } from 'lucide-react-native';
+import { ChevronLeft, Bell, Clock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 type NotificationData = {
@@ -62,30 +62,31 @@ export default function NotificacoesScreen() {
 
   return (
     <PageContainer>
-      <View style={styles.headerRow}>
+      {/* App Bar no padrão dos módulos */}
+      <View style={styles.appBar} accessibilityRole="header">
         <Pressable
-          onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel="Voltar"
+          onPress={() => router.back()}
+          style={[
+            styles.appBarBack,
+            {
+              backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+              borderColor: isDark ? colors['divider-dark'] : 'transparent',
+            },
+          ]}
           hitSlop={10}
-          style={[styles.backBtn, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}
         >
-          <ArrowLeft size={20} color={ui.textPrimary} />
+          <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
         </Pressable>
         <Text
-          accessibilityRole="header"
-          style={{
-            flex: 1,
-            textAlign: 'center',
-            color: ui.textPrimary,
-            fontFamily: dsFontFamily['jakarta-extrabold'],
-            fontSize: titleType.fontSize.default,
-            lineHeight: titleType.lineHeight.default,
-          }}
+          style={[
+            styles.appBarLabel,
+            { color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'] },
+          ]}
         >
-          Notificações
+          Voltar
         </Text>
-        <View style={styles.rightSpacer} />
       </View>
 
       <ScrollView
@@ -152,22 +153,34 @@ export default function NotificacoesScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerRow: {
+  appBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+    gap: 8,
     paddingHorizontal: 2,
-    paddingTop: 4,
+    paddingBottom: 8,
     marginBottom: 6,
   },
-  backBtn: {
-    width: 44,
+  appBarBack: {
     height: 44,
+    paddingHorizontal: 10,
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 6,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
-  rightSpacer: { width: 44, height: 44 },
+  appBarLabel: {
+    fontFamily: dsFontFamily['jakarta-medium'],
+    fontSize: 16,
+  },
   item: {
     borderRadius: 16,
     borderWidth: 1,

@@ -135,7 +135,7 @@ export default function UsoScreen() {
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Uso por módulo (hoje)</Text>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
           {Object.keys(aggregates.perModuleToday || {}).length === 0 ? (
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Sem dados hoje.</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>Sem dados hoje.</Text>
           ) : (
             Object.entries(aggregates.perModuleToday).map(([k, sec]) => {
               const min = Math.max(1, Math.floor((sec as number) / 60));
@@ -161,9 +161,9 @@ export default function UsoScreen() {
             const h = Math.min(80, Math.max(6, min));
             const label = new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short' });
             return (
-              <View key={d.date} style={{ width: 22, height: 96, alignItems: 'center', justifyContent: 'flex-end' }}>
-                <View style={{ width: 16, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 4, borderTopRightRadius: 4 }} />
-                <Text style={{ marginTop: 2, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{label}</Text>
+              <View key={d.date} style={{ width: 26, height: 110, alignItems: 'center', justifyContent: 'flex-end' }}>
+                <View style={{ width: 18, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 4, borderTopRightRadius: 4 }} />
+                <Text style={{ marginTop: 4, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>{label}</Text>
               </View>
             );
           })}
@@ -177,20 +177,21 @@ export default function UsoScreen() {
             const h = Math.min(90, Math.max(8, Math.floor(min / 5))); // escala simples
             const start = new Date(w.weekStart + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
             return (
-              <View key={w.weekStart + idx} style={{ width: 40, height: 110, alignItems: 'center', justifyContent: 'flex-end' }}>
-                <View style={{ width: 28, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 6, borderTopRightRadius: 6 }} />
-                <Text style={{ marginTop: 4, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{start}</Text>
+              <View key={w.weekStart + idx} style={{ width: 48, height: 120, alignItems: 'center', justifyContent: 'flex-end' }}>
+                <View style={{ width: 32, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 6, borderTopRightRadius: 6 }} />
+                <Text style={{ marginTop: 6, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>{start}</Text>
               </View>
             );
           })}
         </View>
 
         {/* Lista de vídeos recentes */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 6, marginTop: 8 }}>Recentes</Text>
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Recentes</Text>
         <View style={{ gap: 12 }}>
           {aggregates.recentVideos.length === 0 ? (
             <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, alignItems: 'center', justifyContent: 'center' }] }>
-              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Ainda sem atividades.</Text>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>Nenhuma atividade recente.</Text>
+              <Text style={{ marginTop: 6, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default, textAlign: 'center' }}>Assista a um vídeo para ele aparecer aqui.</Text>
             </View>
           ) : (
             aggregates.recentVideos.map((v) => (
@@ -208,7 +209,7 @@ export default function UsoScreen() {
         {/* Ações */}
         <View style={{ height: 12 }} />
         <Pressable onPress={clearUsage} accessibilityRole="button" style={[styles.clearBtn]}> 
-          <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Limpar estatísticas</Text>
+          <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }}>Limpar estatísticas</Text>
         </Pressable>
       </ScrollView>
     </PageContainer>

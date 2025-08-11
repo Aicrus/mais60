@@ -118,7 +118,7 @@ export function NotificationsMenu({
   title = "Notificações",
   subtitle = "Últimas atualizações",
   position,
-  viewAllRoute = '/dev',
+  viewAllRoute = '/notificacoes',
   maxHeight = 320
 }: NotificationsMenuProps) {
   const { currentTheme } = useTheme();

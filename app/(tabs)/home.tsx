@@ -199,7 +199,7 @@ export default function Home() {
         <Image source={isDark ? logoAmarelo : logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />
       </View>
       <View style={styles.topSide}>
-        <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={() => router.push('/(tabs)/notificacoes')}>
+        <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={() => router.push('/notificacoes')}>
           <View style={[styles.bellWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>
             <Bell size={18} color={ui.textPrimary} />
           </View>
