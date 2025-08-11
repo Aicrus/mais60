@@ -199,7 +199,7 @@ export default function Home() {
         <Image source={isDark ? logoAmarelo : logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />
       </View>
       <View style={styles.topSide}>
-        <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={handleSoon}>
+        <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={() => router.push('/(tabs)/notificacoes')}>
           <View style={[styles.bellWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>
             <Bell size={18} color={ui.textPrimary} />
           </View>
@@ -341,37 +341,7 @@ export default function Home() {
         />
       </View>
 
-      <Text accessibilityRole="header" style={{
-        marginTop: 10,
-        marginBottom: 8,
-        paddingHorizontal: 4,
-        color: ui.textSecondary,
-        fontFamily: sectionType.fontFamily,
-        fontSize: sectionType.fontSize.default,
-        lineHeight: sectionType.lineHeight.default,
-      }}>Acesso rápido</Text>
-      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
-        <Row
-          icon={<Dumbbell size={20} color={ui.textPrimary} />}
-          label="Alongamento matinal"
-          right={<ChevronRight size={20} color={ui.textSecondary} />}
-          onPress={handleSoon}
-        />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
-        <Row
-          icon={<Utensils size={20} color={ui.textPrimary} />}
-          label="Receita: Sopa nutritiva"
-          right={<ChevronRight size={20} color={ui.textSecondary} />}
-          onPress={handleSoon}
-        />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
-        <Row
-          icon={<Brain size={20} color={ui.textPrimary} />}
-          label="Jogo de memória"
-          right={<ChevronRight size={20} color={ui.textSecondary} />}
-          onPress={handleSoon}
-        />
-      </View>
+      
       </ScrollView>
     </PageContainer>
   );

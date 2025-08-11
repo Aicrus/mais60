@@ -5,6 +5,7 @@ let MapView: any = null;
 let Polyline: any = null;
 try { const Maps = require('expo-maps'); MapView = Maps.default; Polyline = Maps.Polyline; } catch {}
 import { PageContainer } from '@/components/layout/PageContainer';
+import { GradientView } from '@/components/effects/GradientView';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -26,6 +27,7 @@ export default function UsoScreen() {
   const locationTrack = useLocationTrack();
 
   const titleType = getResponsiveValues('headline-lg');
+  const sectionType = getResponsiveValues('title-sm');
   const statValueType = getResponsiveValues('title-sm');
   const statLabelType = getResponsiveValues('label-lg');
   const listTitleType = getResponsiveValues('title-sm');
@@ -66,23 +68,23 @@ export default function UsoScreen() {
         </View>
 
         {/* Sensores */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 6, marginTop: 8 }}>Sensores</Text>
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Sensores</Text>
         <View style={{ gap: 12 }}>
           <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Passos hoje</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{sensors.stepsToday ?? '—'}</Text>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Passos hoje</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default, marginTop: 4 }}>{sensors.stepsToday ?? '—'}</Text>
           </View>
           <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Movimento (aceleração)</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{sensors.accelMagnitude ?? '—'}</Text>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Movimento (aceleração)</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default, marginTop: 4 }}>{sensors.accelMagnitude ?? '—'}</Text>
           </View>
           <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Bateria</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{sensors.batteryLevel != null ? `${Math.round((sensors.batteryLevel || 0) * 100)}%` : '—'}</Text>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Bateria</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default, marginTop: 4 }}>{sensors.batteryLevel != null ? `${Math.round((sensors.batteryLevel || 0) * 100)}%` : '—'}</Text>
           </View>
           <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Caminhada (hoje)</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{(locationTrack.todayMeters / 1000).toFixed(2)} km • pontos {locationTrack.pointsCount}</Text>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Caminhada (hoje)</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default, marginTop: 4 }}>{(locationTrack.todayMeters / 1000).toFixed(2)} km • pontos {locationTrack.pointsCount}</Text>
             <View style={{ height: 8 }} />
             <View style={{ flexDirection: 'row', gap: 10 }}>
               {locationTrack.isTracking ? (
@@ -102,18 +104,35 @@ export default function UsoScreen() {
             </View>
             {!!MapView && (
               <View style={{ height: 180, borderRadius: 12, overflow: 'hidden', marginTop: 10 }}>
-                <MapView style={{ flex: 1 }} initialRegion={{ latitude: locationTrack.todayPoints[0]?.latitude || -14.235, longitude: locationTrack.todayPoints[0]?.longitude || -51.925, latitudeDelta: 0.05, longitudeDelta: 0.05 }}>
-                  {!!Polyline && locationTrack.todayPoints.length > 1 && (
-                    <Polyline coordinates={locationTrack.todayPoints.map(p => ({ latitude: p.latitude, longitude: p.longitude }))} strokeColor={colors['brand-purple']} strokeWidth={4} />
-                  )}
-                </MapView>
+                {(() => {
+                  const pts = locationTrack.todayPoints || [];
+                  let region = { latitude: -14.235, longitude: -51.925, latitudeDelta: 0.3, longitudeDelta: 0.3 };
+                  if (pts.length > 0) {
+                    const lats = pts.map(p => p.latitude);
+                    const lons = pts.map(p => p.longitude);
+                    const minLat = Math.min(...lats);
+                    const maxLat = Math.max(...lats);
+                    const minLon = Math.min(...lons);
+                    const maxLon = Math.max(...lons);
+                    const latDelta = Math.max(0.01, (maxLat - minLat) * 1.4);
+                    const lonDelta = Math.max(0.01, (maxLon - minLon) * 1.4);
+                    region = { latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2, latitudeDelta: latDelta, longitudeDelta: lonDelta };
+                  }
+                  return (
+                    <MapView style={{ flex: 1 }} initialRegion={region}>
+                      {!!Polyline && pts.length > 1 && (
+                        <Polyline coordinates={pts.map(p => ({ latitude: p.latitude, longitude: p.longitude }))} strokeColor={colors['brand-purple']} strokeWidth={4} />
+                      )}
+                    </MapView>
+                  );
+                })()}
               </View>
             )}
           </View>
         </View>
 
         {/* Gráfico simples: minutos por módulo hoje */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 6, marginTop: 8 }}>Uso por módulo (hoje)</Text>
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Uso por módulo (hoje)</Text>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
           {Object.keys(aggregates.perModuleToday || {}).length === 0 ? (
             <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Sem dados hoje.</Text>
@@ -124,8 +143,8 @@ export default function UsoScreen() {
               return (
                 <View key={k} style={{ marginBottom: 8 }}>
                   <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], marginBottom: 4 }}>{k} • {aggregates.perModuleCountToday?.[k] || 0} acessos</Text>
-                  <View style={{ height: 12, backgroundColor: '#E5E7EB', borderRadius: 999 }}>
-                    <View style={{ height: 12, width: `${widthPct}%`, backgroundColor: colors['brand-purple'], borderRadius: 999 }} />
+                  <View style={{ height: 12, backgroundColor: isDark ? '#1F2937' : '#E5E7EB', borderRadius: 999, overflow: 'hidden' }}>
+                    <GradientView type="custom" colors={[colors['brand-purple'], '#892CDC']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ height: '100%', width: `${widthPct}%` }} />
                   </View>
                   <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{min} min</Text>
                 </View>
@@ -135,7 +154,7 @@ export default function UsoScreen() {
         </View>
 
         {/* Histórico 7 dias */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 6, marginTop: 8 }}>Histórico (7 dias)</Text>
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Histórico (7 dias)</Text>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, flexDirection: 'row', alignItems: 'flex-end', gap: 6 }]}> 
           {aggregates.last7Days.map((d) => {
             const min = Math.floor(d.seconds / 60);
@@ -151,7 +170,7 @@ export default function UsoScreen() {
         </View>
 
         {/* Histórico semanal (4 semanas) */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 6, marginTop: 8 }}>Semanas (últimas 4)</Text>
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Semanas (últimas 4)</Text>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, flexDirection: 'row', alignItems: 'flex-end', gap: 10 }]}> 
           {aggregates.last4Weeks.map((w, idx) => {
             const min = Math.floor(w.seconds / 60);
