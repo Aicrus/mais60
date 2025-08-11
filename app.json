@@ -13,6 +13,10 @@
       "requireFullScreen": true,
       "bundleIdentifier": "com.seudominio.mais60",
       "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Usamos sua localização opcionalmente para registrar caminhadas e melhorar suas estatísticas.",
+        "NSMotionUsageDescription": "Usamos os sensores de movimento para estimar passos e atividade.",
+        "NSHealthUpdateUsageDescription": "Precisamos de acesso para atualizar seus dados de saúde.",
+        "NSHealthShareUsageDescription": "Precisamos de acesso para ler dados de saúde, como passos.",
         "UISupportedInterfaceOrientations": [
           "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationLandscapeLeft",
@@ -30,7 +34,12 @@
         "foregroundImage": "./assets/images/logo-mais60.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.seudominio.mais60"
+      "package": "com.seudominio.mais60",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACTIVITY_RECOGNITION"
+      ]
     },
     "web": {
       "bundler": "metro",
