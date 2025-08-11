@@ -78,11 +78,13 @@ export default function LoginTelefone() {
     }
     try {
       setLoading(true);
-      // Fluxo anônimo
-      const { data, error } = await supabase.auth.signInAnonymously();
+      // Login temporário com credenciais fixas (para demo)
+      const TEST_EMAIL = 'paulomorales@gmail.com';
+      const TEST_PASSWORD = '123321';
+      const { data, error } = await supabase.auth.signInWithPassword({ email: TEST_EMAIL, password: TEST_PASSWORD });
       if (error || !data?.user) {
-        console.error('signInAnonymously error:', error);
-        showToast({ type: 'error', message: 'Erro ao entrar', description: 'Ative o login anônimo no Supabase (Auth > Providers) e tente novamente.' });
+        console.error('signInWithPassword error:', error);
+        showToast({ type: 'error', message: 'Erro ao entrar', description: 'Credenciais de teste indisponíveis.' });
         return;
       }
 
@@ -90,13 +92,13 @@ export default function LoginTelefone() {
       const normalized = normalizePhone(phone);
       const { error: upsertErr } = await supabase
         .from('usuarios')
-        .upsert({ id: userId, telefone: normalized, perfil_concluido: false }, { onConflict: 'id' });
+        .upsert({ id: userId, telefone: normalized, email: data.user.email ?? null, perfil_concluido: false }, { onConflict: 'id' });
       if (upsertErr) {
         console.error('upsert usuarios error:', upsertErr);
       }
 
-      showToast({ type: 'success', message: 'Pronto!', description: 'Login realizado com telefone.' });
-      router.replace('/perfil/editar');
+      showToast({ type: 'success', message: 'Pronto!', description: 'Login realizado.' });
+      // Não navega aqui; o AuthProvider já redireciona do grupo (auth) para /(tabs)/home
     } finally {
       setLoading(false);
     }

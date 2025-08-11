@@ -245,7 +245,18 @@ export default function EditarPerfilScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Voltar"
-            onPress={() => router.back()}
+            onPress={() => {
+              try {
+                // @ts-ignore expo-router has canGoBack()
+                if (typeof router.canGoBack === 'function' && router.canGoBack()) {
+                  router.back();
+                } else {
+                  router.replace('/(tabs)/home');
+                }
+              } catch {
+                router.replace('/(tabs)/home');
+              }
+            }}
             style={[
               styles.appBarBack,
               {
