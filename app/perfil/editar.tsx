@@ -236,18 +236,35 @@ export default function EditarPerfilScreen() {
   return (
     <PageContainer>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.headerRow}>
-          <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backBtn}>
-            <ChevronLeft size={22} color={ui.textPrimary} />
+        <View style={styles.appBar} accessibilityRole="header">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Voltar"
+            onPress={() => router.back()}
+            style={[
+              styles.appBarBack,
+              {
+                backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+                borderColor: isDark ? colors['divider-dark'] : 'transparent',
+              },
+            ]}
+            hitSlop={10}
+          >
+            <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
           </Pressable>
-          <Text style={{ color: ui.textPrimary, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>
-            Editar perfil
+          <Text
+            style={[
+              styles.appBarLabel,
+              { color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'] },
+            ]}
+          >
+            Voltar
           </Text>
         </View>
 
-        <Text style={{ marginTop: 6, color: ui.textSecondary, fontFamily: dsFontFamily['jakarta-medium'], fontSize: descType.fontSize.default, lineHeight: descType.lineHeight.default }}>
-          Atualize sua foto, nome completo e email. Essas informações ajudam a personalizar sua experiência.
-        </Text>
+         <Text style={{ marginTop: 6, color: ui.textSecondary, fontFamily: dsFontFamily['jakarta-medium'], fontSize: descType.fontSize.default, lineHeight: descType.lineHeight.default }}>
+           Atualize sua foto, nome completo e email. Essas informações ajudam a personalizar sua experiência.
+         </Text>
 
         <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
           <Text style={{ color: ui.textPrimary, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: labelType.fontSize.default, lineHeight: labelType.lineHeight.default, marginBottom: 12 }}>
@@ -319,17 +336,33 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
     gap: 16,
   },
-  headerRow: {
+  appBar: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-start',
     gap: 8,
+    paddingHorizontal: 2,
+    paddingBottom: 8,
+    marginBottom: 6,
   },
-  backBtn: {
-    width: 36,
-    height: 36,
+  appBarBack: {
+    height: 44,
+    paddingHorizontal: 10,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 18,
+    flexDirection: 'row',
+    gap: 6,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  appBarLabel: {
+    fontFamily: dsFontFamily['jakarta-medium'],
+    fontSize: 16,
   },
   card: {
     borderWidth: 1,
