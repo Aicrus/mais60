@@ -44,39 +44,31 @@
 - [x] **Tela de Monitoramento/Estatísticas** - dados de uso e sensores
 - [x] **Notificacoes** - Nitificacoes gerais de baterias uso do app etc. 
 
+
 ## Checklist de Funcionalidades Principais (Detalhadas):
 
 **1. Repositório de vídeos do YouTube categorizados por área**
-- [ ] O app não armazena vídeos, apenas faz incorporação/links para vídeos públicos do YouTube
-- [ ] Cada uma das 5 áreas tem sua própria coleção curada de vídeos
-- [ ] Vídeos são organizados por tema (Atividade Física, Hábitos Alimentares, Segurança no Domicílio, Estimulação Cognitiva, Saúde Mental)
-- [ ] A curadoria dos vídeos é feita pela Mais60 para garantir conteúdo adequado e seguro para idosos
+- [x] O app não armazena vídeos, apenas faz incorporação/links para vídeos públicos do YouTube
+- [x] Cada uma das 5 áreas tem sua própria coleção curada de vídeos
+- [x] Vídeos são organizados por tema (Atividade Física, Hábitos Alimentares, Segurança no Domicílio, Estimulação Cognitiva, Saúde Mental)
+- [x] A curadoria dos vídeos é feita pela Mais60
 
 **2. Sistema de favoritos para salvar vídeos**
-- [ ] Opção de "Favoritar" vídeos em todas as áreas para acesso rápido
-- [ ] Vídeos favoritados ficam salvos numa lista pessoal
-- [ ] Permite que o usuário crie sua própria seleção de conteúdos preferidos
+- [x] Opção de "Favoritar" vídeos para acesso rápido
 
 **3. Categorização de conteúdo dentro de cada área**
 - [ ] **Atividade Física:** "Alongamento Matinal", "Caminhada em Casa", "Fortalecimento Muscular"
 - [ ] **Hábitos Alimentares:** "Café da Manhã", "Almoço/Jantar", "Lanches Saudáveis"
-- [ ] **Segurança, Estimulação Cognitiva e Saúde Mental:** também terão subcategorias específicas
-- [ ] Facilita a busca por tipo específico de conteúdo
 
 **4. Checklists interativos (exclusivo da área de Segurança)**
-- [ ] Listas de verificação complementares aos vídeos de segurança
-- [ ] Exemplos: "Verificar iluminação", "Remover obstáculos"
-- [ ] Usuário pode marcar itens como concluídos
-- [ ] Funcionam como guia prático para aplicar as dicas dos vídeos
+- [ ] Checklists interativos (ex: "Verificar iluminação", "Remover obstáculos")
 
 **5. Descrições dos benefícios de cada exercício/atividade**
-- [ ] Cada vídeo tem uma breve descrição explicando seus benefícios
-- [ ] Informa ao usuário por que aquela atividade é importante para sua saúde
-- [ ] Motiva o uso do conteúdo através da educação sobre os benefícios
+- [x] Breve descrição do benefício de cada exercício
 
 **6. Marcação de progresso (opcional)**
-- [ ] Possibilidade de marcar vídeos como "concluídos" ou "assistidos"
-- [ ] Permite acompanhar o progresso do usuário no consumo do conteúdo
+- [ ] Marcar vídeos como "concluídos" ou "assistidos" (se a plataforma permitir)
+
 
 
 ## Tela de Estatísticas/Monitoramento - O que deve conter:
