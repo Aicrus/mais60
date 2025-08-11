@@ -12,7 +12,7 @@ import { WebView } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
 export default function VideoPlayerScreen() {
-  const { id, title: initTitle, subtitle: initSubtitle, module: initModule } = useLocalSearchParams<{ id: string; title?: string; subtitle?: string; module?: string }>();
+  const { id, title: initTitle, subtitle: initSubtitle, module: initModule, benefits: initBenefits } = useLocalSearchParams<{ id: string; title?: string; subtitle?: string; module?: string; benefits?: string }>();
   const router = useRouter();
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
@@ -30,7 +30,12 @@ export default function VideoPlayerScreen() {
   const fsWebviewRef = useRef<WebView>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
-  const { logWatch, markCompleted } = useUsage();
+  const { aggregates, logWatch, markCompleted, unmarkCompleted } = useUsage();
+  const initialCompleted = useMemo(() => {
+    const list = aggregates?.recentVideos || [];
+    return list.some(v => v.videoId === videoId && v.completed === true);
+  }, [aggregates, videoId]);
+  const [isCompleted, setIsCompleted] = useState<boolean>(initialCompleted);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [fsStartAt, setFsStartAt] = useState<number>(0);
   const [fsAutoPlay, setFsAutoPlay] = useState<boolean>(true);
@@ -358,6 +363,15 @@ export default function VideoPlayerScreen() {
         {!!initSubtitle && (
           <Text style={{ marginTop: 8, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>{initSubtitle}</Text>
         )}
+        {/* Descrição / Benefícios */}
+        {!!(initBenefits || initSubtitle) && (
+          <View style={{ marginTop: 10 }}>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-bold'] }}>Descrição</Text>
+            <Text style={{ marginTop: 6, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>
+              {initBenefits || initSubtitle}
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Controles inferiores compactos: -15s, +15s, Expandir, Favoritar, Concluir */}
@@ -402,12 +416,23 @@ export default function VideoPlayerScreen() {
             <Heart size={20} color={isFavorite(videoId) ? '#FFFFFF' : (isDark ? '#FFFFFF' : colors['brand-purple'])} />
           </Pressable>
           <Pressable
-            style={[styles.smallControl, { backgroundColor: colors['brand-purple'] }]}
+            style={[
+              styles.smallControl,
+              { backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'], opacity: 1 },
+            ]}
             accessibilityRole="button"
-            accessibilityLabel={'Marcar como concluído'}
-            onPress={() => markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) })}
+            accessibilityLabel={isCompleted ? 'Desmarcar concluído' : 'Marcar como concluído'}
+            onPress={async () => {
+              if (isCompleted) {
+                await unmarkCompleted({ videoId });
+                setIsCompleted(false);
+              } else {
+                await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+                setIsCompleted(true);
+              }
+            }}
           >
-            <Text style={styles.smallControlText}>Concluir</Text>
+            <Text style={styles.smallControlText}>{isCompleted ? 'Concluído' : 'Concluir'}</Text>
           </Pressable>
         </View>
       )}

@@ -40,6 +40,7 @@ type UsageContextData = {
   logWatch: (params: { videoId: string; seconds: number; title?: string; module?: ModuleKey | string }) => Promise<void>;
   logModuleAccess: (moduleKey: ModuleKey | string) => Promise<void>;
   markCompleted: (params: { videoId: string; title?: string; module?: ModuleKey | string }) => Promise<void>;
+  unmarkCompleted: (params: { videoId: string }) => Promise<void>;
   clearUsage: () => Promise<void>;
 };
 
@@ -138,6 +139,19 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     await persist(next);
   }, [usage, persist]);
 
+  const unmarkCompleted = useCallback(async ({ videoId }: { videoId: string }) => {
+    const dayKey = formatDate(new Date());
+    const next: UsageStorage = { days: { ...usage.days }, updatedAt: Date.now() };
+    const day = next.days[dayKey] ?? { totalSeconds: 0, videos: {}, modules: {} };
+    const current = day.videos[videoId];
+    if (current) {
+      current.completed = false;
+      day.videos[videoId] = current;
+      next.days[dayKey] = day;
+      await persist(next);
+    }
+  }, [usage, persist]);
+
   const aggregates: Aggregates = useMemo(() => {
     const todayKey = formatDate(new Date());
     const todaySeconds = usage.days[todayKey]?.totalSeconds ?? 0;
@@ -194,7 +208,7 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     await persist(empty);
   }, [persist]);
 
-  const value = useMemo(() => ({ aggregates, logWatch, logModuleAccess, markCompleted, clearUsage }), [aggregates, logWatch, logModuleAccess, markCompleted, clearUsage]);
+  const value = useMemo(() => ({ aggregates, logWatch, logModuleAccess, markCompleted, unmarkCompleted, clearUsage }), [aggregates, logWatch, logModuleAccess, markCompleted, unmarkCompleted, clearUsage]);
 
   return (
     <UsageContext.Provider value={value}>

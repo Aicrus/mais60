@@ -57,17 +57,17 @@
 - [x] Opção de "Favoritar" vídeos para acesso rápido
 
 **3. Categorização de conteúdo dentro de cada área**
-- [ ] **Atividade Física:** "Alongamento Matinal", "Caminhada em Casa", "Fortalecimento Muscular"
-- [ ] **Hábitos Alimentares:** "Café da Manhã", "Almoço/Jantar", "Lanches Saudáveis"
+- [x] **Atividade Física:** "Alongamento Matinal", "Caminhada em Casa", "Fortalecimento Muscular"
+- [x] **Hábitos Alimentares:** "Café da Manhã", "Almoço/Jantar", "Lanches Saudáveis"
 
 **4. Checklists interativos (exclusivo da área de Segurança)**
-- [ ] Checklists interativos (ex: "Verificar iluminação", "Remover obstáculos")
+- [x] Checklists interativos (ex: "Verificar iluminação", "Remover obstáculos")
 
 **5. Descrições dos benefícios de cada exercício/atividade**
 - [x] Breve descrição do benefício de cada exercício
 
 **6. Marcação de progresso (opcional)**
-- [ ] Marcar vídeos como "concluídos" ou "assistidos" (se a plataforma permitir)
+- [x] Marcar vídeos como "concluídos" ou "assistidos" (se a plataforma permitir)
 
 
 

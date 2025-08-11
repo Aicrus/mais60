@@ -9,6 +9,8 @@ import { GradientView } from '@/components/effects/GradientView';
 import { useRouter } from 'expo-router';
 import { useUsage } from '@/contexts/usage';
 // Removidos imports de componentes excluídos; usando versões simples inline
+import SafetyChecklist from '@/components/modules/SafetyChecklist';
+import Sheet from '@/components/sheets/Sheet';
 
 type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
 
@@ -147,6 +149,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
   }, [moduleKey]);
 
   const [selected, setSelected] = useState<string>(config.categories[0]?.id || '');
+  const [isChecklistOpen, setChecklistOpen] = useState<boolean>(false);
 
   return (
     <PageContainer>
@@ -245,6 +248,29 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           ))}
         </ScrollView>
 
+        {/* Botão para abrir o Checklist de Segurança (somente neste módulo) */}
+        {moduleKey === 'seguranca-domiciliar' && (
+          <View style={{ marginTop: 4 }}>
+            <Pressable
+              onPress={() => setChecklistOpen(true)}
+              accessibilityRole="button"
+              style={{
+                alignSelf: 'flex-start',
+                paddingHorizontal: 14,
+                paddingVertical: 10,
+                borderRadius: 999,
+                borderWidth: 1,
+                borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
+                backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF'
+              }}
+            >
+              <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'] }}>
+                Checklist de segurança
+              </Text>
+            </Pressable>
+          </View>
+        )}
+
         {/* Lista única de vídeos para todos os módulos */}
         <View style={{ gap: 12, marginTop: 8 }}>
           {config.list.map((i) => (
@@ -293,6 +319,20 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
             </Pressable>
           ))}
         </View>
+
+        {/* Sheet do Checklist */}
+        <Sheet
+          isOpen={isChecklistOpen}
+          onClose={() => setChecklistOpen(false)}
+          position="bottom"
+          showCloseButton
+          height={460}
+          testID="safety-checklist-sheet"
+        >
+          <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
+            <SafetyChecklist categoryId={(selected as any) as 'banheiro' | 'cozinha' | 'quarto'} />
+          </View>
+        </Sheet>
       </ScrollView>
     </PageContainer>
   );
