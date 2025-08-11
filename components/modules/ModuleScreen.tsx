@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Pressable } from 'react-native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
@@ -8,11 +8,15 @@ import { Dumbbell, Utensils, Shield, Brain, Heart, ChevronLeft, Play } from 'luc
 import { GradientView } from '@/components/effects/GradientView';
 import { useRouter } from 'expo-router';
 import { useUsage } from '@/contexts/usage';
+import { supabase } from '@/lib/supabase';
 // Removidos imports de componentes excluídos; usando versões simples inline
 import SafetyChecklist from '@/components/modules/SafetyChecklist';
 import Sheet from '@/components/sheets/Sheet';
 
 type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
+
+type Categoria = { id: string; titulo: string };
+type VideoItem = { id: string; youtube_id: string; titulo: string; descricao: string | null; categoria_id: string | null };
 
 export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
   const { currentTheme } = useTheme();
@@ -45,12 +49,10 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
     const map: Record<ModuleKey, {
       title: string;
       subtitle: string;
-      heroColor: string; // mantido no tipo para compatibilidade, mas será sobrescrito pelo UNIFIED_HERO_COLOR
+      heroColor: string;
       icon: JSX.Element;
       image: any;
-      categories: { id: string; label: string }[];
-       list: { id: string; title: string; subtitle: string; type?: 'video' }[];
-       rightIconType?: 'play';
+      rightIconType?: 'play';
     }> = {
       'atividade-fisica': {
         title: 'Movimente-se',
@@ -58,18 +60,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
         heroColor: BRAND.green,
         icon: <Dumbbell size={28} color="#FFFFFF" />,
         image: defaultImage,
-        categories: [
-          { id: 'alongamento', label: 'Alongamento' },
-          { id: 'caminhada', label: 'Caminhada' },
-          { id: 'fortalecimento', label: 'Fortalecimento' },
-        ],
-         list: [
-           { id: 'dQw4w9WgXcQ', title: 'Vídeo de demonstração', subtitle: 'YouTube • 4 min', type: 'video' },
-           { id: '1', title: 'Alongamento matinal', subtitle: 'Função do exercício • 10 min', type: 'video' },
-           { id: '2', title: 'Caminhada leve', subtitle: 'Função do exercício • 15 min', type: 'video' },
-           { id: '3', title: 'Fortalecimento', subtitle: 'Função do exercício • 12 min', type: 'video' },
-         ],
-         rightIconType: 'play',
+        rightIconType: 'play',
       },
       'habitos-alimentares': {
         title: 'Alimente-se',
@@ -77,18 +68,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
         heroColor: BRAND.orange,
         icon: <Utensils size={28} color="#FFFFFF" />,
         image: foodImage,
-        categories: [
-          { id: 'cafe', label: 'Café' },
-          { id: 'almoco', label: 'Almoço' },
-          { id: 'lanche', label: 'Lanche' },
-          { id: 'jantar', label: 'Jantar' },
-        ],
-         list: [
-           { id: 'a1', title: 'Sopa nutritiva', subtitle: 'Vídeo • 20 min', type: 'video' },
-           { id: 'a2', title: 'Salada colorida', subtitle: 'Vídeo • 10 min', type: 'video' },
-           { id: 'a3', title: 'Frango assado', subtitle: 'Vídeo • 30 min', type: 'video' },
-         ],
-         rightIconType: 'play',
+        rightIconType: 'play',
       },
       'seguranca-domiciliar': {
         title: 'Segurança em casa',
@@ -96,17 +76,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
         heroColor: BRAND.blue,
         icon: <Shield size={28} color="#FFFFFF" />,
         image: defaultImage,
-        categories: [
-          { id: 'banheiro', label: 'Banheiro' },
-          { id: 'cozinha', label: 'Cozinha' },
-          { id: 'quarto', label: 'Quarto' },
-        ],
-         list: [
-           { id: 's1', title: 'Banheiro seguro', subtitle: 'Vídeo • 3 min', type: 'video' },
-           { id: 's2', title: 'Cozinha organizada', subtitle: 'Vídeo • 4 min', type: 'video' },
-           { id: 's3', title: 'Quarto iluminado', subtitle: 'Vídeo • 2 min', type: 'video' },
-         ],
-         rightIconType: 'play',
+        rightIconType: 'play',
       },
       'estimulacao-cognitiva': {
         title: 'Mente ativa',
@@ -114,17 +84,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
         heroColor: BRAND.light,
         icon: <Brain size={28} color="#FFFFFF" />,
         image: defaultImage,
-        categories: [
-          { id: 'memoria', label: 'Memória' },
-          { id: 'logica', label: 'Lógica' },
-          { id: 'atencao', label: 'Atenção' },
-        ],
-         list: [
-           { id: 'c1', title: 'Jogo da memória', subtitle: 'Vídeo • 5 min', type: 'video' },
-           { id: 'c2', title: 'Palavras rápidas', subtitle: 'Vídeo • 8 min', type: 'video' },
-           { id: 'c3', title: 'Lógica simples', subtitle: 'Vídeo • 10 min', type: 'video' },
-         ],
-         rightIconType: 'play',
+        rightIconType: 'play',
       },
       'saude-mental': {
         title: 'Bem‑estar',
@@ -132,23 +92,53 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
         heroColor: BRAND.coral,
         icon: <Heart size={28} color="#FFFFFF" />,
         image: defaultImage,
-        categories: [
-          { id: 'meditacao', label: 'Meditação' },
-          { id: 'respiracao', label: 'Respiração' },
-          { id: 'sono', label: 'Sono' },
-        ],
-         list: [
-           { id: 'm1', title: 'Meditação para ansiedade', subtitle: 'Vídeo • 10 min', type: 'video' },
-           { id: 'm2', title: 'Respiração relaxante', subtitle: 'Vídeo • 7 min', type: 'video' },
-           { id: 'm3', title: 'Para dormir melhor', subtitle: 'Vídeo • 12 min', type: 'video' },
-         ],
-         rightIconType: 'play',
+        rightIconType: 'play',
       },
     };
     return map[moduleKey];
   }, [moduleKey]);
 
-  const [selected, setSelected] = useState<string>(config.categories[0]?.id || '');
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [videos, setVideos] = useState<VideoItem[]>([]);
+
+  const [selected, setSelected] = useState<string>('');
+  
+  const carregarCategorias = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('categorias')
+      .select('id, titulo')
+      .eq('pilar_id', moduleKey)
+      .order('ordem', { ascending: true });
+    if (!error && data) {
+      setCategorias(data as Categoria[]);
+      if (!selected && data.length > 0) setSelected(data[0].id);
+    }
+  }, [moduleKey, selected]);
+
+  const carregarVideos = useCallback(async (categoriaId?: string) => {
+    let query = supabase
+      .from('videos')
+      .select('id, youtube_id, titulo, descricao, categoria_id')
+      .eq('pilar_id', moduleKey)
+      .eq('publicado', true)
+      .order('criado_em', { ascending: false });
+    if (categoriaId) {
+      query = query.eq('categoria_id', categoriaId);
+    }
+    const { data, error } = await query;
+    if (!error && data) setVideos(data as unknown as VideoItem[]);
+  }, [moduleKey]);
+
+  useEffect(() => {
+    carregarCategorias();
+    carregarVideos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moduleKey]);
+
+  useEffect(() => {
+    if (!selected) return;
+    carregarVideos(selected);
+  }, [selected, carregarVideos]);
   const [isChecklistOpen, setChecklistOpen] = useState<boolean>(false);
 
   return (
@@ -219,12 +209,12 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
 
         {/* Filtros por categoria (chips simples) */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 8 }}>
-          {config.categories.map((opt) => (
+          {categorias.map((opt) => (
             <Pressable
               key={opt.id}
               onPress={() => setSelected(opt.id)}
               accessibilityRole="button"
-              accessibilityLabel={opt.label}
+              accessibilityLabel={opt.titulo}
               style={[
                 styles.chip,
                 {
@@ -242,7 +232,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                   fontFamily: dsFontFamily['jakarta-semibold'],
                 }}
               >
-                {opt.label}
+                {opt.titulo}
               </Text>
             </Pressable>
           ))}
@@ -274,9 +264,9 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           </View>
         )}
 
-        {/* Lista única de vídeos para todos os módulos */}
+        {/* Lista de vídeos do Supabase */}
         <View style={{ gap: 12, marginTop: 8 }}>
-          {config.list.map((i) => (
+          {videos.map((i) => (
             <Pressable
               key={i.id}
               style={[
@@ -287,10 +277,10 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                 },
               ]}
               accessibilityRole="button"
-              accessibilityLabel={`${i.title}. ${i.subtitle}`}
+              accessibilityLabel={`${i.titulo}. ${i.descricao || 'Vídeo do YouTube'}`}
               onPress={() => {
                 logModuleAccess(moduleKey);
-                router.push({ pathname: '/player/video/[id]', params: { id: i.id, title: i.title, subtitle: i.subtitle || '', module: moduleKey } });
+                router.push({ pathname: '/player/video/[id]', params: { id: i.youtube_id, title: i.titulo, subtitle: i.descricao || 'YouTube', module: moduleKey } });
               }}
             >
               <View style={[styles.listIconCircle, { backgroundColor: colors['brand-purple'] }]}>
@@ -305,7 +295,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                     lineHeight: listTitleType.lineHeight.default,
                   }}
                 >
-                  {i.title}
+                  {i.titulo}
                 </Text>
                 <Text
                   style={{
@@ -316,7 +306,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                     lineHeight: listSubtitleType.lineHeight.default,
                   }}
                 >
-                  {i.subtitle}
+                  {i.descricao || 'YouTube'}
                 </Text>
               </View>
             </Pressable>
