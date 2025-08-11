@@ -5,7 +5,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { fontFamily as dsFontFamily, getResponsiveValues } from '@/design-system/tokens/typography';
-import { ChevronLeft, Play, Pause, Maximize2, X, Heart } from 'lucide-react-native';
+import { ChevronLeft, Play, Maximize2, X, Heart } from 'lucide-react-native';
 import { useFavorites } from '@/contexts/favorites';
 import { useUsage } from '@/contexts/usage';
 import { WebView } from 'react-native-webview';
@@ -328,7 +328,7 @@ export default function VideoPlayerScreen() {
           }}
           style={{ flex: 1, borderRadius: 16, overflow: 'hidden', opacity: playerVisible ? 1 : 0 }}
         />
-        {/* Overlay moderno com botão grande Play/Pause */}
+        {/* Overlay: exibe apenas o botão de play quando pausado; nada quando reproduzindo */}
         <Pressable
           onPress={() => sendJS('window.togglePlay()')}
           accessibilityRole="button"
@@ -336,13 +336,15 @@ export default function VideoPlayerScreen() {
           style={styles.touchBlocker}
         >
           {!isPlaying && (
-            <View style={styles.overlayScrim} pointerEvents="none" />
+            <>
+              <View style={styles.overlayScrim} pointerEvents="none" />
+              <View style={styles.centerControls} pointerEvents="none">
+                <View style={styles.bigCircle}>
+                  <Play size={36} color={'#FFFFFF'} />
+                </View>
+              </View>
+            </>
           )}
-          <View style={styles.centerControls} pointerEvents="none">
-            <View style={styles.bigCircle}>
-              {isPlaying ? <Pause size={36} color={'#FFFFFF'} /> : <Play size={36} color={'#FFFFFF'} />}
-            </View>
-          </View>
         </Pressable>
         {!playerVisible && (
           <View style={styles.placeholder} pointerEvents="none">

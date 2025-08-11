@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/auth';
+import { supabase } from '@/lib/supabase';
 
 type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
 
@@ -36,7 +37,6 @@ type Aggregates = {
 
 type UsageContextData = {
   aggregates: Aggregates;
-  logWatch: (params: { videoId: string; seconds: number; title?: string }) => Promise<void>;
   logWatch: (params: { videoId: string; seconds: number; title?: string; module?: ModuleKey | string }) => Promise<void>;
   logModuleAccess: (moduleKey: ModuleKey | string) => Promise<void>;
   markCompleted: (params: { videoId: string; title?: string; module?: ModuleKey | string }) => Promise<void>;
@@ -113,6 +113,27 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     day.modules[mk] = m;
     next.days[dayKey] = day;
     await persist(next);
+
+    // Persistência no Supabase (se logado)
+    try {
+      if (!userId) return;
+      const { data: v } = await supabase
+        .from('videos')
+        .select('id, pilar_id')
+        .eq('youtube_id', videoId)
+        .limit(1)
+        .maybeSingle();
+      const videoUuid = v?.id as string | undefined;
+      const pilarId = (v?.pilar_id as string | undefined) || (module as string | undefined);
+      if (videoUuid) {
+        // upsert progresso_videos
+        await supabase.rpc('upsert_progresso_videos', { p_usuario_id: userId, p_video_id: videoUuid, p_inc_segundos: seconds });
+      }
+      if (pilarId) {
+        // upsert acessos_modulos (incrementa segundos)
+        await supabase.rpc('upsert_acessos_modulos', { p_usuario_id: userId, p_pilar_id: pilarId, p_inc_contador: 0, p_inc_segundos: seconds });
+      }
+    } catch {}
   }, [usage, persist]);
 
   const logModuleAccess = useCallback(async (moduleKey: ModuleKey | string) => {
@@ -124,6 +145,12 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     day.modules[moduleKey] = m;
     next.days[dayKey] = day;
     await persist(next);
+
+    // Persistência no Supabase (se logado): incrementa contador de acesso
+    try {
+      if (!userId) return;
+      await supabase.rpc('upsert_acessos_modulos', { p_usuario_id: userId, p_pilar_id: moduleKey as string, p_inc_contador: 1, p_inc_segundos: 0 });
+    } catch {}
   }, [usage, persist]);
 
   const markCompleted = useCallback(async ({ videoId, title, module }: { videoId: string; title?: string; module?: ModuleKey | string }) => {
@@ -137,6 +164,22 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     day.videos[videoId] = current;
     next.days[dayKey] = day;
     await persist(next);
+
+    try {
+      if (!userId) return;
+      const { data: v } = await supabase
+        .from('videos')
+        .select('id')
+        .eq('youtube_id', videoId)
+        .limit(1)
+        .maybeSingle();
+      const videoUuid = v?.id as string | undefined;
+      if (videoUuid) {
+        await supabase
+          .from('progresso_videos')
+          .upsert({ usuario_id: userId, video_id: videoUuid, concluido: true }, { onConflict: 'usuario_id,video_id' });
+      }
+    } catch {}
   }, [usage, persist]);
 
   const unmarkCompleted = useCallback(async ({ videoId }: { videoId: string }) => {
@@ -150,6 +193,24 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
       next.days[dayKey] = day;
       await persist(next);
     }
+
+    try {
+      if (!userId) return;
+      const { data: v } = await supabase
+        .from('videos')
+        .select('id')
+        .eq('youtube_id', videoId)
+        .limit(1)
+        .maybeSingle();
+      const videoUuid = v?.id as string | undefined;
+      if (videoUuid) {
+        await supabase
+          .from('progresso_videos')
+          .update({ concluido: false })
+          .eq('usuario_id', userId)
+          .eq('video_id', videoUuid);
+      }
+    } catch {}
   }, [usage, persist]);
 
   const aggregates: Aggregates = useMemo(() => {
