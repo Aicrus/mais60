@@ -27,6 +27,7 @@ import { ToastProvider } from '@/hooks/useToast';
 import { AuthProvider } from '@/contexts/auth';
 import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/lib/supabase';
+import { FavoritesProvider } from '@/contexts/favorites';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -143,7 +144,11 @@ export default function RootLayout() {
           <PortalProvider>
             <ToastProvider>
               <AuthProvider initialSession={initialSession}>
-                <RootLayoutNav />
+                {/* Favoritos depende de sessão para key no storage */}
+                {/* eslint-disable-next-line react/jsx-no-undef */}
+                <FavoritesProvider>
+                  <RootLayoutNav />
+                </FavoritesProvider>
               </AuthProvider>
             </ToastProvider>
           </PortalProvider>

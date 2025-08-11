@@ -6,11 +6,12 @@ import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { fontFamily as dsFontFamily, getResponsiveValues } from '@/design-system/tokens/typography';
 import { ChevronLeft, Play, Pause, Maximize2, X, Heart } from 'lucide-react-native';
+import { useFavorites } from '@/contexts/favorites';
 import { WebView } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
 export default function VideoPlayerScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, title: initTitle, subtitle: initSubtitle } = useLocalSearchParams<{ id: string; title?: string; subtitle?: string }>();
   const router = useRouter();
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
@@ -27,7 +28,7 @@ export default function VideoPlayerScreen() {
   const webviewRef = useRef<WebView>(null);
   const fsWebviewRef = useRef<WebView>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [fsStartAt, setFsStartAt] = useState<number>(0);
   const [fsAutoPlay, setFsAutoPlay] = useState<boolean>(true);
@@ -342,8 +343,10 @@ export default function VideoPlayerScreen() {
 
       {/* Infos */}
       <View style={{ marginTop: 12 }}>
-        <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>Título do vídeo #{id}</Text>
-        <Text style={{ marginTop: 8, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>Descrição breve do vídeo com instruções simples.</Text>
+        <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>{initTitle || `Vídeo ${id}`}</Text>
+        {!!initSubtitle && (
+          <Text style={{ marginTop: 8, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>{initSubtitle}</Text>
+        )}
       </View>
 
       {/* Controles inferiores compactos: -15s, +15s, Expandir, Favoritar */}
@@ -379,13 +382,13 @@ export default function VideoPlayerScreen() {
           <Pressable
             style={[
               styles.smallControl,
-              { backgroundColor: isFavorite ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' },
+              { backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' },
             ]}
             accessibilityRole="button"
-            accessibilityLabel={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-            onPress={() => setIsFavorite((v) => !v)}
+            accessibilityLabel={isFavorite(videoId) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+            onPress={() => toggleFavorite({ id: videoId, title: (initTitle as string) || `Vídeo ${videoId}`, subtitle: (initSubtitle as string) || 'YouTube' })}
           >
-            <Heart size={20} color={isFavorite ? '#FFFFFF' : (isDark ? '#FFFFFF' : colors['brand-purple'])} />
+            <Heart size={20} color={isFavorite(videoId) ? '#FFFFFF' : (isDark ? '#FFFFFF' : colors['brand-purple'])} />
           </Pressable>
         </View>
       )}

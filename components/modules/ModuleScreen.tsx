@@ -257,7 +257,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
               ]}
               accessibilityRole="button"
               accessibilityLabel={`${i.title}. ${i.subtitle}`}
-              onPress={() => router.push({ pathname: '/player/video/[id]', params: { id: i.id } })}
+              onPress={() => router.push({ pathname: '/player/video/[id]', params: { id: i.id, title: i.title, subtitle: i.subtitle || '' } })}
             >
               <View style={[styles.listIconCircle, { backgroundColor: colors['brand-purple'] }]}>
                 <Play size={18} color="#FFFFFF" />
