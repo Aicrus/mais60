@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View, Text } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { OrientationManager } from '@/lib/orientation';
-import { Home as HomeIcon, User as PerfilIcon, Heart as HeartIcon } from 'lucide-react-native';
+import { Home as HomeIcon, User as PerfilIcon, Heart as HeartIcon, BarChart3 as StatsIcon } from 'lucide-react-native';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useResponsive } from '../../hooks/useResponsive';
@@ -144,6 +144,16 @@ export default function TabsLayout() {
                 color={color}
                 strokeWidth={focused ? 2 : 1.5}
               />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="uso"
+          options={{
+            title: 'Uso',
+            tabBarLabel: 'Uso',
+            tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
+              <StatsIcon size={24} color={color} strokeWidth={focused ? 2 : 1.5} />
             ),
           }}
         />

@@ -28,6 +28,7 @@ import { AuthProvider } from '@/contexts/auth';
 import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/lib/supabase';
 import { FavoritesProvider } from '@/contexts/favorites';
+import { UsageProvider } from '@/contexts/usage';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -147,7 +148,9 @@ export default function RootLayout() {
                 {/* Favoritos depende de sessão para key no storage */}
                 {/* eslint-disable-next-line react/jsx-no-undef */}
                 <FavoritesProvider>
-                  <RootLayoutNav />
+                  <UsageProvider>
+                    <RootLayoutNav />
+                  </UsageProvider>
                 </FavoritesProvider>
               </AuthProvider>
             </ToastProvider>

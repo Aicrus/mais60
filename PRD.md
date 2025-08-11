@@ -77,3 +77,30 @@
 **6. Marcação de progresso (opcional)**
 - [ ] Possibilidade de marcar vídeos como "concluídos" ou "assistidos"
 - [ ] Permite acompanhar o progresso do usuário no consumo do conteúdo
+
+
+## Tela de Estatísticas/Monitoramento - O que deve conter:
+
+**Registros de Atividade:**
+- [ ] Lista dos vídeos assistidos pelo usuário
+- [ ] Tempo de duração que cada vídeo foi assistido
+- [ ] Frequência de acesso a cada uma das 5 áreas (quantas vezes acessou cada módulo)
+- [ ] Vídeos marcados como "concluídos" ou "assistidos"
+
+**Tempo de Uso do App:**
+- [ ] Tempo total de uso do app no dia atual
+- [ ] Tempo total de uso do app na semana atual
+- [ ] Resumo gráfico do tempo de uso por área/módulo
+- [ ] Histórico de uso diário/semanal
+
+**Dados dos Sensores do Celular:**
+- [ ] **Pedômetro:** Contador de passos diários (para complementar o módulo de Atividade Física)
+- [ ] **Acelerômetro/Giroscópio:** Detecção de movimentos e tendências de atividade (não para segurança crítica)
+- [ ] **Localização (Opcional):** Registro de percursos de caminhada, se o usuário permitir
+- [ ] **Monitor de Bateria:** Nível atual da bateria + alerta quando bateria baixa (para não interromper atividades)
+
+**Observações Importantes:**
+- [ ] Todos os dados de sensores devem ter permissão explícita do usuário
+- [ ] Ênfase na privacidade - dados ficam no dispositivo
+- [ ] Alertas de bateria baixa para incentivar carregamento
+- [ ] Interface deve mostrar dados de forma gráfica e simples para idosos

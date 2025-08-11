@@ -7,6 +7,7 @@ import { colors } from '@/design-system/tokens/colors';
 import { fontFamily as dsFontFamily, getResponsiveValues } from '@/design-system/tokens/typography';
 import { ChevronLeft, Play, Pause, Maximize2, X, Heart } from 'lucide-react-native';
 import { useFavorites } from '@/contexts/favorites';
+import { useUsage } from '@/contexts/usage';
 import { WebView } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
@@ -29,6 +30,7 @@ export default function VideoPlayerScreen() {
   const fsWebviewRef = useRef<WebView>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { logWatch } = useUsage();
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [fsStartAt, setFsStartAt] = useState<number>(0);
   const [fsAutoPlay, setFsAutoPlay] = useState<boolean>(true);
@@ -232,6 +234,15 @@ export default function VideoPlayerScreen() {
     setShowFullscreen(true);
   }, []);
 
+  // Registro de uso: acumula a cada 5s enquanto reproduzindo
+  useEffect(() => {
+    if (!isPlaying) return;
+    const tid = setInterval(() => {
+      logWatch({ videoId, seconds: 5, title: (initTitle as string) || `Vídeo ${videoId}` });
+    }, 5000);
+    return () => clearInterval(tid);
+  }, [isPlaying, videoId, initTitle, logWatch]);
+
   return (
     <PageContainer>
       <Stack.Screen options={{ orientation: 'portrait' }} />
@@ -371,13 +382,13 @@ export default function VideoPlayerScreen() {
           <Pressable
             style={[
               styles.smallControl,
-              { backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' },
+              { backgroundColor: isDark ? colors['secondary-dark'] : colors['secondary-light'] },
             ]}
             accessibilityRole="button"
             accessibilityLabel="Tela cheia"
             onPress={() => sendJS('window.getState()')}
           >
-            <Maximize2 size={20} color={isDark ? '#FFFFFF' : colors['brand-purple']} />
+            <Maximize2 size={20} color="#FFFFFF" />
           </Pressable>
           <Pressable
             style={[
