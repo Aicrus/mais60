@@ -1,7 +1,11 @@
 PODS:
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
+  - EXApplication (6.1.5):
+    - ExpoModulesCore
   - EXConstants (17.1.7):
+    - ExpoModulesCore
+  - EXNotifications (0.31.4):
     - ExpoModulesCore
   - Expo (53.0.20):
     - DoubleConversion
@@ -53,6 +57,8 @@ PODS:
   - ExpoLocalization (16.1.6):
     - ExpoModulesCore
   - ExpoLocation (18.1.6):
+    - ExpoModulesCore
+  - ExpoMaps (0.11.0):
     - ExpoModulesCore
   - ExpoModulesCore (2.5.0):
     - DoubleConversion
@@ -2168,7 +2174,9 @@ PODS:
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - EXApplication (from `../node_modules/expo-application/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
+  - EXNotifications (from `../node_modules/expo-notifications/ios`)
   - Expo (from `../node_modules/expo`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
   - ExpoBattery (from `../node_modules/expo-battery/ios`)
@@ -2182,6 +2190,7 @@ DEPENDENCIES:
   - ExpoLinking (from `../node_modules/expo-linking/ios`)
   - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoLocation (from `../node_modules/expo-location/ios`)
+  - ExpoMaps (from `../node_modules/expo-maps/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoScreenOrientation (from `../node_modules/expo-screen-orientation/ios`)
   - ExpoSensors (from `../node_modules/expo-sensors/ios`)
@@ -2277,8 +2286,12 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/boost.podspec"
   DoubleConversion:
     :podspec: "../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec"
+  EXApplication:
+    :path: "../node_modules/expo-application/ios"
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
+  EXNotifications:
+    :path: "../node_modules/expo-notifications/ios"
   Expo:
     :path: "../node_modules/expo"
   ExpoAsset:
@@ -2305,6 +2318,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-localization/ios"
   ExpoLocation:
     :path: "../node_modules/expo-location/ios"
+  ExpoMaps:
+    :path: "../node_modules/expo-maps/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core"
   ExpoScreenOrientation:
@@ -2476,7 +2491,9 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
+  EXApplication: 1e06972201838375ca1ec1ba34d586a98a5dc718
   EXConstants: 98bcf0f22b820f9b28f9fee55ff2daededadd2f8
+  EXNotifications: be5e949edf1d60b70e77178b81aa505298fadd07
   Expo: a40d525c930dd1c8a158e082756ee071955baccb
   ExpoAsset: ef06e880126c375f580d4923fdd1cdf4ee6ee7d6
   ExpoBattery: f824a89ff65cc0a26a3d3b5ad34d52c81bf75de3
@@ -2490,6 +2507,7 @@ SPEC CHECKSUMS:
   ExpoLinking: d5c183998ca6ada66ff45e407e0f965b398a8902
   ExpoLocalization: 999a1ff61a7f5917d65c2bd9234883009019ca9f
   ExpoLocation: a43df2ff15f2fae9504b23a77060e7cd16b3e326
+  ExpoMaps: e87674e875f14233f495ebf9322681b1c249a648
   ExpoModulesCore: 00a1b5c73248465bd0b93f59f8538c4573dac579
   ExpoScreenOrientation: c883a8f448232c4f185cea4f08ce54ebdf9d010d
   ExpoSensors: 38ae3a55b484410a7976fa3ff78ea80339252e75

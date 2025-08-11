@@ -15,6 +15,7 @@ type LocationState = {
   permission: 'granted' | 'denied' | 'undetermined';
   todayMeters: number;
   pointsCount: number;
+  todayPoints: Point[];
   startTracking: () => Promise<void>;
   stopTracking: () => Promise<void>;
 };
@@ -47,6 +48,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [isTracking, setIsTracking] = useState(false);
   const [todayMeters, setTodayMeters] = useState(0);
   const [pointsCount, setPointsCount] = useState(0);
+  const [todayPoints, setTodayPoints] = useState<Point[]>([]);
   const watcher = useRef<Location.LocationSubscription | null>(null);
   const storageKey = useMemo(() => `@mais60:location:${formatDate(new Date())}:v1`, []);
 
@@ -58,6 +60,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
           const obj: DayTrack = JSON.parse(raw);
           setTodayMeters(obj?.totalMeters || 0);
           setPointsCount(obj?.points?.length || 0);
+          setTodayPoints(Array.isArray(obj?.points) ? obj.points : []);
         }
       } catch {}
     })();
@@ -102,6 +105,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
           track.points.push(point);
           setTodayMeters(track.totalMeters);
           setPointsCount(track.points.length);
+          setTodayPoints(track.points);
           await persist(track);
         } catch {}
       });
@@ -115,7 +119,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     setIsTracking(false);
   }, []);
 
-  const value = useMemo(() => ({ isTracking, permission, todayMeters, pointsCount, startTracking, stopTracking }), [isTracking, permission, todayMeters, pointsCount, startTracking, stopTracking]);
+  const value = useMemo(() => ({ isTracking, permission, todayMeters, pointsCount, todayPoints, startTracking, stopTracking }), [isTracking, permission, todayMeters, pointsCount, todayPoints, startTracking, stopTracking]);
   return (
     <LocationContext.Provider value={value}>
       {children}

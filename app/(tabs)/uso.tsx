@@ -1,5 +1,9 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform } from 'react-native';
+// Mapa simples do percurso (se disponível)
+let MapView: any = null;
+let Polyline: any = null;
+try { const Maps = require('expo-maps'); MapView = Maps.default; Polyline = Maps.Polyline; } catch {}
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
@@ -90,7 +94,21 @@ export default function UsoScreen() {
                   <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Iniciar</Text>
                 </Pressable>
               )}
+              {locationTrack.permission === 'denied' && (
+                <Pressable onPress={() => Platform.OS !== 'web' && require('expo-linking').openSettings()} style={{ height: 40, borderRadius: 10, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
+                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>Abrir ajustes</Text>
+                </Pressable>
+              )}
             </View>
+            {!!MapView && (
+              <View style={{ height: 180, borderRadius: 12, overflow: 'hidden', marginTop: 10 }}>
+                <MapView style={{ flex: 1 }} initialRegion={{ latitude: locationTrack.todayPoints[0]?.latitude || -14.235, longitude: locationTrack.todayPoints[0]?.longitude || -51.925, latitudeDelta: 0.05, longitudeDelta: 0.05 }}>
+                  {!!Polyline && locationTrack.todayPoints.length > 1 && (
+                    <Polyline coordinates={locationTrack.todayPoints.map(p => ({ latitude: p.latitude, longitude: p.longitude }))} strokeColor={colors['brand-purple']} strokeWidth={4} />
+                  )}
+                </MapView>
+              </View>
+            )}
           </View>
         </View>
 
@@ -122,9 +140,27 @@ export default function UsoScreen() {
           {aggregates.last7Days.map((d) => {
             const min = Math.floor(d.seconds / 60);
             const h = Math.min(80, Math.max(6, min));
+            const label = new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short' });
             return (
-              <View key={d.date} style={{ width: 16, height: 84, alignItems: 'center', justifyContent: 'flex-end' }}>
+              <View key={d.date} style={{ width: 22, height: 96, alignItems: 'center', justifyContent: 'flex-end' }}>
                 <View style={{ width: 16, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 4, borderTopRightRadius: 4 }} />
+                <Text style={{ marginTop: 2, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{label}</Text>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Histórico semanal (4 semanas) */}
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 6, marginTop: 8 }}>Semanas (últimas 4)</Text>
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, flexDirection: 'row', alignItems: 'flex-end', gap: 10 }]}> 
+          {aggregates.last4Weeks.map((w, idx) => {
+            const min = Math.floor(w.seconds / 60);
+            const h = Math.min(90, Math.max(8, Math.floor(min / 5))); // escala simples
+            const start = new Date(w.weekStart + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            return (
+              <View key={w.weekStart + idx} style={{ width: 40, height: 110, alignItems: 'center', justifyContent: 'flex-end' }}>
+                <View style={{ width: 28, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 6, borderTopRightRadius: 6 }} />
+                <Text style={{ marginTop: 4, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{start}</Text>
               </View>
             );
           })}

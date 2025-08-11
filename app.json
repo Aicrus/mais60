@@ -4,7 +4,7 @@
     "slug": "mais60",
     "version": "1.0.0",
     "orientation": "default",
-      "icon": "./assets/images/logo-mais60.png",
+    "icon": "./assets/images/logo-mais60.png",
     "scheme": "mais60",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -82,7 +82,8 @@
       ],
       "expo-font",
       "expo-localization",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-maps"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -72,7 +72,8 @@
     "expo-sensors": "~14.1.4",
     "expo-location": "~18.1.6",
     "expo-battery": "~9.1.4",
-    "expo-notifications": "~0.31.4"
+    "expo-notifications": "~0.31.4",
+    "expo-maps": "~0.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -30,6 +30,7 @@ type Aggregates = {
   recentVideos: Array<VideoUsage & { date: string }>; // últimos 14 dias
   perModuleToday: Record<string, number>; // seconds
   last7Days: Array<{ date: string; seconds: number }>;
+  last4Weeks: Array<{ weekStart: string; seconds: number }>;
 };
 
 type UsageContextData = {
@@ -168,7 +169,22 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
       const key = formatDate(d);
       last7Days.push({ date: key, seconds: usage.days[key]?.totalSeconds || 0 });
     }
-    return { todaySeconds, weekSeconds, recentVideos: list.slice(0, 20), perModuleToday: perModuleSeconds, last7Days };
+    // Últimas 4 semanas (inclui a atual)
+    const last4Weeks: Array<{ weekStart: string; seconds: number }> = [];
+    for (let i = 0; i < 4; i++) {
+      const base = new Date();
+      base.setDate(base.getDate() - i * 7);
+      const ws = getWeekStart(base);
+      const we = new Date(ws);
+      we.setDate(ws.getDate() + 6);
+      let sum = 0;
+      Object.entries(usage.days).forEach(([k, d]) => {
+        const dt = new Date(k + 'T00:00:00');
+        if (dt >= ws && dt <= we) sum += d?.totalSeconds || 0;
+      });
+      last4Weeks.unshift({ weekStart: formatDate(ws), seconds: sum });
+    }
+    return { todaySeconds, weekSeconds, recentVideos: list.slice(0, 20), perModuleToday: perModuleSeconds, last7Days, last4Weeks };
   }, [usage]);
 
   const clearUsage = useCallback(async () => {
