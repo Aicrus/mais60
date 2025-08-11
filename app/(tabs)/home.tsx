@@ -77,6 +77,13 @@ export default function Home() {
   const [userName, setUserName] = useState<string>('você');
   const [avatarUrl, setAvatarUrl] = useState<string>('https://i.pravatar.cc/120?img=20');
 
+  // Exibe apenas primeiro e segundo nomes na Home
+  const getFirstTwoNames = (name: string): string => {
+    const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'você';
+    return parts.slice(0, 2).join(' ');
+  };
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -266,7 +273,7 @@ export default function Home() {
             lineHeight: greetType.lineHeight.default,
           }}
         >
-          {' '}{userName}
+          {' '}{getFirstTwoNames(userName)}
         </Text>
         <Text
           style={{
