@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Modal } from 'react-native';
 // Mapa simples do percurso (se disponível)
 let MapView: any = null;
 let Polyline: any = null;
@@ -13,6 +13,8 @@ import { useUsage } from '@/contexts/usage';
 import { useSensors } from '@/contexts/sensors';
 import { useLocationTrack } from '@/contexts/location';
 import { Activity, Database } from 'lucide-react-native';
+import { useAuth } from '@/contexts/auth';
+import { supabase } from '@/lib/supabase';
 
 function formatMinutes(totalSeconds: number) {
   const min = Math.floor(totalSeconds / 60);
@@ -25,6 +27,8 @@ export default function UsoScreen() {
   const { aggregates, clearUsage } = useUsage();
   const sensors = useSensors();
   const locationTrack = useLocationTrack();
+  const { session } = useAuth();
+  const [showCompleteModal, setShowCompleteModal] = React.useState(false);
 
   const titleType = getResponsiveValues('headline-lg');
   const sectionType = getResponsiveValues('title-sm');
@@ -40,6 +44,25 @@ export default function UsoScreen() {
     text2: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
     tint: colors['brand-purple'],
   }), [isDark]);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const userId = session?.user?.id;
+        if (!userId) return;
+        const { data } = await supabase
+          .from('usuarios')
+          .select('perfil_concluido, nome, email, telefone')
+          .eq('id', userId)
+          .maybeSingle();
+        const nomeOk = !!(data?.nome && data.nome.trim().length >= 3);
+        const emailOk = !!(data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
+        const telOk = !!(data?.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
+        const concluded = (data as any)?.perfil_concluido ?? (nomeOk && emailOk && telOk);
+        if (!concluded) setShowCompleteModal(true);
+      } catch {}
+    })();
+  }, [session]);
 
   return (
     <PageContainer>
@@ -212,6 +235,29 @@ export default function UsoScreen() {
           <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }}>Limpar estatísticas</Text>
         </Pressable>
       </ScrollView>
+
+      {/* Modal para concluir perfil */}
+      <Modal
+        visible={showCompleteModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCompleteModal(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <View style={{ width: '100%', maxWidth: 420, borderRadius: 14, borderWidth: 1, borderColor: ui.divider, backgroundColor: ui.card, padding: 16 }}>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Precisamos finalizar seu perfil</Text>
+            <Text style={{ marginTop: 6, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Complete nome, email e telefone para continuar usando todos os recursos.</Text>
+            <View style={{ marginTop: 14, flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
+              <Pressable onPress={() => setShowCompleteModal(false)} style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>Depois</Text>
+              </Pressable>
+              <Pressable onPress={() => { setShowCompleteModal(false); require('expo-router').router.push('/perfil/editar'); }} style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Concluir agora</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </PageContainer>
   );
 }

@@ -77,7 +77,16 @@ export default function PerfilScreen() {
 
   const [profileName, setProfileName] = useState<string>('');
   const [profileEmail, setProfileEmail] = useState<string>('');
-  const [profileAvatar, setProfileAvatar] = useState<string>('https://i.pravatar.cc/160?img=12');
+  const [profileAvatar, setProfileAvatar] = useState<string>('');
+  const [needsCompletion, setNeedsCompletion] = useState<boolean>(false);
+  const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
+
+  const getInitials = (name?: string) => {
+    const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+    const first = parts[0]?.[0] || 'U';
+    const second = parts[1]?.[0] || '';
+    return (first + second).toUpperCase();
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -90,18 +99,26 @@ export default function PerfilScreen() {
         if (userId) {
           const { data, error } = await supabase
             .from('usuarios')
-            .select('nome, email, imagem_url')
+            .select('nome, email, imagem_url, perfil_concluido, telefone')
             .eq('id', userId)
             .maybeSingle();
           if (!mounted) return;
           if (!error && data) {
             setProfileName(data.nome || nameFromAuth || 'Usuário');
             setProfileEmail(data.email || emailFromAuth);
-            setProfileAvatar(data.imagem_url || avatarFromAuth || 'https://i.pravatar.cc/160?img=12');
+            setProfileAvatar(data.imagem_url || avatarFromAuth || '');
+            const nomeOk = !!(data.nome && data.nome.trim().length >= 3);
+            const emailOk = !!(data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
+            const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
+            const concluded = data.perfil_concluido ?? (nomeOk && emailOk && telOk);
+            setNeedsCompletion(!concluded);
+            if (!concluded) setShowCompleteModal(true);
           } else {
             setProfileName(nameFromAuth || 'Usuário');
             setProfileEmail(emailFromAuth);
-            setProfileAvatar(avatarFromAuth || 'https://i.pravatar.cc/160?img=12');
+            setProfileAvatar(avatarFromAuth || '');
+            setNeedsCompletion(true);
+            setShowCompleteModal(true);
           }
         }
       } catch {
@@ -124,16 +141,21 @@ export default function PerfilScreen() {
           if (!userId) return;
           const { data, error } = await supabase
             .from('usuarios')
-            .select('nome, email, imagem_url')
+            .select('nome, email, imagem_url, perfil_concluido, telefone')
             .eq('id', userId)
             .maybeSingle();
           if (!isActive) return;
           if (!error && data) {
             setProfileName(data.nome || nameFromAuth || 'Usuário');
             setProfileEmail(data.email || emailFromAuth);
-            const url = data.imagem_url || avatarFromAuth || 'https://i.pravatar.cc/160?img=12';
+            const url = data.imagem_url || avatarFromAuth || '';
             // força refresh do cache da imagem
             setProfileAvatar(url ? `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}` : url);
+            const nomeOk = !!(data.nome && data.nome.trim().length >= 3);
+            const emailOk = !!(data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
+            const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
+            const concluded = data.perfil_concluido ?? (nomeOk && emailOk && telOk);
+            setNeedsCompletion(!concluded);
           }
         } catch {}
       })();
@@ -146,7 +168,13 @@ export default function PerfilScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <View style={styles.avatarOuter}>
-          <Image source={{ uri: profileAvatar }} style={styles.avatar} />
+          {profileAvatar ? (
+            <Image source={{ uri: profileAvatar }} style={styles.avatar} />
+          ) : (
+            <View style={[styles.avatar, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#E5E7EB' }]}>
+              <Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>{getInitials(profileName)}</Text>
+            </View>
+          )}
         </View>
       <Text
         style={{
@@ -391,6 +419,33 @@ export default function PerfilScreen() {
                 >
                   Sair
                 </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal para concluir perfil */}
+      <Modal
+        visible={showCompleteModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCompleteModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.confirmCard, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
+            <Text style={{ color: ui.textPrimary, fontFamily: modalTitleType.fontFamily, fontSize: modalTitleType.fontSize.default, lineHeight: modalTitleType.lineHeight.default }}>
+              Precisamos finalizar seu perfil
+            </Text>
+            <Text style={{ marginTop: 6, color: ui.textSecondary, fontFamily: modalDescType.fontFamily, fontSize: modalDescType.fontSize.default, lineHeight: modalDescType.lineHeight.default }}>
+              Complete nome, email e telefone para continuar usando todos os recursos.
+            </Text>
+            <View style={styles.confirmActions}>
+              <Pressable onPress={() => setShowCompleteModal(false)} style={[styles.confirmButton, styles.confirmButtonSecondary, { borderColor: ui.divider }]}>
+                <Text style={{ color: ui.textPrimary, fontFamily: modalButtonType.fontFamily, fontSize: modalButtonType.fontSize.default, lineHeight: modalButtonType.lineHeight.default }}>Depois</Text>
+              </Pressable>
+              <Pressable onPress={() => { setShowCompleteModal(false); router.push('/perfil/editar'); }} style={[styles.confirmButton, { backgroundColor: isDark ? colors['primary-dark'] : colors['primary-light'] }]}>
+                <Text style={{ color: '#FFFFFF', fontFamily: modalButtonType.fontFamily, fontSize: modalButtonType.fontSize.default, lineHeight: modalButtonType.lineHeight.default }}>Concluir agora</Text>
               </Pressable>
             </View>
           </View>

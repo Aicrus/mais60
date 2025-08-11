@@ -9,10 +9,12 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useResponsive } from '../../hooks/useResponsive';
 import { HapticTab } from '@/components/HapticTab';
 import { getResponsiveValues } from '../../design-system/tokens/typography';
+import { colors } from '../../design-system/tokens/colors';
 
 // Definindo cores baseadas no tema dinamicamente
 const getThemeColors = (isDark: boolean) => ({
-  activeTabColor: isDark ? '#4A6FA5' : '#892CDC', // primary-dark / primary-light
+  // Em dark, usar cor secundária; em light, manter a cor atual já usada nas tabs
+  activeTabColor: isDark ? colors['secondary-dark'] : '#892CDC',
   inactiveTabColor: isDark ? '#95A1AC' : '#57636C', // text-tertiary-dark / text-secondary-light
   tabBackgroundColor: isDark 
     ? '#14181B' // bg-secondary-dark sem transparência

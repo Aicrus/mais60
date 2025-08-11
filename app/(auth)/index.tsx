@@ -22,7 +22,7 @@ export default function AuthIndex() {
   if (!ready) return null;
 
   return (
-    <Redirect href={showOnboarding ? '/(auth)/onboarding/welcome' : '/(auth)/login'} />
+    <Redirect href={showOnboarding ? '/(auth)/onboarding/welcome' : '/(auth)/login-telefone'} />
   );
 }
 

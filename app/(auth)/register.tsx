@@ -409,7 +409,7 @@ export default function Register() {
                 </Button>
               </View>
 
-              {/* Link para login */}
+              {/* Link para cadastro via telefone */}
               <View className="flex-row justify-center mt-4">
                 <Text
                   style={{
@@ -419,9 +419,9 @@ export default function Register() {
                     lineHeight: bodyMdType.lineHeight.default,
                   }}
                 >
-                  Já tem uma conta?{' '}
+                  Preferia cadastrar com telefone?{' '}
                 </Text>
-                <Link href="/login" asChild>
+                <Link href="/register-telefone" asChild>
                   <Pressable>
                     <Text
                       style={{
@@ -431,7 +431,7 @@ export default function Register() {
                         lineHeight: bodyMdType.lineHeight.default,
                       }}
                     >
-                      Faça login
+                      Cadastrar por telefone
                     </Text>
                   </Pressable>
                 </Link>

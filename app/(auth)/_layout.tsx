@@ -40,9 +40,21 @@ export default function AuthLayout() {
         }}
       />
       <Stack.Screen
+        name="login-telefone"
+        options={{
+          title: 'Login por telefone'
+        }}
+      />
+      <Stack.Screen
         name="register"
         options={{
           title: 'Cadastro'
+        }}
+      />
+      <Stack.Screen
+        name="register-telefone"
+        options={{
+          title: 'Cadastro por telefone'
         }}
       />
     </Stack>

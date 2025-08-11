@@ -79,7 +79,13 @@ export default function Home() {
   const idosoImageAlt = require('@/assets/images/Imagem idoso feliz 8 ago 2025 (1).png');
   // Removidos assets remotos de módulos
   const [userName, setUserName] = useState<string>('você');
-  const [avatarUrl, setAvatarUrl] = useState<string>('https://i.pravatar.cc/120?img=20');
+  const [avatarUrl, setAvatarUrl] = useState<string>('');
+  const getInitials = (name?: string) => {
+    const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+    const first = parts[0]?.[0] || 'V';
+    const second = parts[1]?.[0] || '';
+    return (first + second).toUpperCase();
+  };
 
   // Exibe apenas primeiro e segundo nomes na Home
   const getFirstTwoNames = (name: string): string => {
@@ -99,15 +105,15 @@ export default function Home() {
         .maybeSingle();
       if (!error && data) {
         setUserName(data.nome || ((session?.user?.user_metadata as any)?.name as string) || 'você');
-        const url = data.imagem_url || ((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20';
+        const url = data.imagem_url || ((session?.user?.user_metadata as any)?.avatar_url as string) || '';
         setAvatarUrl(url ? `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}` : url);
       } else {
         setUserName(((session?.user?.user_metadata as any)?.name as string) || 'você');
-        setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
+        setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || '');
       }
     } catch {
       setUserName(((session?.user?.user_metadata as any)?.name as string) || 'você');
-      setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
+      setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || '');
     }
   };
 
@@ -243,7 +249,13 @@ export default function Home() {
   const TopRow = () => (
     <View style={styles.topRowHeader}>
       <View style={styles.topSide}>
-        <Image source={{ uri: avatarUrl }} style={styles.avatarSmall} />
+        {avatarUrl ? (
+          <Image source={{ uri: avatarUrl }} style={styles.avatarSmall} />
+        ) : (
+          <View style={[styles.avatarSmall, { alignItems: 'center', justifyContent: 'center', backgroundColor: '#E5E7EB' }]}> 
+            <Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>{getInitials(userName)}</Text>
+          </View>
+        )}
       </View>
       <View style={styles.topCenter}>
         <Image source={isDark ? logoAmarelo : logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />

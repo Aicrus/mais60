@@ -203,9 +203,14 @@ export default function EditarPerfilScreen() {
       }
 
       // Upsert na tabela de usuários do app
+      const emailValid = (() => { try { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()); } catch { return false; } })();
+      const nomeValid = !!nome && nome.trim().length >= 3;
+      const telValid = !!telefone && telefone.replace(/\D/g, '').length >= 10;
+      const perfilConcluido = !!(nomeValid && emailValid && telValid);
+
       const { error: dbErr } = await supabase
         .from('usuarios')
-        .upsert({ id: userId, nome: nome.trim(), email: email.trim(), imagem_url: avatarUrl || null, telefone: telefone.trim() || null })
+        .upsert({ id: userId, nome: nome.trim(), email: email.trim(), imagem_url: avatarUrl || null, telefone: telefone.trim() || null, perfil_concluido: perfilConcluido })
         .eq('id', userId);
       if (dbErr) {
         console.error('Erro ao salvar no banco:', dbErr);
@@ -283,8 +288,17 @@ export default function EditarPerfilScreen() {
 
         <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
           <View style={{ marginBottom: 12 }}>
+            <Text style={{
+              color: ui.textPrimary,
+              fontFamily: dsFontFamily['jakarta-semibold'],
+              fontSize: getResponsiveValues('body-lg').fontSize.default,
+              lineHeight: getResponsiveValues('body-lg').lineHeight.default,
+              marginBottom: 6,
+            }}>
+              Nome completo
+            </Text>
             <Input
-              label="Nome completo"
+              labelVariant="none"
               value={nome}
               onChangeText={(t) => { setNome(t); if (nomeError) setNomeError(''); }}
               placeholder="Seu nome e sobrenome"
@@ -293,9 +307,18 @@ export default function EditarPerfilScreen() {
               returnKeyType="next"
             />
           </View>
-          <View>
+          <View style={{ marginTop: 6 }}>
+            <Text style={{
+              color: ui.textPrimary,
+              fontFamily: dsFontFamily['jakarta-semibold'],
+              fontSize: getResponsiveValues('body-lg').fontSize.default,
+              lineHeight: getResponsiveValues('body-lg').lineHeight.default,
+              marginBottom: 6,
+            }}>
+              Email
+            </Text>
             <Input
-              label="Email"
+              labelVariant="none"
               value={email}
               onChangeText={(t) => { setEmail(t); if (emailError) setEmailError(''); }}
               placeholder="seuemail@exemplo.com"
@@ -306,8 +329,17 @@ export default function EditarPerfilScreen() {
             />
           </View>
           <View style={{ marginTop: 12 }}>
+            <Text style={{
+              color: ui.textPrimary,
+              fontFamily: dsFontFamily['jakarta-semibold'],
+              fontSize: getResponsiveValues('body-lg').fontSize.default,
+              lineHeight: getResponsiveValues('body-lg').lineHeight.default,
+              marginBottom: 6,
+            }}>
+              Telefone
+            </Text>
             <Input
-              label="Telefone"
+              labelVariant="none"
               value={telefone}
               onChangeText={setTelefone}
               placeholder="(11) 91234-5678"

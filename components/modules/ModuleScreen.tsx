@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, Pressable, ActivityIndicator, Modal } from 'react-native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
@@ -145,6 +145,27 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
     carregarVideos(selected);
   }, [selected, carregarVideos]);
   const [isChecklistOpen, setChecklistOpen] = useState<boolean>(false);
+  const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: auth } = await supabase.auth.getUser();
+        const userId = auth.user?.id;
+        if (!userId) return;
+        const { data } = await supabase
+          .from('usuarios')
+          .select('perfil_concluido, nome, email, telefone')
+          .eq('id', userId)
+          .maybeSingle();
+        const nomeOk = !!(data?.nome && data.nome.trim().length >= 3);
+        const emailOk = !!(data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
+        const telOk = !!(data?.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
+        const concluded = (data as any)?.perfil_concluido ?? (nomeOk && emailOk && telOk);
+        if (!concluded) setShowCompleteModal(true);
+      } catch {}
+    })();
+  }, []);
 
   return (
     <PageContainer>
@@ -343,6 +364,29 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           </View>
         </Sheet>
       </ScrollView>
+
+      {/* Modal para concluir perfil */}
+      <Modal
+        visible={showCompleteModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowCompleteModal(false)}
+      >
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <View style={{ width: '100%', maxWidth: 420, borderRadius: 14, borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : colors['divider-light'], backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', padding: 16 }}>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'] }}>Precisamos finalizar seu perfil</Text>
+            <Text style={{ marginTop: 6, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>Complete nome, email e telefone para continuar usando todos os recursos.</Text>
+            <View style={{ marginTop: 14, flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
+              <Pressable onPress={() => setShowCompleteModal(false)} style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : colors['divider-light'], alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>Depois</Text>
+              </Pressable>
+              <Pressable onPress={() => { setShowCompleteModal(false); router.push('/perfil/editar'); }} style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Concluir agora</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </PageContainer>
   );
 }
