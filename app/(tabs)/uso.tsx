@@ -6,6 +6,7 @@ import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { useUsage } from '@/contexts/usage';
 import { useSensors } from '@/contexts/sensors';
+import { useLocationTrack } from '@/contexts/location';
 import { Activity, Database } from 'lucide-react-native';
 
 function formatMinutes(totalSeconds: number) {
@@ -18,6 +19,7 @@ export default function UsoScreen() {
   const isDark = currentTheme === 'dark';
   const { aggregates, clearUsage } = useUsage();
   const sensors = useSensors();
+  const locationTrack = useLocationTrack();
 
   const titleType = getResponsiveValues('headline-lg');
   const statValueType = getResponsiveValues('title-sm');
@@ -74,6 +76,58 @@ export default function UsoScreen() {
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Bateria</Text>
             <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{sensors.batteryLevel != null ? `${Math.round((sensors.batteryLevel || 0) * 100)}%` : '—'}</Text>
           </View>
+          <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Caminhada (hoje)</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{(locationTrack.todayMeters / 1000).toFixed(2)} km • pontos {locationTrack.pointsCount}</Text>
+            <View style={{ height: 8 }} />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              {locationTrack.isTracking ? (
+                <Pressable onPress={locationTrack.stopTracking} style={{ height: 40, borderRadius: 10, backgroundColor: '#E11D48', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
+                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Parar</Text>
+                </Pressable>
+              ) : (
+                <Pressable onPress={locationTrack.startTracking} style={{ height: 40, borderRadius: 10, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
+                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Iniciar</Text>
+                </Pressable>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* Gráfico simples: minutos por módulo hoje */}
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 6, marginTop: 8 }}>Uso por módulo (hoje)</Text>
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
+          {Object.keys(aggregates.perModuleToday || {}).length === 0 ? (
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Sem dados hoje.</Text>
+          ) : (
+            Object.entries(aggregates.perModuleToday).map(([k, sec]) => {
+              const min = Math.max(1, Math.floor((sec as number) / 60));
+              const widthPct = Math.min(100, Math.max(8, min));
+              return (
+                <View key={k} style={{ marginBottom: 8 }}>
+                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], marginBottom: 4 }}>{k}</Text>
+                  <View style={{ height: 12, backgroundColor: '#E5E7EB', borderRadius: 999 }}>
+                    <View style={{ height: 12, width: `${widthPct}%`, backgroundColor: colors['brand-purple'], borderRadius: 999 }} />
+                  </View>
+                  <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{min} min</Text>
+                </View>
+              );
+            })
+          )}
+        </View>
+
+        {/* Histórico 7 dias */}
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 6, marginTop: 8 }}>Histórico (7 dias)</Text>
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, flexDirection: 'row', alignItems: 'flex-end', gap: 6 }]}> 
+          {aggregates.last7Days.map((d) => {
+            const min = Math.floor(d.seconds / 60);
+            const h = Math.min(80, Math.max(6, min));
+            return (
+              <View key={d.date} style={{ width: 16, height: 84, alignItems: 'center', justifyContent: 'flex-end' }}>
+                <View style={{ width: 16, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 4, borderTopRightRadius: 4 }} />
+              </View>
+            );
+          })}
         </View>
 
         {/* Lista de vídeos recentes */}

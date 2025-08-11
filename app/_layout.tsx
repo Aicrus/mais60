@@ -30,6 +30,7 @@ import { supabase } from '@/lib/supabase';
 import { FavoritesProvider } from '@/contexts/favorites';
 import { UsageProvider } from '@/contexts/usage';
 import { SensorsProvider } from '@/contexts/sensors';
+import { LocationProvider } from '@/contexts/location';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -151,7 +152,9 @@ export default function RootLayout() {
                 <FavoritesProvider>
                   <UsageProvider>
                     <SensorsProvider>
-                      <RootLayoutNav />
+                      <LocationProvider>
+                        <RootLayoutNav />
+                      </LocationProvider>
                     </SensorsProvider>
                   </UsageProvider>
                 </FavoritesProvider>
