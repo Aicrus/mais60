@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, Switch, Platform, ScrollView, Modal } from 'react-native';
 import { PageContainer } from '../../components/layout/PageContainer';
 import { useTheme } from '../../hooks/DesignSystemContext';
@@ -6,6 +6,7 @@ import { colors } from '../../design-system/tokens/colors';
 import { ThemeSelector } from '@/components/theme/ThemeSelector';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '../../design-system/tokens/typography';
 import { useAuth } from '../../contexts/auth';
+import { supabase } from '@/lib/supabase';
 import { Home, Bell, ChevronRight, LogOut, Moon, Cog, Shield } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -13,7 +14,7 @@ export default function PerfilScreen() {
   const router = useRouter();
   const { currentTheme, setThemeMode } = useTheme();
   const isDark = currentTheme === 'dark';
-  const { signOut } = useAuth();
+  const { signOut, session } = useAuth();
 
   const nameType = getResponsiveValues('headline-lg');
   const emailType = getResponsiveValues('body-sm');
@@ -75,15 +76,48 @@ export default function PerfilScreen() {
     </Pressable>
   );
 
+  const [profileName, setProfileName] = useState<string>('');
+  const [profileEmail, setProfileEmail] = useState<string>('');
+  const [profileAvatar, setProfileAvatar] = useState<string>('https://i.pravatar.cc/160?img=12');
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const userId = session?.user?.id;
+        const emailFromAuth = session?.user?.email || '';
+        const nameFromAuth = ((session?.user?.user_metadata as any)?.name as string) || '';
+        const avatarFromAuth = ((session?.user?.user_metadata as any)?.avatar_url as string) || '';
+        if (userId) {
+          const { data, error } = await supabase
+            .from('usuarios')
+            .select('nome, email, imagem_url')
+            .eq('id', userId)
+            .maybeSingle();
+          if (!mounted) return;
+          if (!error && data) {
+            setProfileName(data.nome || nameFromAuth || 'Usuário');
+            setProfileEmail(data.email || emailFromAuth);
+            setProfileAvatar(data.imagem_url || avatarFromAuth || 'https://i.pravatar.cc/160?img=12');
+          } else {
+            setProfileName(nameFromAuth || 'Usuário');
+            setProfileEmail(emailFromAuth);
+            setProfileAvatar(avatarFromAuth || 'https://i.pravatar.cc/160?img=12');
+          }
+        }
+      } catch {
+        // mantém defaults
+      }
+    })();
+    return () => { mounted = false; };
+  }, [session]);
+
   return (
     <PageContainer>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <View style={styles.header}>
         <View style={styles.avatarOuter}>
-          <Image
-            source={{ uri: 'https://i.pravatar.cc/160?img=12' }}
-            style={styles.avatar}
-          />
+          <Image source={{ uri: profileAvatar }} style={styles.avatar} />
         </View>
       <Text
         style={{
@@ -94,7 +128,7 @@ export default function PerfilScreen() {
           marginTop: 12,
         }}
       >
-          Coffeestories
+          {profileName || 'Usuário'}
         </Text>
         <Text
           style={{
@@ -105,7 +139,7 @@ export default function PerfilScreen() {
             marginTop: 4,
           }}
         >
-          mark.brock@icloud.com
+           {profileEmail || ''}
         </Text>
 
         <Pressable style={[styles.editButton, { backgroundColor: isDark ? colors['primary-dark'] : colors['primary-light'] }]}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, Platform, Pressable, ScrollView, ImageSourcePropType } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { useFocusEffect } from '@react-navigation/native';
@@ -7,6 +7,7 @@ import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { useAuth } from '@/contexts/auth';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'expo-router';
 import {
@@ -73,9 +74,35 @@ export default function Home() {
   const idosoImage = require('@/assets/images/Imagem idoso feliz 8 ago 2025.png');
   const idosoImageAlt = require('@/assets/images/Imagem idoso feliz 8 ago 2025 (1).png');
   // Removidos assets remotos de módulos
-  const userName = ((session?.user?.user_metadata as any)?.name as string) || 'você';
-  const avatarUrl =
-    ((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20';
+  const [userName, setUserName] = useState<string>('você');
+  const [avatarUrl, setAvatarUrl] = useState<string>('https://i.pravatar.cc/120?img=20');
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const userId = session?.user?.id;
+        if (!userId) return;
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select('nome, imagem_url, email')
+          .eq('id', userId)
+          .maybeSingle();
+        if (!mounted) return;
+        if (!error && data) {
+          setUserName(data.nome || ((session?.user?.user_metadata as any)?.name as string) || 'você');
+          setAvatarUrl(data.imagem_url || ((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
+        } else {
+          setUserName(((session?.user?.user_metadata as any)?.name as string) || 'você');
+          setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
+        }
+      } catch {
+        setUserName(((session?.user?.user_metadata as any)?.name as string) || 'você');
+        setAvatarUrl(((session?.user?.user_metadata as any)?.avatar_url as string) || 'https://i.pravatar.cc/120?img=20');
+      }
+    })();
+    return () => { mounted = false; };
+  }, [session]);
 
   const Row = ({
     icon,

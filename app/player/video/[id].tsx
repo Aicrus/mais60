@@ -362,17 +362,10 @@ export default function VideoPlayerScreen() {
       {/* Infos */}
       <View style={{ marginTop: 12 }}>
         <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>{initTitle || `Vídeo ${id}`}</Text>
-        {!!initSubtitle && (
-          <Text style={{ marginTop: 8, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>{initSubtitle}</Text>
-        )}
-        {/* Descrição / Benefícios */}
         {!!(initBenefits || initSubtitle) && (
-          <View style={{ marginTop: 10 }}>
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-bold'] }}>Descrição</Text>
-            <Text style={{ marginTop: 6, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>
-              {initBenefits || initSubtitle}
-            </Text>
-          </View>
+          <Text style={{ marginTop: 8, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>
+            {initBenefits || initSubtitle}
+          </Text>
         )}
       </View>
 
