@@ -250,22 +250,25 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
 
         {/* Botão para abrir o Checklist de Segurança (somente neste módulo) */}
         {moduleKey === 'seguranca-domiciliar' && (
-          <View style={{ marginTop: 4 }}>
+          <View style={{ marginTop: 6, alignItems: 'flex-end' }}>
             <Pressable
               onPress={() => setChecklistOpen(true)}
               accessibilityRole="button"
               style={{
-                alignSelf: 'flex-start',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
                 paddingHorizontal: 14,
                 paddingVertical: 10,
                 borderRadius: 999,
                 borderWidth: 1,
-                borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
-                backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF'
+                borderColor: 'transparent',
+                backgroundColor: colors['brand-blue']
               }}
             >
-              <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'] }}>
-                Checklist de segurança
+              <Shield size={16} color={'#FFFFFF'} />
+              <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-semibold'] }}>
+                Checklist de Segurança
               </Text>
             </Pressable>
           </View>
@@ -326,10 +329,10 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           onClose={() => setChecklistOpen(false)}
           position="bottom"
           showCloseButton
-          height={460}
+          height={520}
           testID="safety-checklist-sheet"
         >
-          <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
+          <View style={{ paddingHorizontal: 18, paddingVertical: 12 }}>
             <SafetyChecklist categoryId={(selected as any) as 'banheiro' | 'cozinha' | 'quarto'} />
           </View>
         </Sheet>

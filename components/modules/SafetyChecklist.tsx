@@ -89,18 +89,24 @@ export function SafetyChecklist({ categoryId }: { categoryId: SafetyCategory }) 
     return { done, total };
   }, [defaults, state]);
 
+  const brand = {
+    bg: colors['brand-blue'],
+    bgSoft: isDark ? 'rgba(59,130,246,0.20)' : 'rgba(59,130,246,0.10)',
+    textOn: '#FFFFFF',
+  };
+
   return (
     <View style={[styles.card, { borderColor: isDark ? colors['divider-dark'] : '#E5E7EB', backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF' }]}>
-      <View style={styles.headerRow}>
-        <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>
-          Checklist de segurança
+      <View style={[styles.headerRow, { backgroundColor: brand.bg, borderTopLeftRadius: 12, borderTopRightRadius: 12, marginHorizontal: -14, marginTop: -14, paddingHorizontal: 14, paddingVertical: 10 }] }>
+        <Text style={{ color: brand.textOn, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>
+          Checklist de Segurança
         </Text>
-        <Text style={{ color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>
+        <Text style={{ color: brand.textOn, fontFamily: dsFontFamily['jakarta-semibold'] }}>
           {progress.done}/{progress.total}
         </Text>
       </View>
 
-      <View style={{ marginTop: 8, gap: 12 }}>
+      <View style={{ marginTop: 12, gap: 12 }}>
         {defaults.map((item) => (
           <View key={item.id} style={styles.itemRow}>
             <Checkbox
