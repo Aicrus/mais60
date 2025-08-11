@@ -42,7 +42,7 @@
 - [x] **Tela de Reprodução de Vídeo** - para assistir os vídeos do YouTube
 - [x] **Tela de Favoritos** - vídeos salvos pelo usuário
 - [x] **Tela de Monitoramento/Estatísticas** - dados de uso e sensores
-
+- [x] **Notificacoes** - Nitificacoes gerais de baterias uso do app etc. 
 
 ## Checklist de Funcionalidades Principais (Detalhadas):
 
