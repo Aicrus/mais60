@@ -1,19 +1,18 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Platform } from 'react-native';
+import React, { useMemo, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, Platform, ActivityIndicator } from 'react-native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { ChevronLeft, Bell, Clock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { supabase } from '@/lib/supabase';
 
 type NotificationData = {
-  id: string | number;
-  title: string;
-  description: string;
-  time: string;
-  isUnread?: boolean;
-  icon?: 'bell' | 'clock';
+  id: string;
+  titulo: string;
+  descricao: string;
+  criado_em: string;
 };
 
 export default function NotificacoesScreen() {
@@ -36,28 +35,37 @@ export default function NotificacoesScreen() {
     tint: isDark ? colors['primary-dark'] : colors['primary-light'],
   }), [isDark]);
 
-  const data: NotificationData[] = [
-    {
-      id: 1,
-      title: 'Bem‑vindo ao Mais 60',
-      description: 'Explore as aulas e alongamentos no módulo Movimente‑se.',
-      time: 'agora',
-      isUnread: true,
-      icon: 'bell',
-    },
-    {
-      id: 2,
-      title: 'Dica do dia',
-      description: 'Faça uma pausa para respiração guiada de 3 minutos.',
-      time: '2 h',
-      icon: 'clock',
-    },
-  ];
+  const [items, setItems] = useState<NotificationData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const IconFor = (name?: NotificationData['icon']) => {
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('notificacoes')
+          .select('id, titulo, descricao, criado_em')
+          .order('criado_em', { ascending: false });
+        if (!mounted) return;
+        if (!error && data) setItems(data as NotificationData[]);
+        else setItems([]);
+      } catch {
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const formatTime = (iso: string) => {
+    try { return new Date(iso).toLocaleString(); } catch { return ''; }
+  };
+
+  const IconFor = (createdAt?: string) => {
     const common = { size: 18, color: ui.tint, strokeWidth: 2 } as const;
-    if (name === 'clock') return <Clock {...common} />;
-    return <Bell {...common} />;
+    return createdAt && new Date(createdAt).getSeconds() % 2 === 0 ? <Bell {...common} /> : <Clock {...common} />;
   };
 
   return (
@@ -94,19 +102,28 @@ export default function NotificacoesScreen() {
         showsVerticalScrollIndicator={false}
         accessibilityRole="scrollbar"
       >
-        {data.map((n) => (
+        {loading && (
+          <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={colors['brand-purple']} />
+          </View>
+        )}
+        {!loading && items.length === 0 && (
+          <Text style={{ textAlign: 'center', color: ui.textSecondary, fontFamily: dsFontFamily['jakarta-medium'] }}>
+            Nenhuma notificação no momento.
+          </Text>
+        )}
+        {items.map((n) => (
           <View
             key={n.id}
             style={[
               styles.item,
               { backgroundColor: ui.bgSecondary, borderColor: ui.divider },
-              n.isUnread && { borderColor: ui.tint + '55' },
             ]}
             accessibilityRole="button"
-            accessibilityLabel={`${n.title}. ${n.description}`}
+            accessibilityLabel={`${n.titulo}. ${n.descricao}`}
           >
             <View style={[styles.iconWrap, { backgroundColor: ui.tint + '1A' }]}>
-              {IconFor(n.icon)}
+              {IconFor(n.criado_em)}
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <View style={styles.itemHeader}>
@@ -119,7 +136,7 @@ export default function NotificacoesScreen() {
                     lineHeight: itemTitleType.lineHeight.default,
                   }}
                 >
-                  {n.title}
+                  {n.titulo}
                 </Text>
                 <Text
                   style={{
@@ -129,7 +146,7 @@ export default function NotificacoesScreen() {
                     lineHeight: itemTimeType.lineHeight.default,
                   }}
                 >
-                  {n.time}
+                  {formatTime(n.criado_em)}
                 </Text>
               </View>
               <Text
@@ -141,10 +158,9 @@ export default function NotificacoesScreen() {
                   lineHeight: itemDescType.lineHeight.default,
                 }}
               >
-                {n.description}
+                {n.descricao}
               </Text>
             </View>
-            {n.isUnread && <View style={[styles.unreadDot, { backgroundColor: ui.tint }]} />}
           </View>
         ))}
       </ScrollView>
@@ -202,14 +218,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-  },
-  unreadDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    position: 'absolute',
-    top: 12,
-    right: 12,
   },
 });
 

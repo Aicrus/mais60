@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
@@ -100,10 +100,13 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [videos, setVideos] = useState<VideoItem[]>([]);
+  const [loadingCategorias, setLoadingCategorias] = useState<boolean>(true);
+  const [loadingVideos, setLoadingVideos] = useState<boolean>(true);
 
-  const [selected, setSelected] = useState<string>('');
+  const [selected, setSelected] = useState<string>('__todos__');
   
   const carregarCategorias = useCallback(async () => {
+    setLoadingCategorias(true);
     const { data, error } = await supabase
       .from('categorias')
       .select('id, titulo')
@@ -111,27 +114,29 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
       .order('ordem', { ascending: true });
     if (!error && data) {
       setCategorias(data as Categoria[]);
-      if (!selected && data.length > 0) setSelected(data[0].id);
     }
-  }, [moduleKey, selected]);
+    setLoadingCategorias(false);
+  }, [moduleKey]);
 
   const carregarVideos = useCallback(async (categoriaId?: string) => {
+    setLoadingVideos(true);
     let query = supabase
       .from('videos')
       .select('id, youtube_id, titulo, descricao, categoria_id')
       .eq('pilar_id', moduleKey)
       .eq('publicado', true)
       .order('criado_em', { ascending: false });
-    if (categoriaId) {
+    if (categoriaId && categoriaId !== '__todos__') {
       query = query.eq('categoria_id', categoriaId);
     }
     const { data, error } = await query;
     if (!error && data) setVideos(data as unknown as VideoItem[]);
+    setLoadingVideos(false);
   }, [moduleKey]);
 
   useEffect(() => {
     carregarCategorias();
-    carregarVideos();
+    carregarVideos('__todos__');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleKey]);
 
@@ -209,7 +214,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
 
         {/* Filtros por categoria (chips simples) */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 8 }}>
-          {categorias.map((opt) => (
+          {[{ id: '__todos__', titulo: 'Todos' } as Categoria, ...categorias].map((opt) => (
             <Pressable
               key={opt.id}
               onPress={() => setSelected(opt.id)}
@@ -264,8 +269,18 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           </View>
         )}
 
-        {/* Lista de vídeos do Supabase */}
+        {/* Lista de vídeos do Supabase com loading e empty state */}
         <View style={{ gap: 12, marginTop: 8 }}>
+          {(loadingCategorias || loadingVideos) && (
+            <View style={{ paddingVertical: 24, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color={colors['brand-purple']} />
+            </View>
+          )}
+          {!loadingVideos && videos.length === 0 && (
+            <Text style={{ textAlign: 'center', color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>
+              Nenhum vídeo encontrado.
+            </Text>
+          )}
           {videos.map((i) => (
             <Pressable
               key={i.id}
@@ -305,6 +320,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                     fontSize: listSubtitleType.fontSize.default,
                     lineHeight: listSubtitleType.lineHeight.default,
                   }}
+                  numberOfLines={3}
                 >
                   {i.descricao || 'YouTube'}
                 </Text>
