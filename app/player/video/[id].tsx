@@ -5,7 +5,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { fontFamily as dsFontFamily, getResponsiveValues } from '@/design-system/tokens/typography';
-import { ChevronLeft, Play, Pause, Maximize2, X } from 'lucide-react-native';
+import { ChevronLeft, Play, Pause, Maximize2, X, Heart } from 'lucide-react-native';
 import { WebView } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
@@ -15,7 +15,7 @@ export default function VideoPlayerScreen() {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
 
-  const titleType = getResponsiveValues('headline-lg');
+  const titleType = getResponsiveValues('title-md');
   const bodyType = getResponsiveValues('body-lg');
 
   const videoId = useMemo(() => {
@@ -27,6 +27,7 @@ export default function VideoPlayerScreen() {
   const webviewRef = useRef<WebView>(null);
   const fsWebviewRef = useRef<WebView>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [fsStartAt, setFsStartAt] = useState<number>(0);
   const [fsAutoPlay, setFsAutoPlay] = useState<boolean>(true);
@@ -87,11 +88,11 @@ export default function VideoPlayerScreen() {
         if(window.ReactNativeWebView){ window.ReactNativeWebView.postMessage(JSON.stringify(msg)); }
       }
       function onYouTubeIframeAPIReady(){
-        player = new YT.Player('player', {
+           player = new YT.Player('player', {
           height: '100%', width: '100%', videoId: '${id}',
           playerVars: {
             playsinline: 1,
-            autoplay: 1,
+            autoplay: 0,
             controls: ${controlsValue},
             rel: 0,
             modestbranding: 1,
@@ -101,15 +102,15 @@ export default function VideoPlayerScreen() {
           },
           host: '${host}',
           events: {
-            'onReady': function(){ try { player.mute(); player.playVideo(); } catch(e) {} post({ type: 'ready' }); },
+            'onReady': function(){ try { player.unMute(); } catch(e) {} post({ type: 'ready' }); },
             'onStateChange': function(e){ post({ type: 'state', data: e.data }); },
             'onError': function(e){ post({ type: 'error', data: e.data }); }
           }
         });
       }
-      window.playVideo = function(){ if(player){ player.playVideo(); } };
+      window.playVideo = function(){ if(player){ try{ player.unMute(); }catch(e){} player.playVideo(); } };
       window.pauseVideo = function(){ if(player){ player.pauseVideo(); } };
-      window.togglePlay = function(){ if(!player) return; var s = player.getPlayerState(); if(s===1){ player.pauseVideo(); } else { player.playVideo(); } };
+      window.togglePlay = function(){ if(!player) return; var s = player.getPlayerState(); if(s===1){ player.pauseVideo(); } else { try{ player.unMute(); }catch(e){} player.playVideo(); } };
       window.seekBy = function(sec){ if(!player) return; var t = player.getCurrentTime(); player.seekTo(t + sec, true); };
       window.requestFullscreenPlayer = function(){ var iframe = player && player.getIframe ? player.getIframe() : null; var el = iframe || document.getElementById('player'); if(el && el.requestFullscreen){ el.requestFullscreen(); } };
       window.getState = function(){
@@ -283,9 +284,7 @@ export default function VideoPlayerScreen() {
                 // 1 = playing, 2 = paused
                 const playing = msg.data === 1;
                 setIsPlaying(playing);
-                if (playing || msg.data === 3) { // 3 = buffering
-                  setPlayerVisible(true);
-                }
+                setPlayerVisible(true);
               } else if (msg?.type === 'fsCurrent') {
                 // Sincroniza estado do FS no embed e garante play visível
                 const t = Number(msg?.data?.time) || 0;
@@ -312,13 +311,22 @@ export default function VideoPlayerScreen() {
           }}
           style={{ flex: 1, borderRadius: 16, overflow: 'hidden', opacity: playerVisible ? 1 : 0 }}
         />
-        {/* Camada bloqueadora de toques no conteúdo do YouTube */}
+        {/* Overlay moderno com botão grande Play/Pause */}
         <Pressable
           onPress={() => sendJS('window.togglePlay()')}
           accessibilityRole="button"
           accessibilityLabel={isPlaying ? 'Pausar vídeo' : 'Reproduzir vídeo'}
           style={styles.touchBlocker}
-        />
+        >
+          {!isPlaying && (
+            <View style={styles.overlayScrim} pointerEvents="none" />
+          )}
+          <View style={styles.centerControls} pointerEvents="none">
+            <View style={styles.bigCircle}>
+              {isPlaying ? <Pause size={36} color={'#FFFFFF'} /> : <Play size={36} color={'#FFFFFF'} />}
+            </View>
+          </View>
+        </Pressable>
         {!playerVisible && (
           <View style={styles.placeholder} pointerEvents="none">
             <Image
@@ -338,42 +346,48 @@ export default function VideoPlayerScreen() {
         <Text style={{ marginTop: 8, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>Descrição breve do vídeo com instruções simples.</Text>
       </View>
 
-      {/* Controles grandes (somente em retrato/vertical) */}
+      {/* Controles inferiores compactos: -15s, +15s, Expandir, Favoritar */}
       {!showFullscreen && !isLandscapeDevice && (
-      <View style={styles.controlsRow}>
-        <Pressable
-          style={styles.control}
-          accessibilityRole="button"
-          accessibilityLabel={isPlaying ? 'Pausar' : 'Reproduzir'}
-          onPress={() => sendJS('window.togglePlay()')}
-        >
-          {isPlaying ? <Pause size={26} color={'#FFFFFF'} /> : <Play size={26} color={'#FFFFFF'} />}
-        </Pressable>
-        <Pressable
-          style={styles.control}
-          accessibilityRole="button"
-          accessibilityLabel="Voltar 15 segundos"
-          onPress={() => sendJS('window.seekBy(-15)')}
-        >
-          <Text style={{ color: '#FFF', fontFamily: dsFontFamily['jakarta-bold'] }}>-15s</Text>
-        </Pressable>
-        <Pressable
-          style={styles.control}
-          accessibilityRole="button"
-          accessibilityLabel="Avançar 15 segundos"
-          onPress={() => sendJS('window.seekBy(15)')}
-        >
-          <Text style={{ color: '#FFF', fontFamily: dsFontFamily['jakarta-bold'] }}>+15s</Text>
-        </Pressable>
-        <Pressable
-          style={styles.control}
-          accessibilityRole="button"
-          accessibilityLabel="Tela cheia"
-          onPress={() => sendJS('window.getState()')}
-        >
-          <Maximize2 size={26} color={'#FFFFFF'} />
-        </Pressable>
-      </View>
+        <View style={styles.controlsCompactRow}>
+          <Pressable
+            style={[styles.smallControl, { backgroundColor: colors['brand-purple'] }]}
+            accessibilityRole="button"
+            accessibilityLabel="Voltar 15 segundos"
+            onPress={() => sendJS('window.seekBy(-15)')}
+          >
+            <Text style={styles.smallControlText}>-15s</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.smallControl, { backgroundColor: colors['brand-purple'] }]}
+            accessibilityRole="button"
+            accessibilityLabel="Avançar 15 segundos"
+            onPress={() => sendJS('window.seekBy(15)')}
+          >
+            <Text style={styles.smallControlText}>+15s</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.smallControl,
+              { backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Tela cheia"
+            onPress={() => sendJS('window.getState()')}
+          >
+            <Maximize2 size={20} color={isDark ? '#FFFFFF' : colors['brand-purple']} />
+          </Pressable>
+          <Pressable
+            style={[
+              styles.smallControl,
+              { backgroundColor: isFavorite ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+            onPress={() => setIsFavorite((v) => !v)}
+          >
+            <Heart size={20} color={isFavorite ? '#FFFFFF' : (isDark ? '#FFFFFF' : colors['brand-purple'])} />
+          </Pressable>
+        </View>
       )}
 
       <Modal
@@ -509,9 +523,15 @@ const styles = StyleSheet.create({
   control: { flex: 1, height: 56, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors['brand-purple'] },
   fullscreenClose: { position: 'absolute', top: 28, right: 16, width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
   fullscreenControlsRow: { position: 'absolute', left: 16, right: 16, bottom: 16, flexDirection: 'row', gap: 10 },
-  touchBlocker: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, borderRadius: 16 },
+  touchBlocker: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  centerControls: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
+  bigCircle: { width: 84, height: 84, borderRadius: 42, backgroundColor: 'rgba(67,5,147,0.95)', alignItems: 'center', justifyContent: 'center' },
+  overlayScrim: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.25)' },
   fullscreenTouchBlocker: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 },
   placeholder: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
+  controlsCompactRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  smallControl: { height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 },
+  smallControlText: { color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] },
 });
 
 
