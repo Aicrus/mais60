@@ -41,7 +41,7 @@
 - [x] **Tela de Lista de Vídeos** - lista de vídeos por área (acessada pelos cards)
 - [x] **Tela de Reprodução de Vídeo** - para assistir os vídeos do YouTube
 - [x] **Tela de Favoritos** - vídeos salvos pelo usuário
-- [ ] **Tela de Monitoramento/Estatísticas** - dados de uso e sensores
+- [x] **Tela de Monitoramento/Estatísticas** - dados de uso e sensores
 
 
 ## Checklist de Funcionalidades Principais (Detalhadas):
