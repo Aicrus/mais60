@@ -29,6 +29,7 @@ import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/lib/supabase';
 import { FavoritesProvider } from '@/contexts/favorites';
 import { UsageProvider } from '@/contexts/usage';
+import { SensorsProvider } from '@/contexts/sensors';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -149,7 +150,9 @@ export default function RootLayout() {
                 {/* eslint-disable-next-line react/jsx-no-undef */}
                 <FavoritesProvider>
                   <UsageProvider>
-                    <RootLayoutNav />
+                    <SensorsProvider>
+                      <RootLayoutNav />
+                    </SensorsProvider>
                   </UsageProvider>
                 </FavoritesProvider>
               </AuthProvider>

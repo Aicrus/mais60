@@ -12,7 +12,7 @@ import { WebView } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
 export default function VideoPlayerScreen() {
-  const { id, title: initTitle, subtitle: initSubtitle } = useLocalSearchParams<{ id: string; title?: string; subtitle?: string }>();
+  const { id, title: initTitle, subtitle: initSubtitle, module: initModule } = useLocalSearchParams<{ id: string; title?: string; subtitle?: string; module?: string }>();
   const router = useRouter();
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
@@ -30,7 +30,7 @@ export default function VideoPlayerScreen() {
   const fsWebviewRef = useRef<WebView>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
-  const { logWatch } = useUsage();
+  const { logWatch, markCompleted } = useUsage();
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [fsStartAt, setFsStartAt] = useState<number>(0);
   const [fsAutoPlay, setFsAutoPlay] = useState<boolean>(true);
@@ -238,7 +238,7 @@ export default function VideoPlayerScreen() {
   useEffect(() => {
     if (!isPlaying) return;
     const tid = setInterval(() => {
-      logWatch({ videoId, seconds: 5, title: (initTitle as string) || `Vídeo ${videoId}` });
+      logWatch({ videoId, seconds: 5, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
     }, 5000);
     return () => clearInterval(tid);
   }, [isPlaying, videoId, initTitle, logWatch]);
@@ -360,7 +360,7 @@ export default function VideoPlayerScreen() {
         )}
       </View>
 
-      {/* Controles inferiores compactos: -15s, +15s, Expandir, Favoritar */}
+      {/* Controles inferiores compactos: -15s, +15s, Expandir, Favoritar, Concluir */}
       {!showFullscreen && !isLandscapeDevice && (
         <View style={styles.controlsCompactRow}>
           <Pressable
@@ -400,6 +400,14 @@ export default function VideoPlayerScreen() {
             onPress={() => toggleFavorite({ id: videoId, title: (initTitle as string) || `Vídeo ${videoId}`, subtitle: (initSubtitle as string) || 'YouTube' })}
           >
             <Heart size={20} color={isFavorite(videoId) ? '#FFFFFF' : (isDark ? '#FFFFFF' : colors['brand-purple'])} />
+          </Pressable>
+          <Pressable
+            style={[styles.smallControl, { backgroundColor: colors['brand-purple'] }]}
+            accessibilityRole="button"
+            accessibilityLabel={'Marcar como concluído'}
+            onPress={() => markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) })}
+          >
+            <Text style={styles.smallControlText}>Concluir</Text>
           </Pressable>
         </View>
       )}

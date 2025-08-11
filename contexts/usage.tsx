@@ -2,16 +2,21 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/contexts/auth';
 
+type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
+
 type VideoUsage = {
   videoId: string;
   title?: string;
   seconds: number;
   lastAt: number; // epoch ms
+  module?: ModuleKey | string;
+  completed?: boolean;
 };
 
 type DayUsage = {
   totalSeconds: number;
   videos: Record<string, VideoUsage>;
+  modules: Record<string, { count: number; seconds: number }>;
 };
 
 type UsageStorage = {
@@ -23,11 +28,16 @@ type Aggregates = {
   todaySeconds: number;
   weekSeconds: number;
   recentVideos: Array<VideoUsage & { date: string }>; // últimos 14 dias
+  perModuleToday: Record<string, number>; // seconds
+  last7Days: Array<{ date: string; seconds: number }>;
 };
 
 type UsageContextData = {
   aggregates: Aggregates;
   logWatch: (params: { videoId: string; seconds: number; title?: string }) => Promise<void>;
+  logWatch: (params: { videoId: string; seconds: number; title?: string; module?: ModuleKey | string }) => Promise<void>;
+  logModuleAccess: (moduleKey: ModuleKey | string) => Promise<void>;
+  markCompleted: (params: { videoId: string; title?: string; module?: ModuleKey | string }) => Promise<void>;
   clearUsage: () => Promise<void>;
 };
 
@@ -80,18 +90,48 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     try { await AsyncStorage.setItem(storageKey, JSON.stringify(data)); } catch {}
   }, [storageKey]);
 
-  const logWatch = useCallback(async ({ videoId, seconds, title }: { videoId: string; seconds: number; title?: string }) => {
+  const logWatch = useCallback(async ({ videoId, seconds, title, module }: { videoId: string; seconds: number; title?: string; module?: ModuleKey | string }) => {
     if (!videoId || !Number.isFinite(seconds) || seconds <= 0) return;
     const now = new Date();
     const dayKey = formatDate(now);
     const next: UsageStorage = { days: { ...usage.days }, updatedAt: Date.now() };
-    const day = next.days[dayKey] ?? { totalSeconds: 0, videos: {} };
-    const current = day.videos[videoId] ?? { videoId, seconds: 0, lastAt: 0, title };
+    const day = next.days[dayKey] ?? { totalSeconds: 0, videos: {}, modules: {} };
+    const current = day.videos[videoId] ?? { videoId, seconds: 0, lastAt: 0, title, module };
     current.seconds += seconds;
     current.lastAt = Date.now();
     if (title && !current.title) current.title = title;
+    if (module && !current.module) current.module = module;
     day.videos[videoId] = current;
     day.totalSeconds = Object.values(day.videos).reduce((acc, v) => acc + v.seconds, 0);
+    // Acumula segundos por módulo
+    const mk = (module || current.module || 'desconhecido') as string;
+    const m = day.modules[mk] ?? { count: 0, seconds: 0 };
+    m.seconds += seconds;
+    day.modules[mk] = m;
+    next.days[dayKey] = day;
+    await persist(next);
+  }, [usage, persist]);
+
+  const logModuleAccess = useCallback(async (moduleKey: ModuleKey | string) => {
+    const dayKey = formatDate(new Date());
+    const next: UsageStorage = { days: { ...usage.days }, updatedAt: Date.now() };
+    const day = next.days[dayKey] ?? { totalSeconds: 0, videos: {}, modules: {} };
+    const m = day.modules[moduleKey] ?? { count: 0, seconds: 0 };
+    m.count += 1;
+    day.modules[moduleKey] = m;
+    next.days[dayKey] = day;
+    await persist(next);
+  }, [usage, persist]);
+
+  const markCompleted = useCallback(async ({ videoId, title, module }: { videoId: string; title?: string; module?: ModuleKey | string }) => {
+    const dayKey = formatDate(new Date());
+    const next: UsageStorage = { days: { ...usage.days }, updatedAt: Date.now() };
+    const day = next.days[dayKey] ?? { totalSeconds: 0, videos: {}, modules: {} };
+    const current = day.videos[videoId] ?? { videoId, seconds: 0, lastAt: Date.now(), title, module, completed: true };
+    current.completed = true;
+    if (title && !current.title) current.title = title;
+    if (module && !current.module) current.module = module;
+    day.videos[videoId] = current;
     next.days[dayKey] = day;
     await persist(next);
   }, [usage, persist]);
@@ -116,7 +156,19 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
       }
     });
     list.sort((a, b) => b.lastAt - a.lastAt);
-    return { todaySeconds, weekSeconds, recentVideos: list.slice(0, 20) };
+    // Por módulo hoje
+    const perModuleToday = { ...(usage.days[todayKey]?.modules || {}) } as Record<string, { count: number; seconds: number }>;
+    const perModuleSeconds: Record<string, number> = {};
+    Object.entries(perModuleToday).forEach(([k, v]) => { perModuleSeconds[k] = v.seconds; });
+    // Últimos 7 dias
+    const last7Days: Array<{ date: string; seconds: number }> = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = formatDate(d);
+      last7Days.push({ date: key, seconds: usage.days[key]?.totalSeconds || 0 });
+    }
+    return { todaySeconds, weekSeconds, recentVideos: list.slice(0, 20), perModuleToday: perModuleSeconds, last7Days };
   }, [usage]);
 
   const clearUsage = useCallback(async () => {
@@ -124,7 +176,7 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     await persist(empty);
   }, [persist]);
 
-  const value = useMemo(() => ({ aggregates, logWatch, clearUsage }), [aggregates, logWatch, clearUsage]);
+  const value = useMemo(() => ({ aggregates, logWatch, logModuleAccess, markCompleted, clearUsage }), [aggregates, logWatch, logModuleAccess, markCompleted, clearUsage]);
 
   return (
     <UsageContext.Provider value={value}>

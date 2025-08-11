@@ -30,18 +30,9 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Auth' }} />
-      <Stack.Screen
-        name="onboarding/welcome"
-        options={{ title: 'Boas-vindas' }}
-      />
-      <Stack.Screen
-        name="onboarding/permissions"
-        options={{ title: 'Permissões' }}
-      />
-      <Stack.Screen
-        name="onboarding/accessibility"
-        options={{ title: 'Acessibilidade' }}
-      />
+      <Stack.Screen name="onboarding/welcome" options={{ title: 'Boas-vindas' }} />
+      <Stack.Screen name="onboarding/intro2" options={{ title: 'Introdução 2' }} />
+      <Stack.Screen name="onboarding/intro3" options={{ title: 'Introdução 3' }} />
       <Stack.Screen
         name="login"
         options={{

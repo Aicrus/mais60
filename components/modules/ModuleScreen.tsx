@@ -7,6 +7,7 @@ import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system
 import { Dumbbell, Utensils, Shield, Brain, Heart, ChevronLeft, Play } from 'lucide-react-native';
 import { GradientView } from '@/components/effects/GradientView';
 import { useRouter } from 'expo-router';
+import { useUsage } from '@/contexts/usage';
 // Removidos imports de componentes excluídos; usando versões simples inline
 
 type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
@@ -15,6 +16,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
   const router = useRouter();
+  const { logModuleAccess } = useUsage();
 
   const titleType = getResponsiveValues('headline-lg');
   const subtitleType = getResponsiveValues('subtitle-sm');
@@ -257,7 +259,10 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
               ]}
               accessibilityRole="button"
               accessibilityLabel={`${i.title}. ${i.subtitle}`}
-              onPress={() => router.push({ pathname: '/player/video/[id]', params: { id: i.id, title: i.title, subtitle: i.subtitle || '' } })}
+              onPress={() => {
+                logModuleAccess(moduleKey);
+                router.push({ pathname: '/player/video/[id]', params: { id: i.id, title: i.title, subtitle: i.subtitle || '', module: moduleKey } });
+              }}
             >
               <View style={[styles.listIconCircle, { backgroundColor: colors['brand-purple'] }]}>
                 <Play size={18} color="#FFFFFF" />

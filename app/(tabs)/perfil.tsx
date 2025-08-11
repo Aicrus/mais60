@@ -6,18 +6,11 @@ import { colors } from '../../design-system/tokens/colors';
 import { ThemeSelector } from '@/components/theme/ThemeSelector';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '../../design-system/tokens/typography';
 import { useAuth } from '../../contexts/auth';
-import {
-  Home,
-  LifeBuoy,
-  Bell,
-  Fingerprint,
-  Grid3x3,
-  ChevronRight,
-  LogOut,
-  Moon,
-} from 'lucide-react-native';
+import { Home, Bell, ChevronRight, LogOut, Moon, Cog, Shield } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 export default function PerfilScreen() {
+  const router = useRouter();
   const { currentTheme, setThemeMode } = useTheme();
   const isDark = currentTheme === 'dark';
   const { signOut } = useAuth();
@@ -141,10 +134,24 @@ export default function PerfilScreen() {
           lineHeight: sectionType.lineHeight.default,
         }}
       >
-        Acessibilidade
+        Preferências
       </Text>
 
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
+        <Row
+          icon={<Cog size={20} color={ui.textPrimary} />}
+          label="Acessibilidade"
+          right={<ChevronRight size={20} color={ui.textSecondary} />}
+          onPress={() => router.push('/acessibilidade')}
+        />
+        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
+        <Row
+          icon={<Shield size={20} color={ui.textPrimary} />}
+          label="Permissões"
+          right={<ChevronRight size={20} color={ui.textSecondary} />}
+          onPress={() => router.push('/permissoes')}
+        />
+        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
         <Row
           icon={<Moon size={20} color={ui.textPrimary} />}
           label="Modo escuro"

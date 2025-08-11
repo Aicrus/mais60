@@ -6,7 +6,7 @@ import { useTheme } from '@/hooks/DesignSystemContext';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { colors } from '@/design-system/tokens/colors';
 
-export default function OnboardingWelcome() {
+export default function OnboardingIntro2() {
   const router = useRouter();
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
@@ -17,11 +17,11 @@ export default function OnboardingWelcome() {
   const ProgressDots = () => (
     <View style={{ gap: 10, alignItems: 'center', justifyContent: 'center' }}>
       <Text style={{ color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 2 }}>
-        Passo 1 de 3
+        Passo 2 de 3
       </Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        <View style={{ width: 10, height: 10, borderRadius: 999, backgroundColor: '#430593' }} />
         <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: isDark ? '#3F3F46' : '#E5E7EB' }} />
+        <View style={{ width: 10, height: 10, borderRadius: 999, backgroundColor: '#430593' }} />
         <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: isDark ? '#3F3F46' : '#E5E7EB' }} />
       </View>
     </View>
@@ -38,21 +38,21 @@ export default function OnboardingWelcome() {
           <Sparkles size={16} color={'#430593'} />
           <Text style={{ color: '#430593', fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 12 }}>Mais 60</Text>
         </View>
-        <Image source={require('@/assets/images/Imagem idoso feliz 8 ago 2025.png')} style={{ width: '100%', height: 300, marginTop: 8 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+        <Image source={require('@/assets/images/logo-mais60.png')} style={{ width: '100%', height: 220, marginTop: 8 }} resizeMode="contain" accessibilityIgnoresInvertColors />
       </View>
 
       <View style={{ alignItems: 'center' }}>
         <Text style={{ marginTop: 8, color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: title.fontSize.default, lineHeight: title.lineHeight.default, textAlign: 'center' }}>
-          Descubra conteúdos para o seu bem‑estar
+          Como funciona
         </Text>
         <Text style={{ marginTop: 10, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: subtitle.fontSize.default, lineHeight: subtitle.lineHeight.default, textAlign: 'center' }}>
-          Exercícios guiados, dicas de saúde e programas pensados para a sua rotina.
+          Explore vídeos nas 5 áreas principais, favorite conteúdos e acompanhe seu uso na aba "Uso".
         </Text>
       </View>
 
       <View style={{ gap: 16 }}>
         <ProgressDots />
-        <Pressable onPress={() => router.push('/(auth)/onboarding/intro2')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
+        <Pressable onPress={() => router.push('/(auth)/onboarding/intro3')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
           <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 18 }}>Avançar</Text>
         </Pressable>
       </View>
