@@ -56,7 +56,7 @@ export default function OnboardingIntro2() {
         bounces={false}
       >
         <View style={{ alignItems: 'center', marginTop: 8 }}>
-          <Image source={require('@/assets/images/Logo Mais 60 Verde.png')} style={{ width: 108, height: 32 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+          <Image source={require('@/assets/images/Logo Mais 60 Verde.png')} style={{ width: 128, height: 38 }} resizeMode="contain" accessibilityIgnoresInvertColors />
         {/** Espaço equivalente à imagem central removida para manter o layout como antes */}
         <View style={{ height: 300, marginTop: 8 }} />
       </View>
