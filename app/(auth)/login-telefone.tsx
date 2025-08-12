@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, TouchableWithoutFeedback, Keyboard, Platform, Image } from 'react-native';
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, TouchableWithoutFeedback, Keyboard, Platform, Image, KeyboardAvoidingView } from 'react-native';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -52,6 +52,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState<number>(0);
   const [timerId, setTimerId] = useState<any>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const sendCode = async () => {
     const normalized = normalizePhone(phone);
@@ -118,8 +119,36 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   // Garante tamanho "Grande" ao chegar nesta tela
   React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, []);
 
+  // Mantém o rodapé abaixo do teclado em Android e iOS (não sobrepondo o formulário)
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      const willShow = Keyboard.addListener('keyboardWillShow', (e) => {
+        setKeyboardHeight(e.endCoordinates?.height ?? 0);
+      });
+      const willHide = Keyboard.addListener('keyboardWillHide', () => {
+        setKeyboardHeight(0);
+      });
+      return () => {
+        try { willShow.remove(); } catch {}
+        try { willHide.remove(); } catch {}
+      };
+    }
+    // Android
+    const didShow = Keyboard.addListener('keyboardDidShow', (e) => {
+      setKeyboardHeight(e.endCoordinates?.height ?? 0);
+    });
+    const didHide = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      try { didShow.remove(); } catch {}
+      try { didHide.remove(); } catch {}
+    };
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={handlePressOutside}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0}>
       <View style={{ flex: 1 }} className={isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}>
         <View style={styles.container}>
           {/* Logo superior, mesmo tamanho/posição do onboarding */}
@@ -190,8 +219,8 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
             </View>
           </View>
         </View>
-        {/* Rodapé fixo com texto e faixas coloridas */}
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 10) }}>
+        {/* Rodapé fixo: no Android, desloca para baixo quando teclado aparece */}
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 10), transform: [{ translateY: keyboardHeight }] }}>
           <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
             <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
               Para conhecer os{' '}
@@ -212,6 +241,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
           <View style={{ height: 6, backgroundColor: '#FB5C3D' }} />
         </View>
       </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 }
