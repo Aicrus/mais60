@@ -5,7 +5,7 @@ import { Appearance } from 'react-native';
 // Importar tokens diretamente do design system
 import { colors } from '../design-system/tokens/colors';
 import { spacing } from '../design-system/tokens/spacing';
-import { fontSize as fontSizes, fontFamily } from '../design-system/tokens/typography';
+import { fontSize as fontSizes, fontFamily, setTypographyScale, getTypographyScale } from '../design-system/tokens/typography';
 import { borderRadius } from '../design-system/tokens/borders';
 import { boxShadow, opacity, zIndex, transitionDuration } from '../design-system/tokens/effects';
 
@@ -33,6 +33,13 @@ interface DesignSystemContextType {
   // Funções utilitárias
   getThemedValue: <T>(lightValue: T, darkValue: T) => T;
   getColorByMode: (colorBase: string, colorScheme?: ColorScheme) => string;
+  // Acessibilidade
+  accessibility: {
+    fontScale: 'normal' | 'grande' | 'muito-grande';
+    contrast: 'normal' | 'alto';
+    sound: 'com' | 'sem';
+  };
+  setAccessibility: (prefs: Partial<DesignSystemContextType['accessibility']>) => void;
   // Helpers
   isDark: boolean;
   isLight: boolean;
@@ -49,6 +56,13 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
   // Estado para o tema do dispositivo
   const [systemTheme, setSystemTheme] = useState<ColorScheme>(Appearance.getColorScheme() || 'light');
   const [isLoading, setIsLoading] = useState(true);
+  // Preferências de acessibilidade
+  const [accessibility, setAccessibilityState] = useState<{
+    fontScale: 'normal' | 'grande' | 'muito-grande';
+    contrast: 'normal' | 'alto';
+    sound: 'com' | 'sem';
+  }>({ fontScale: 'normal', contrast: 'normal', sound: 'com' });
+  const ACCESS_STORAGE_KEY = '@app_accessibility';
 
   // Carrega o tema salvo quando o app inicia
   useEffect(() => {
@@ -58,6 +72,23 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
         console.log('🎨 Tema salvo carregado:', savedTheme);
         if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme as ThemeMode)) {
           setThemeModeState(savedTheme as ThemeMode);
+        }
+        // Carrega acessibilidade
+        const savedAccess = await AsyncStorage.getItem(ACCESS_STORAGE_KEY);
+        if (savedAccess) {
+          try {
+            const parsed = JSON.parse(savedAccess);
+            if (parsed.fontScale === 'grande') setTypographyScale(1.12);
+            else if (parsed.fontScale === 'muito-grande') setTypographyScale(1.25);
+            else setTypographyScale(1.0);
+            setAccessibilityState({
+              fontScale: parsed.fontScale ?? 'normal',
+              contrast: parsed.contrast ?? 'normal',
+              sound: parsed.sound ?? 'com',
+            });
+          } catch {}
+        } else {
+          setTypographyScale(1.0);
         }
       } catch (error) {
         console.error('Erro ao carregar tema:', error);
@@ -90,6 +121,23 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
       await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
     } catch (error) {
       console.error('Erro ao salvar tema:', error);
+    }
+  };
+
+  // Atualiza e persiste acessibilidade
+  const setAccessibility = async (prefs: Partial<typeof accessibility>) => {
+    const next = { ...accessibility, ...prefs };
+    setAccessibilityState(next);
+    try {
+      await AsyncStorage.setItem(ACCESS_STORAGE_KEY, JSON.stringify(next));
+    } catch (e) {
+      console.error('Erro ao salvar acessibilidade:', e);
+    }
+    // Aplica escala tipográfica global
+    if (prefs.fontScale) {
+      if (prefs.fontScale === 'grande') setTypographyScale(1.12);
+      else if (prefs.fontScale === 'muito-grande') setTypographyScale(1.25);
+      else setTypographyScale(1.0);
     }
   };
 
@@ -156,6 +204,9 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
           const colorKey = `${colorBase}-${scheme}` as keyof typeof colors;
           return colors[colorKey] || '';
         },
+        // Acessibilidade
+        accessibility,
+        setAccessibility,
         // Helpers
         isDark,
         isLight,

@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PerfilScreen() {
   const router = useRouter();
-  const { currentTheme, setThemeMode } = useTheme();
+  const { currentTheme, setThemeMode, accessibility, setAccessibility } = useTheme();
   const isDark = currentTheme === 'dark';
   const { signOut, session } = useAuth();
 
@@ -29,7 +29,7 @@ export default function PerfilScreen() {
   const rowLabelType = getResponsiveValues('body-md');
 
   // Estados simples para acessibilidade e notificações
-  const [highContrast, setHighContrast] = useState(false);
+  const [highContrast, setHighContrast] = useState(accessibility.contrast === 'alto');
   // removido: sons
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -245,7 +245,7 @@ export default function PerfilScreen() {
           onPress={() => router.push('/acessibilidade')}
         />
         <View style={[styles.separator, { backgroundColor: ui.divider }]} />
-        <Row
+         <Row
           icon={<Shield size={20} color={ui.textPrimary} />}
           label="Permissões"
           right={<ChevronRight size={20} color={ui.textSecondary} />}
@@ -271,7 +271,16 @@ export default function PerfilScreen() {
           right={
             <Switch
               value={highContrast}
-              onValueChange={setHighContrast}
+              onValueChange={async (value) => {
+                setHighContrast(value);
+                setAccessibility({ contrast: value ? 'alto' : 'normal' });
+                try {
+                  const userId = session?.user?.id;
+                  if (userId) {
+                    await supabase.from('usuarios').update({ acess_contrast: value ? 'alto' : 'normal' }).eq('id', userId);
+                  }
+                } catch {}
+              }}
               trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
               thumbColor={'#FFFFFF'}
             />

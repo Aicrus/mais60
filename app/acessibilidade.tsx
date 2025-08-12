@@ -1,20 +1,48 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { colors } from '@/design-system/tokens/colors';
 import { Type, Contrast, Volume2, ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '@/contexts/auth';
+import { supabase } from '@/lib/supabase';
 
 export default function PerfilAcessibilidadeScreen() {
   const router = useRouter();
-  const { currentTheme } = useTheme();
+  const { currentTheme, accessibility, setAccessibility } = useTheme();
+  const { session } = useAuth();
   const isDark = currentTheme === 'dark';
   const title = getResponsiveValues('headline-lg');
 
-  const [fontSize, setFontSize] = useState<'normal' | 'grande' | 'muito-grande'>('grande');
-  const [contrast, setContrast] = useState<'normal' | 'alto'>('normal');
-  const [sound, setSound] = useState<'com' | 'sem'>('com');
+  const [fontSize, setFontSize] = useState<'normal' | 'grande' | 'muito-grande'>(accessibility.fontScale);
+  const [contrast, setContrast] = useState<'normal' | 'alto'>(accessibility.contrast);
+  const [sound, setSound] = useState<'com' | 'sem'>(accessibility.sound);
+
+  useEffect(() => {
+    // Mantém sincronizado caso outro lugar altere
+    setFontSize(accessibility.fontScale);
+    setContrast(accessibility.contrast);
+    setSound(accessibility.sound);
+  }, [accessibility]);
+
+  const persistToSupabase = async (prefs: { fontScale?: typeof fontSize; contrast?: typeof contrast; sound?: typeof sound }) => {
+    try {
+      const userId = session?.user?.id;
+      if (!userId) return;
+      await supabase
+        .from('usuarios')
+        .update({
+          acess_font_scale: prefs.fontScale ?? fontSize,
+          acess_contrast: prefs.contrast ?? contrast,
+          acess_sound: prefs.sound ?? sound,
+        })
+        .eq('id', userId);
+    } catch (e) {
+      // Silencioso: apenas loga
+      console.warn('Falha ao salvar preferências no Supabase:', e);
+    }
+  };
 
   const Pill = ({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) => (
     <Pressable onPress={onPress} style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: 999, borderWidth: 1, backgroundColor: active ? '#430593' : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderColor: active ? '#430593' : (isDark ? colors['divider-dark'] : '#E5E7EB') }}>
@@ -38,9 +66,9 @@ export default function PerfilAcessibilidadeScreen() {
             <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Tamanho da letra</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-            <Pill label="Normal" active={fontSize === 'normal'} onPress={() => setFontSize('normal')} />
-            <Pill label="Grande" active={fontSize === 'grande'} onPress={() => setFontSize('grande')} />
-            <Pill label="Muito grande" active={fontSize === 'muito-grande'} onPress={() => setFontSize('muito-grande')} />
+            <Pill label="Normal" active={fontSize === 'normal'} onPress={async () => { setFontSize('normal'); setAccessibility({ fontScale: 'normal' }); await persistToSupabase({ fontScale: 'normal' }); }} />
+            <Pill label="Grande" active={fontSize === 'grande'} onPress={async () => { setFontSize('grande'); setAccessibility({ fontScale: 'grande' }); await persistToSupabase({ fontScale: 'grande' }); }} />
+            <Pill label="Muito grande" active={fontSize === 'muito-grande'} onPress={async () => { setFontSize('muito-grande'); setAccessibility({ fontScale: 'muito-grande' }); await persistToSupabase({ fontScale: 'muito-grande' }); }} />
           </View>
         </View>
 
@@ -50,8 +78,8 @@ export default function PerfilAcessibilidadeScreen() {
             <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Contraste</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-            <Pill label="Normal" active={contrast === 'normal'} onPress={() => setContrast('normal')} />
-            <Pill label="Alto contraste" active={contrast === 'alto'} onPress={() => setContrast('alto')} />
+            <Pill label="Normal" active={contrast === 'normal'} onPress={async () => { setContrast('normal'); setAccessibility({ contrast: 'normal' }); await persistToSupabase({ contrast: 'normal' }); }} />
+            <Pill label="Alto contraste" active={contrast === 'alto'} onPress={async () => { setContrast('alto'); setAccessibility({ contrast: 'alto' }); await persistToSupabase({ contrast: 'alto' }); }} />
           </View>
         </View>
 
@@ -61,8 +89,8 @@ export default function PerfilAcessibilidadeScreen() {
             <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Sons</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-            <Pill label="Com som" active={sound === 'com'} onPress={() => setSound('com')} />
-            <Pill label="Sem som" active={sound === 'sem'} onPress={() => setSound('sem')} />
+            <Pill label="Com som" active={sound === 'com'} onPress={async () => { setSound('com'); setAccessibility({ sound: 'com' }); await persistToSupabase({ sound: 'com' }); }} />
+            <Pill label="Sem som" active={sound === 'sem'} onPress={async () => { setSound('sem'); setAccessibility({ sound: 'sem' }); await persistToSupabase({ sound: 'sem' }); }} />
           </View>
         </View>
       </View>

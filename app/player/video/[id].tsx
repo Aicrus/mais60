@@ -60,6 +60,7 @@ export default function VideoPlayerScreen() {
   }, []);
   const [embedMode, setEmbedMode] = useState<'privacy' | 'standard'>('privacy');
   const [playerVisible, setPlayerVisible] = useState<boolean>(false);
+  const embedHost = useMemo(() => (embedMode === 'privacy' ? 'https://www.youtube-nocookie.com' : 'https://www.youtube.com'), [embedMode]);
 
   // Oculta o WebView durante qualquer transição/fallback de modo
   useEffect(() => {
@@ -106,7 +107,9 @@ export default function VideoPlayerScreen() {
             modestbranding: 1,
             fs: 0,
             disablekb: 1,
-            iv_load_policy: 3
+            iv_load_policy: 3,
+            enablejsapi: 1,
+            origin: '${host}'
           },
           host: '${host}',
           events: {
@@ -120,6 +123,7 @@ export default function VideoPlayerScreen() {
       window.pauseVideo = function(){ if(player){ player.pauseVideo(); } };
       window.togglePlay = function(){ if(!player) return; var s = player.getPlayerState(); if(s===1){ player.pauseVideo(); } else { try{ player.unMute(); }catch(e){} player.playVideo(); } };
       window.seekBy = function(sec){ if(!player) return; var t = player.getCurrentTime(); player.seekTo(t + sec, true); };
+      window.seekTo = function(sec){ if(!player) return; player.seekTo(sec, true); };
       window.requestFullscreenPlayer = function(){ var iframe = player && player.getIframe ? player.getIframe() : null; var el = iframe || document.getElementById('player'); if(el && el.requestFullscreen){ el.requestFullscreen(); } };
       window.getState = function(){
         try {
@@ -264,12 +268,14 @@ export default function VideoPlayerScreen() {
         <WebView
           key={embedMode}
           ref={webviewRef}
-          source={{ html: html, baseUrl: 'https://www.youtube.com' }}
+          source={{ html: html, baseUrl: embedHost }}
           allowsFullscreenVideo={false}
           javaScriptEnabled
           domStorageEnabled
           allowsInlineMediaPlayback
           mediaPlaybackRequiresUserAction={false}
+          thirdPartyCookiesEnabled
+          sharedCookiesEnabled
           originWhitelist={["*"]}
           scrollEnabled={false}
           allowsLinkPreview={false}
@@ -277,21 +283,34 @@ export default function VideoPlayerScreen() {
             cacheEnabled
             cacheMode={Platform.OS === 'android' ? 'LOAD_DEFAULT' as any : undefined}
           onShouldStartLoadWithRequest={(req) => {
-            // Permite o documento inicial e recursos dentro de iframes; bloqueia navegações externas
+            // Evita bloquear recursos internos do YouTube, especialmente no Android
+            if (Platform.OS === 'android') return true;
             if ((req as any).isTopFrame === false) return true;
             if (req.url === 'about:blank') return true;
             try {
               const { hostname } = new URL(req.url);
-              const allowedHosts = [
+              const allowedHosts = new Set([
                 'www.youtube.com',
                 'youtube.com',
                 'm.youtube.com',
                 'www.youtube-nocookie.com',
-                's.ytimg.com'
-              ];
-              return allowedHosts.includes(hostname);
-            } catch {
+                's.ytimg.com',
+                'i.ytimg.com',
+                'ytimg.com',
+                'i9.ytimg.com',
+                'yt3.ggpht.com',
+                'googlevideo.com',
+                'www.gstatic.com',
+                'gstatic.com',
+              ]);
+              if (allowedHosts.has(hostname)) return true;
+              if (hostname.endsWith('.googlevideo.com')) return true;
+              if (hostname.endsWith('.ytimg.com')) return true;
+              if (hostname.endsWith('.ggpht.com')) return true;
               return false;
+            } catch {
+              // Em caso de dúvida, permita para não quebrar o player
+              return true;
             }
           }}
           onMessage={(e) => {
@@ -475,6 +494,8 @@ export default function VideoPlayerScreen() {
             fs:0,
             disablekb:1,
             iv_load_policy:3,
+            enablejsapi:1,
+            origin:'${embedMode === 'privacy' ? 'https://www.youtube-nocookie.com' : 'https://www.youtube.com'}',
             start:${Math.floor(fsStartAt)}
           },
           host: '${embedMode === 'privacy' ? 'https://www.youtube-nocookie.com' : 'https://www.youtube.com'}',
@@ -492,12 +513,14 @@ export default function VideoPlayerScreen() {
       window.getCurrent = function(){ try { var t = player ? player.getCurrentTime() : 0; var s = player ? player.getPlayerState() : 2; post({ type: 'fsCurrent', data: { time: t, state: s } }); } catch(e){ post({ type: 'fsCurrent', data: { time: 0, state: 2 } }); } };
     </script>
   </body>
-</html>`, baseUrl: 'https://www.youtube.com' }}
+</html>`, baseUrl: embedHost }}
             allowsFullscreenVideo={false}
             javaScriptEnabled
             domStorageEnabled
             allowsInlineMediaPlayback
             mediaPlaybackRequiresUserAction={false}
+            thirdPartyCookiesEnabled
+            sharedCookiesEnabled
             originWhitelist={["*"]}
             scrollEnabled={false}
             allowsLinkPreview={false}
@@ -505,20 +528,32 @@ export default function VideoPlayerScreen() {
             cacheEnabled
             cacheMode={Platform.OS === 'android' ? 'LOAD_DEFAULT' as any : undefined}
             onShouldStartLoadWithRequest={(req) => {
-              if ((req as any).isTopFrame === false) return true;
+              if (Platform.OS === 'android') return true;
               if (req.url === 'about:blank') return true;
+              if ((req as any).isTopFrame === false) return true;
               try {
                 const { hostname } = new URL(req.url);
-                const allowedHosts = [
+                const allowedHosts = new Set([
                   'www.youtube.com',
                   'youtube.com',
                   'm.youtube.com',
                   'www.youtube-nocookie.com',
-                  's.ytimg.com'
-                ];
-                return allowedHosts.includes(hostname);
-              } catch {
+                  's.ytimg.com',
+                  'i.ytimg.com',
+                  'ytimg.com',
+                  'i9.ytimg.com',
+                  'yt3.ggpht.com',
+                  'googlevideo.com',
+                  'www.gstatic.com',
+                  'gstatic.com',
+                ]);
+                if (allowedHosts.has(hostname)) return true;
+                if (hostname.endsWith('.googlevideo.com')) return true;
+                if (hostname.endsWith('.ytimg.com')) return true;
+                if (hostname.endsWith('.ggpht.com')) return true;
                 return false;
+              } catch {
+                return true;
               }
             }}
             onMessage={(e) => {

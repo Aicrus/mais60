@@ -18,9 +18,19 @@
 
 import { isMobileWidth, isTabletWidth, isDesktopWidth } from './breakpoints';
 
-// Escala tipográfica global
-// Ajuste este valor para aumentar ou diminuir o tamanho de todas as fontes do app
-export const TYPOGRAPHY_SCALE = 1.0; // 15% maior por padrão
+// Escala tipográfica global (dinâmica em tempo de execução)
+// Use os helpers `setTypographyScale` e `getTypographyScale` para controlar
+let TYPOGRAPHY_SCALE_RUNTIME = 1.0;
+
+export function setTypographyScale(scale: number) {
+  // Guarda um mínimo e máximo de segurança
+  const clamped = Math.max(0.8, Math.min(scale, 1.6));
+  TYPOGRAPHY_SCALE_RUNTIME = clamped;
+}
+
+export function getTypographyScale() {
+  return TYPOGRAPHY_SCALE_RUNTIME;
+}
 
 // ============================================================================
 // 🎯 CONFIGURAÇÃO CENTRAL - MUDE SÓ AQUI PARA TROCAR A FONTE DO APP INTEIRO!
@@ -512,9 +522,10 @@ export function getResponsiveTypography(
     fontSize = config.size.default;
     lineHeight = config.lineHeight.default;
   }
-  // Aplica escala global
-  fontSize = fontSize * TYPOGRAPHY_SCALE;
-  lineHeight = lineHeight * TYPOGRAPHY_SCALE;
+  // Aplica escala global dinâmica
+  const scale = getTypographyScale();
+  fontSize = fontSize * scale;
+  lineHeight = lineHeight * scale;
 
   return {
     fontSize,
@@ -538,18 +549,19 @@ export function createResponsiveTypography(size: ResponsiveFontSizeType) {
   }) => any) {
     const config = responsiveFontSize[size];
     
+    const scale = getTypographyScale();
     const fontSize = responsiveFunction({
-      mobile: config.size.mobile * TYPOGRAPHY_SCALE,
-      tablet: config.size.tablet * TYPOGRAPHY_SCALE,
-      desktop: config.size.desktop * TYPOGRAPHY_SCALE,
-      default: config.size.default * TYPOGRAPHY_SCALE,
+      mobile: config.size.mobile * scale,
+      tablet: config.size.tablet * scale,
+      desktop: config.size.desktop * scale,
+      default: config.size.default * scale,
     });
     
     const lineHeight = responsiveFunction({
-      mobile: config.lineHeight.mobile * TYPOGRAPHY_SCALE,
-      tablet: config.lineHeight.tablet * TYPOGRAPHY_SCALE,
-      desktop: config.lineHeight.desktop * TYPOGRAPHY_SCALE,
-      default: config.lineHeight.default * TYPOGRAPHY_SCALE,
+      mobile: config.lineHeight.mobile * scale,
+      tablet: config.lineHeight.tablet * scale,
+      desktop: config.lineHeight.desktop * scale,
+      default: config.lineHeight.default * scale,
     });
     
     return {
@@ -569,19 +581,20 @@ export function createResponsiveTypography(size: ResponsiveFontSizeType) {
  */
 export function getResponsiveValues(size: ResponsiveFontSizeType) {
   const config = responsiveFontSize[size];
+  const scale = getTypographyScale();
   
   return {
     fontSize: {
-      mobile: config.size.mobile * TYPOGRAPHY_SCALE,
-      tablet: config.size.tablet * TYPOGRAPHY_SCALE,
-      desktop: config.size.desktop * TYPOGRAPHY_SCALE,
-      default: config.size.default * TYPOGRAPHY_SCALE,
+      mobile: config.size.mobile * scale,
+      tablet: config.size.tablet * scale,
+      desktop: config.size.desktop * scale,
+      default: config.size.default * scale,
     },
     lineHeight: {
-      mobile: config.lineHeight.mobile * TYPOGRAPHY_SCALE,
-      tablet: config.lineHeight.tablet * TYPOGRAPHY_SCALE,
-      desktop: config.lineHeight.desktop * TYPOGRAPHY_SCALE,
-      default: config.lineHeight.default * TYPOGRAPHY_SCALE,
+      mobile: config.lineHeight.mobile * scale,
+      tablet: config.lineHeight.tablet * scale,
+      desktop: config.lineHeight.desktop * scale,
+      default: config.lineHeight.default * scale,
     },
     fontWeight: config.fontWeight,
     fontFamily: config.fontFamily ? fontFamily[config.fontFamily] : fontFamily['jakarta-regular'],
