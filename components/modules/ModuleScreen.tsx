@@ -106,6 +106,12 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
   const [loadingVideos, setLoadingVideos] = useState<boolean>(true);
 
   const [selected, setSelected] = useState<string>('__todos__');
+  // Categoria válida para o Checklist de Segurança (fallback para 'banheiro')
+  const safetyCategory: 'banheiro' | 'cozinha' | 'quarto' = (
+    ['banheiro', 'cozinha', 'quarto'] as const
+  ).includes(selected as any)
+    ? (selected as 'banheiro' | 'cozinha' | 'quarto')
+    : 'banheiro';
   
   const carregarCategorias = useCallback(async () => {
     setLoadingCategorias(true);
@@ -370,7 +376,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           height={'80%'}
           testID="safety-checklist-sheet"
         >
-          <View style={{ paddingHorizontal: 18, paddingTop: 8, paddingBottom: 12 }}>
+          <View style={{ flex: 1, paddingTop: 8 }}>
             {/* Handle do sheet (estilo AirBnb/Uber) */}
             <View style={{ alignItems: 'center', paddingVertical: 6 }}>
               <View
@@ -382,7 +388,14 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                 }}
               />
             </View>
-            <SafetyChecklist categoryId={(selected as any) as 'banheiro' | 'cozinha' | 'quarto'} />
+            <ScrollView
+              showsVerticalScrollIndicator
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={{ paddingHorizontal: 18, paddingBottom: 120 }}
+            >
+              <SafetyChecklist categoryId={safetyCategory} />
+              <View style={{ height: 30 }} />
+            </ScrollView>
           </View>
         </Sheet>
       </ScrollView>

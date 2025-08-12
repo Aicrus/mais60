@@ -133,15 +133,34 @@ export function SafetyChecklist({ categoryId }: { categoryId: SafetyCategory }) 
                 // Persistência local imediata
                 toggle(item.id, val);
                 // Sincroniza no Supabase se logado
-                try {
-                  if (userId) {
-                    await supabase.rpc('toggle_checklist_item', {
+                if (userId) {
+                  try {
+                    const { error } = await supabase.rpc('toggle_checklist_item', {
                       p_usuario_id: userId,
                       p_item_id: item.id,
                       p_checked: !!val,
                     });
+                    if (error) {
+                      // Fallback: upsert direto na tabela em caso de erro na RPC
+                      await supabase
+                        .from('checklist_progresso')
+                        .upsert(
+                          [{ usuario_id: userId, item_id: item.id, checked: !!val }],
+                          { onConflict: 'usuario_id,item_id' }
+                        );
+                    }
+                  } catch {
+                    // Fallback: upsert direto na tabela em caso de exceção
+                    try {
+                      await supabase
+                        .from('checklist_progresso')
+                        .upsert(
+                          [{ usuario_id: userId, item_id: item.id, checked: !!val }],
+                          { onConflict: 'usuario_id,item_id' }
+                        );
+                    } catch {}
                   }
-                } catch {}
+                }
               }}
               aria-label={item.label}
             />
