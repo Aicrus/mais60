@@ -364,11 +364,24 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           isOpen={isChecklistOpen}
           onClose={() => setChecklistOpen(false)}
           position="bottom"
-          showCloseButton
-          height={520}
+          showCloseButton={false}
+          overlayOpacity={0.65}
+          borderRadius={24}
+          height={'80%'}
           testID="safety-checklist-sheet"
         >
-          <View style={{ paddingHorizontal: 18, paddingVertical: 12 }}>
+          <View style={{ paddingHorizontal: 18, paddingTop: 8, paddingBottom: 12 }}>
+            {/* Handle do sheet (estilo AirBnb/Uber) */}
+            <View style={{ alignItems: 'center', paddingVertical: 6 }}>
+              <View
+                style={{
+                  width: 44,
+                  height: 5,
+                  borderRadius: 3,
+                  backgroundColor: isDark ? 'rgba(255,255,255,0.28)' : '#CBD5E1',
+                }}
+              />
+            </View>
             <SafetyChecklist categoryId={(selected as any) as 'banheiro' | 'cozinha' | 'quarto'} />
           </View>
         </Sheet>
