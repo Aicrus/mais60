@@ -4,18 +4,18 @@ import { PageContainer } from '../../components/layout/PageContainer';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { colors } from '../../design-system/tokens/colors';
-import { ThemeSelector } from '@/components/theme/ThemeSelector';
+ 
 import { getResponsiveValues, fontFamily as dsFontFamily } from '../../design-system/tokens/typography';
 import { useAuth } from '../../contexts/auth';
 import { supabase } from '@/lib/supabase';
-import { Home, Bell, ChevronRight, LogOut, Moon, Cog, Shield } from 'lucide-react-native';
+import { Home, ChevronRight, LogOut, Moon, Cog, Shield } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PerfilScreen() {
   const router = useRouter();
-  const { currentTheme, setThemeMode, accessibility, setAccessibility } = useTheme();
+  const { currentTheme, setThemeMode } = useTheme();
   const isDark = currentTheme === 'dark';
   const { signOut, session } = useAuth();
 
@@ -29,7 +29,6 @@ export default function PerfilScreen() {
   const rowLabelType = getResponsiveValues('body-md');
 
   // Estados simples para acessibilidade e notificações
-  const [highContrast, setHighContrast] = useState(accessibility.contrast === 'alto');
   // removido: sons
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
@@ -265,22 +264,6 @@ export default function PerfilScreen() {
           }
         />
         {/* removido: Sons */}
-        <Row
-          icon={<Moon size={20} color={ui.textPrimary} />}
-          label="Alto contraste"
-          right={
-            <Switch
-              value={highContrast}
-              onValueChange={async (value) => {
-                setHighContrast(value);
-                setAccessibility({ contrast: value ? 'alto' : 'normal' });
-                // Persistência local já é feita no contexto
-              }}
-              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
-              thumbColor={'#FFFFFF'}
-            />
-          }
-        />
       </View>
 
       {/* Removido: seção Notificações */}

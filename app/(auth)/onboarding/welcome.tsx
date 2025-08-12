@@ -13,6 +13,7 @@ export default function OnboardingWelcome() {
 
   const title = getResponsiveValues('headline-xl');
   const subtitle = getResponsiveValues('body-lg');
+  const buttonType = getResponsiveValues('label-lg');
 
   const ProgressDots = () => (
     <View style={{ gap: 10, alignItems: 'center', justifyContent: 'center' }}>
@@ -70,7 +71,7 @@ export default function OnboardingWelcome() {
           {/** Espaço equivalente à imagem central removida para manter o layout como antes */}
           <View style={{ height: 300, marginTop: 8 }} />
 
-      <View style={{ alignItems: 'center' }}>
+       <View style={{ alignItems: 'center' }}>
         <Text style={{ marginTop: 8, color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: title.fontSize.default, lineHeight: title.lineHeight.default, textAlign: 'center' }}>
           Descubra conteúdos para o seu bem‑estar
         </Text>
@@ -82,7 +83,7 @@ export default function OnboardingWelcome() {
           <View style={{ gap: 16, marginTop: 24 }}>
             <ProgressDots />
             <Pressable onPress={() => router.push('/(auth)/onboarding/intro2')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
-              <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 18 }}>Avançar</Text>
+              <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: buttonType.fontSize.default, lineHeight: buttonType.lineHeight.default }}>Avançar</Text>
             </Pressable>
           </View>
         </ScrollView>

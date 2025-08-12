@@ -14,6 +14,9 @@ export default function PerfilPermissoesScreen() {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
   const title = getResponsiveValues('headline-lg');
+  const cardTitleType = getResponsiveValues('subtitle-md');
+  const cardBodyType = getResponsiveValues('body-md');
+  const cardBtnType = getResponsiveValues('label-md');
   const [notifGranted, setNotifGranted] = useState<boolean | null>(null);
   const [motionAvailable, setMotionAvailable] = useState<boolean | null>(null);
   const [locationStatus, setLocationStatus] = useState<'granted' | 'denied' | 'undetermined'>('undetermined');
@@ -62,37 +65,37 @@ export default function PerfilPermissoesScreen() {
         <View style={{ borderRadius: 14, padding: 12, backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <BellRing size={20} color={'#430593'} />
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Notificações</Text>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: cardTitleType.fontSize.default, lineHeight: cardTitleType.lineHeight.default }}>Notificações</Text>
           </View>
-          <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: 14, lineHeight: 20 }}>
+          <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: cardBodyType.fontSize.default, lineHeight: cardBodyType.lineHeight.default }}>
             Autorize o envio de lembretes suaves sobre atividades do app (opcional).
           </Text>
           <View style={{ height: 8 }} />
           <Pressable onPress={requestNotifications} style={{ height: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593' }} accessibilityRole="button" accessibilityLabel="Permitir notificações">
-            <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 15 }}>{notifGranted ? 'Permitido' : 'Permitir'}</Text>
+            <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: cardBtnType.fontSize.default, lineHeight: cardBtnType.lineHeight.default }}>{notifGranted ? 'Permitido' : 'Permitir'}</Text>
           </Pressable>
         </View>
 
         <View style={{ borderRadius: 14, padding: 12, backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Activity size={20} color={'#430593'} />
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Sensores de movimento</Text>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: cardTitleType.fontSize.default, lineHeight: cardTitleType.lineHeight.default }}>Sensores de movimento</Text>
           </View>
-          <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: 14, lineHeight: 20 }}>
+          <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: cardBodyType.fontSize.default, lineHeight: cardBodyType.lineHeight.default }}>
             Use os sensores (passos/aceleração) para enriquecer suas estatísticas.
           </Text>
           <View style={{ height: 8 }} />
           <Pressable onPress={requestLocation} style={{ height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? colors['bg-tertiary-dark'] : '#F3F4F6', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' }} accessibilityRole="button" accessibilityLabel="Permitir localização">
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: 15 }}>{locationStatus === 'granted' ? 'Permitido' : 'Permitir localização'}</Text>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: cardBtnType.fontSize.default, lineHeight: cardBtnType.lineHeight.default }}>{locationStatus === 'granted' ? 'Permitido' : 'Permitir localização'}</Text>
           </Pressable>
         </View>
 
         <View style={{ borderRadius: 14, padding: 12, backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <Database size={20} color={'#430593'} />
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Armazenamento</Text>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: cardTitleType.fontSize.default, lineHeight: cardTitleType.lineHeight.default }}>Armazenamento</Text>
           </View>
-          <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: 14, lineHeight: 20 }}>
+          <Text style={{ marginTop: 4, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: cardBodyType.fontSize.default, lineHeight: cardBodyType.lineHeight.default }}>
             Estatísticas são salvas localmente (não requer permissão adicional).
           </Text>
         </View>

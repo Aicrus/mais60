@@ -52,12 +52,19 @@ export default function PerfilAcessibilidadeScreen() {
             <Pill label="Grande" active={fontSize === 'grande'} onPress={() => { setFontSize('grande'); setAccessibility({ fontScale: 'grande' }); }} />
             <Pill label="Muito grande" active={fontSize === 'muito-grande'} onPress={() => { setFontSize('muito-grande'); setAccessibility({ fontScale: 'muito-grande' }); }} />
           </View>
-          {/* Pré-visualização de tamanhos */}
+          {/* Pré-visualização de tamanhos (usando tokens responsivos) */}
           <View style={{ marginTop: 12, gap: 6 }}>
             <Text style={{ color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-regular'] }}>Exemplo:</Text>
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: 14 }}>Normal: Este é um exemplo de texto.</Text>
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: 14 * 1.00 }}>Grande: Este é um exemplo de texto.</Text>
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: 14 * 1.15 }}>Muito grande: Este é um exemplo de texto.</Text>
+            {(() => {
+              const previewBody = getResponsiveValues('body-md');
+              const previewLabel = getResponsiveValues('label-md');
+              return (
+                <>
+                  <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: previewBody.fontSize.default, lineHeight: previewBody.lineHeight.default }}>Texto de corpo (body-md)</Text>
+                  <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: previewLabel.fontSize.default, lineHeight: previewLabel.lineHeight.default }}>Rótulo (label-md)</Text>
+                </>
+              );
+            })()}
           </View>
         </View>
 

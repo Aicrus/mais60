@@ -12,6 +12,7 @@ export default function OnboardingIntro3() {
 
   const title = getResponsiveValues('headline-xl');
   const subtitle = getResponsiveValues('body-lg');
+  const buttonType = getResponsiveValues('label-lg');
 
   const ProgressDots = () => (
     <View style={{ gap: 10, alignItems: 'center', justifyContent: 'center' }}>
@@ -68,7 +69,7 @@ export default function OnboardingIntro3() {
         <View style={{ gap: 16, marginTop: 24 }}>
         <ProgressDots />
           <Pressable onPress={() => router.replace('/(auth)/login')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors['brand-orange'], shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Começar">
-            <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 18 }}>Começar</Text>
+            <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: buttonType.fontSize.default, lineHeight: buttonType.lineHeight.default }}>Começar</Text>
         </Pressable>
       </View>
       </ScrollView>

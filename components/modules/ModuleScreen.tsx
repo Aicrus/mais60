@@ -197,8 +197,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
         </Pressable>
         <Text
           style={[
-            styles.appBarLabel,
-            { color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'] },
+            { color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default },
           ]}
         >
           Voltar
@@ -399,7 +398,7 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 90, paddingTop: 4 },
   appBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', gap: 8, paddingHorizontal: 2, paddingBottom: 8, marginBottom: 6 },
   appBarBack: { height: 44, paddingHorizontal: 10, borderRadius: 22, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, borderWidth: 1, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
-  appBarLabel: { fontFamily: dsFontFamily['jakarta-medium'], fontSize: 16 },
+  appBarLabel: { fontFamily: dsFontFamily['jakarta-medium'] },
   heroCard: { borderRadius: 24, padding: 16, marginBottom: 8, overflow: 'hidden', height: 240 },
   heroGradient: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 160, borderBottomLeftRadius: 24, borderBottomRightRadius: 24 },
   rightImageWrap: { position: 'absolute', top: 0, bottom: 0, right: 0, width: '72%', alignItems: 'flex-end', justifyContent: 'center' },

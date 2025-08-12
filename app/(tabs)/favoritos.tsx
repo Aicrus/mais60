@@ -17,6 +17,8 @@ export default function FavoritosScreen() {
   const titleType = getResponsiveValues('headline-lg');
   const listTitleType = getResponsiveValues('title-sm');
   const listSubtitleType = getResponsiveValues('body-lg');
+  const emptyTitleType = getResponsiveValues('title-md');
+  const emptyDescType = getResponsiveValues('body-md');
 
   const ui = useMemo(() => ({
     bg: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
@@ -46,8 +48,8 @@ export default function FavoritosScreen() {
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: 18, textAlign: 'center' }}>Nenhum favorito ainda</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 15, textAlign: 'center', marginTop: 6 }}>Toque no coração ao assistir um vídeo para salvar aqui.</Text>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: emptyTitleType.fontSize.default, lineHeight: emptyTitleType.lineHeight.default, textAlign: 'center' }}>Nenhum favorito ainda</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: emptyDescType.fontSize.default, lineHeight: emptyDescType.lineHeight.default, textAlign: 'center', marginTop: 6 }}>Toque no coração ao assistir um vídeo para salvar aqui.</Text>
           </View>
         ) : (
           <>
