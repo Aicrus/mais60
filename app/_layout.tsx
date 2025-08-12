@@ -180,6 +180,13 @@ const RootLayoutNav = memo(function RootLayoutNav() {
       pathname.includes('/onboarding/intro3')
     )
   );
+  const isPhoneAuthFullscreen = Boolean(
+    pathname && (
+      pathname.includes('/(auth)/login-telefone') ||
+      pathname.includes('/(auth)/register-telefone')
+    )
+  );
+  const isFullscreen = isOnboardingFullscreen || isPhoneAuthFullscreen;
 
   // Reforça retrato sempre que a navegação principal ganha foco
   useFocusEffect(
@@ -208,7 +215,7 @@ const RootLayoutNav = memo(function RootLayoutNav() {
   useEffect(() => {
     if (Platform.OS !== 'web') {
       // Configurações para Android e iOS
-      if (isOnboardingFullscreen) {
+      if (isFullscreen) {
         StatusBar.setBarStyle('light-content');
         if (Platform.OS === 'android') {
           StatusBar.setBackgroundColor('transparent');
@@ -224,15 +231,15 @@ const RootLayoutNav = memo(function RootLayoutNav() {
         }
       }
     }
-  }, [isDark, headerColors, isOnboardingFullscreen]);
+  }, [isDark, headerColors, isFullscreen]);
 
   const MainContent = (
     <NavigationThemeProvider value={currentTheme === 'dark' ? DarkTheme : DefaultTheme}>
       <View className={`flex-1 ${isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}`}>
         {/* Usando a ExpoStatusBar apenas para manter compatibilidade, mas as configurações reais vêm do StatusBar nativo */}
         <ExpoStatusBar 
-          style={isOnboardingFullscreen ? 'light' : (currentTheme === 'dark' ? 'light' : 'dark')}
-          backgroundColor={isOnboardingFullscreen ? 'transparent' : (isDark ? headerColors.dark : headerColors.light)}
+          style={isFullscreen ? 'light' : (currentTheme === 'dark' ? 'light' : 'dark')}
+          backgroundColor={isFullscreen ? 'transparent' : (isDark ? headerColors.dark : headerColors.light)}
         />
         <Stack 
           screenOptions={{
@@ -280,9 +287,9 @@ const RootLayoutNav = memo(function RootLayoutNav() {
   return (
     <SafeAreaView 
       className={`flex-1 ${isDark ? 'bg-bg-tertiary-dark' : 'bg-bg-tertiary-light'}`}
-      edges={isOnboardingFullscreen ? ['right', 'left'] : ['top', 'right', 'left']}
+      edges={isFullscreen ? ['right', 'left'] : ['top', 'right', 'left']}
       style={{ 
-        backgroundColor: isOnboardingFullscreen ? 'transparent' : (isDark ? headerColors.dark : headerColors.light) 
+        backgroundColor: isFullscreen ? 'transparent' : (isDark ? headerColors.dark : headerColors.light) 
       }}
     >
       {MainContent}

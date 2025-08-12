@@ -40,8 +40,8 @@ export default function UsoScreen() {
   const sectionType = getResponsiveValues('title-sm');
   const statValueType = getResponsiveValues('title-sm');
   const statLabelType = getResponsiveValues('label-lg');
-  const listTitleType = getResponsiveValues('title-sm');
-  const listSubtitleType = getResponsiveValues('body-lg');
+  const rowLabelType = getResponsiveValues('body-md');
+  const smallLabelType = getResponsiveValues('body-sm');
 
   const ui = useMemo(() => ({
     card: uiColors.bgSecondary,
@@ -86,10 +86,10 @@ export default function UsoScreen() {
         value: minutes,
         label,
         frontColor: ui.tint,
-        topLabelComponent: minutes > 0 ? (
+        topLabelComponent: minutes > 0 ? () => (
           <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{minutes}</Text>
         ) : undefined,
-      };
+      } as any;
     });
   }, [aggregates.last7Days, ui.tint, ui.text2]);
 
@@ -101,10 +101,10 @@ export default function UsoScreen() {
         value: minutes,
         label,
         frontColor: ui.tint,
-        topLabelComponent: minutes > 0 ? (
+        topLabelComponent: minutes > 0 ? () => (
           <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{minutes}</Text>
         ) : undefined,
-      };
+      } as any;
     });
   }, [aggregates.last4Weeks, ui.tint, ui.text2]);
 
@@ -164,18 +164,22 @@ export default function UsoScreen() {
 
         {/* Sensores */}
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Sensores</Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between' }}>
-          <View style={[styles.card, { width: '48%', borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Passos hoje</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], marginTop: 4 }}>{sensors.stepsToday ?? '—'}</Text>
-          </View>
-          <View style={[styles.card, { width: '48%', borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Movimento</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], marginTop: 4 }}>{sensors.accelMagnitude ?? '—'}</Text>
-          </View>
-          <View style={[styles.card, { width: '48%', borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Bateria</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], marginTop: 4 }}>{sensors.batteryLevel != null ? `${Math.round((sensors.batteryLevel || 0) * 100)}%` : '—'}</Text>
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
+          <View style={[styles.statsRow, { paddingVertical: 6 }]}>
+            <View style={styles.statItem}>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{sensors.stepsToday ?? '—'}</Text>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: statLabelType.fontSize.default, lineHeight: statLabelType.lineHeight.default, marginTop: 2 }}>Passos</Text>
+            </View>
+            <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
+            <View style={styles.statItem}>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{sensors.accelMagnitude ?? '—'}</Text>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: statLabelType.fontSize.default, lineHeight: statLabelType.lineHeight.default, marginTop: 2 }}>Movimento</Text>
+            </View>
+            <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
+            <View style={styles.statItem}>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{sensors.batteryLevel != null ? `${Math.round((sensors.batteryLevel || 0) * 100)}%` : '—'}</Text>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: statLabelType.fontSize.default, lineHeight: statLabelType.lineHeight.default, marginTop: 2 }}>Bateria</Text>
+            </View>
           </View>
         </View>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
@@ -185,7 +189,7 @@ export default function UsoScreen() {
               <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>{showRoute ? 'Esconder percurso' : 'Ver percurso'}</Text>
             </Pressable>
           </View>
-          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default, marginTop: 4 }}>{(locationTrack.todayMeters / 1000).toFixed(2)} km • pontos {locationTrack.pointsCount}</Text>
+          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: rowLabelType.fontSize.default, lineHeight: rowLabelType.lineHeight.default, marginTop: 4 }}>{(locationTrack.todayMeters / 1000).toFixed(2)} km • pontos {locationTrack.pointsCount}</Text>
           <View style={{ height: 8 }} />
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {locationTrack.isTracking ? (
@@ -235,7 +239,7 @@ export default function UsoScreen() {
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Uso por módulo (hoje)</Text>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
           {perModulePieData.length === 0 ? (
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>Sem dados hoje.</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: rowLabelType.fontSize.default, lineHeight: rowLabelType.lineHeight.default }}>Sem dados hoje.</Text>
           ) : (
             <>
               <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}>
@@ -301,17 +305,17 @@ export default function UsoScreen() {
         <View style={{ gap: 12 }}>
           {aggregates.recentVideos.length === 0 ? (
             <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, alignItems: 'center', justifyContent: 'center' }] }>
-              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Sem atividade recente.</Text>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: rowLabelType.fontSize.default, lineHeight: rowLabelType.lineHeight.default }}>Sem atividade recente.</Text>
             </View>
           ) : (
             (showAllRecent ? aggregates.recentVideos : aggregates.recentVideos.slice(0, 3)).map((v) => (
-              <View key={`${v.date}-${v.videoId}`} style={[styles.listCard, { borderColor: ui.divider, backgroundColor: ui.card }] }>
-                <View style={[styles.listIconCircle, { backgroundColor: colors['brand-purple'] }]} />
+              <View key={`${v.date}-${v.videoId}`} style={[styles.recentItem, { borderColor: ui.divider, backgroundColor: ui.card }]}>
+                <View style={[styles.recentIcon, { backgroundColor: colors['brand-purple'] }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }} numberOfLines={1}>
+                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: rowLabelType.fontSize.default, lineHeight: rowLabelType.lineHeight.default }} numberOfLines={1}>
                     {v.title || `Vídeo ${v.videoId}`}
                   </Text>
-                  <Text style={{ marginTop: 4, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>
+                  <Text style={{ marginTop: 2, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: smallLabelType.fontSize.default, lineHeight: smallLabelType.lineHeight.default }}>
                     {new Date(v.lastAt).toLocaleDateString()} • {Math.max(1, Math.floor(v.seconds/60))} min
                   </Text>
                 </View>
@@ -355,11 +359,13 @@ export default function UsoScreen() {
 const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 90, paddingTop: 4 },
   card: { borderRadius: 16, borderWidth: 1, overflow: 'hidden', marginBottom: 12, paddingVertical: 12, paddingHorizontal: 12 },
-  statsRow: { flexDirection: 'row', alignItems: 'stretch', justifyContent: 'space-between' },
+  statsRow: { flexDirection: 'row', alignItems: 'stretch', justifyContent: 'space-between', gap: 0 },
   statItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 6 },
   statDivider: { width: 1, marginVertical: 6 },
   listCard: { borderWidth: 1, borderRadius: 16, paddingVertical: 14, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, elevation: 2 },
   listIconCircle: { width: 40, height: 40, borderRadius: 20 },
+  recentItem: { borderWidth: 1, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 10 },
+  recentIcon: { width: 28, height: 28, borderRadius: 14 },
   clearBtn: { backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 12 },
 });
 
