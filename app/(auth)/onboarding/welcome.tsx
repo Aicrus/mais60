@@ -8,7 +8,7 @@ import { colors } from '@/design-system/tokens/colors';
 
 export default function OnboardingWelcome() {
   const router = useRouter();
-  const { currentTheme } = useTheme();
+  const { currentTheme, applyFontScale } = useTheme();
   const isDark = currentTheme === 'dark';
 
   const title = getResponsiveValues('headline-xl');
@@ -48,6 +48,7 @@ export default function OnboardingWelcome() {
         })
       ).current.panHandlers}
     >
+        {(() => { React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, []); return null; })()}
       <ImageBackground
         source={require('@/assets/images/Homem Idoso Hidratando-se.jpg')}
         style={{ flex: 1 }}

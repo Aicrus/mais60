@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Pressable, TouchableWithoutFeedback, Keyboard, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -20,15 +19,13 @@ function normalizePhone(raw: string) {
 }
 
 export default function LoginTelefone() {
-  const { currentTheme } = useTheme();
+  const { currentTheme, applyFontScale } = useTheme();
   const isDark = currentTheme === 'dark';
-  const router = useRouter();
   const { showToast } = useToast();
 
   const titleType = getResponsiveValues('headline-md');
   const bodyMdType = getResponsiveValues('body-md');
   const bodySmType = getResponsiveValues('body-sm');
-  const appBarLabelType = getResponsiveValues('label-md');
 
   const ui = useMemo(() => ({
     text: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
@@ -108,38 +105,14 @@ export default function LoginTelefone() {
   const handlePressOutside = () => { if (Platform.OS !== 'web') Keyboard.dismiss(); };
 
   React.useEffect(() => () => { if (timerId) clearInterval(timerId); }, [timerId]);
+  // Garante tamanho "Grande" ao chegar nesta tela
+  React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, []);
 
   return (
     <TouchableWithoutFeedback onPress={handlePressOutside}>
       <View style={{ flex: 1 }} className={isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}>
         <View style={styles.container}>
-          {/* App Bar simples com voltar */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2, paddingBottom: 8, marginBottom: 6 }}>
-            <Pressable
-              onPress={() => router.back()}
-              accessibilityRole="button"
-              accessibilityLabel="Voltar"
-              style={{
-                height: 44,
-                paddingHorizontal: 10,
-                borderRadius: 22,
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'row',
-                gap: 6,
-                borderWidth: 1,
-                shadowColor: '#000',
-                shadowOpacity: 0.08,
-                shadowRadius: 8,
-                shadowOffset: { width: 0, height: 4 },
-                elevation: 2,
-                backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
-                borderColor: isDark ? colors['divider-dark'] : 'transparent',
-              }}
-            >
-              <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Voltar</Text>
-            </Pressable>
-          </View>
+          
           <View style={styles.formContainer}>
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default, marginBottom: 8 }}>
               Entrar com telefone

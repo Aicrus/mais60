@@ -36,7 +36,7 @@ export function AuthProvider({
   const router = useRouter();
   const segments = useSegments();
   const { showToast } = useToast();
-  const { currentTheme } = useTheme();
+  const { currentTheme, applyFontScale } = useTheme();
   const isDark = currentTheme === 'dark';
 
   // Efeito para monitorar mudanças na sessão
@@ -44,6 +44,8 @@ export function AuthProvider({
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {      
       if (event === 'SIGNED_IN') {
         setSession(newSession);
+        // Ao entrar, padroniza tamanho da letra para "Grande"
+        try { applyFontScale('grande'); } catch {}
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
       } else if (event === 'TOKEN_REFRESHED') {

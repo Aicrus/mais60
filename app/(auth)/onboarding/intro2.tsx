@@ -7,7 +7,7 @@ import { colors } from '@/design-system/tokens/colors';
 
 export default function OnboardingIntro2() {
   const router = useRouter();
-  const { currentTheme } = useTheme();
+  const { currentTheme, applyFontScale } = useTheme();
   const isDark = currentTheme === 'dark';
 
   const title = getResponsiveValues('headline-xl');
@@ -49,6 +49,7 @@ export default function OnboardingIntro2() {
         })
       ).current.panHandlers}
     >
+        {React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, [])}
       <ScrollView
         style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'] }}
         contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: 'flex-start' }}
