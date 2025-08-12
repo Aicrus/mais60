@@ -105,7 +105,10 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   }, [storageKey, uniqueById]);
 
-  const isFavorite = useCallback((id: string) => favorites.some(f => f.id === id), [favorites]);
+  const isFavorite = useCallback((id: string) => {
+    const sanitizedId = String(id || '').trim();
+    return favorites.some(f => f.id === sanitizedId);
+  }, [favorites]);
 
   const toggleFavorite = useCallback(async (item: FavoriteItem) => {
     const sanitizedId = String(item.id || '').trim();
@@ -152,7 +155,8 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   }, [favorites, isFavorite, persist, userId]);
 
   const removeFavorite = useCallback((id: string) => {
-    persist(favorites.filter(f => f.id !== id));
+    const sanitizedId = String(id || '').trim();
+    persist(favorites.filter(f => f.id !== sanitizedId));
   }, [favorites, persist]);
 
   const clearFavorites = useCallback(() => {
