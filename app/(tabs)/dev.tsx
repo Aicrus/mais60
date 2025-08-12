@@ -5797,7 +5797,7 @@ const SheetExampleContent: React.FC = () => {
         position={currentSheet}
         borderRadius={16}
         closeOnOverlayClick={true}
-        showCloseButton={true}
+        showCloseButton={false}
         overlayOpacity={0.5}
         animationDuration={300}
         useSafeArea={true} // Adiciona área de segurança para dispositivos com notch/island
@@ -6006,7 +6006,7 @@ const [isOpen, setIsOpen] = useState(false);
   isOpen={isOpen}
   onClose={() => setIsOpen(false)}
   position="bottom"
-  showCloseButton={true}
+  showCloseButton={false}
   borderRadius={16}
   overlayOpacity={0.5}
 >
