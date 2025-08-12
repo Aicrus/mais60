@@ -210,7 +210,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24 },
   logoContainer: { alignItems: 'center', marginTop: 48 },
-  formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: -35 },
   formContainer: {
     width: '100%',
     maxWidth: 460,
