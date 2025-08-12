@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { useResponsive } from '@/hooks/useResponsive';
 import { Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useKeyboardOffset } from '@/hooks/useKeyboardOffset';
 
 function normalizePhone(raw: string) {
   const digits = (raw || '').replace(/\D/g, '');
@@ -52,7 +53,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState<number>(0);
   const [timerId, setTimerId] = useState<any>(null);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const { footerTranslateStyle } = useKeyboardOffset();
 
   const sendCode = async () => {
     const normalized = normalizePhone(phone);
@@ -119,32 +120,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   // Garante tamanho "Grande" ao chegar nesta tela
   React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, []);
 
-  // Mantém o rodapé abaixo do teclado em Android e iOS (não sobrepondo o formulário)
-  useEffect(() => {
-    if (Platform.OS === 'ios') {
-      const willShow = Keyboard.addListener('keyboardWillShow', (e) => {
-        setKeyboardHeight(e.endCoordinates?.height ?? 0);
-      });
-      const willHide = Keyboard.addListener('keyboardWillHide', () => {
-        setKeyboardHeight(0);
-      });
-      return () => {
-        try { willShow.remove(); } catch {}
-        try { willHide.remove(); } catch {}
-      };
-    }
-    // Android
-    const didShow = Keyboard.addListener('keyboardDidShow', (e) => {
-      setKeyboardHeight(e.endCoordinates?.height ?? 0);
-    });
-    const didHide = Keyboard.addListener('keyboardDidHide', () => {
-      setKeyboardHeight(0);
-    });
-    return () => {
-      try { didShow.remove(); } catch {}
-      try { didHide.remove(); } catch {}
-    };
-  }, []);
+  // Listeners padronizados movidos para useKeyboardOffset
 
   return (
     <TouchableWithoutFeedback onPress={handlePressOutside}>
@@ -220,7 +196,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
           </View>
         </View>
         {/* Rodapé fixo: no Android, desloca para baixo quando teclado aparece */}
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 10), transform: [{ translateY: keyboardHeight }] }}>
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 10), ...(footerTranslateStyle || {}) }}>
           <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
             <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
               Para conhecer os{' '}

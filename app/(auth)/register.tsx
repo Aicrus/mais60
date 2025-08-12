@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Pressable, Platform, Keyboard, View, Text, TouchableWithoutFeedback, Image, StyleSheet } from 'react-native';
+import { Pressable, Platform, Keyboard, View, Text, TouchableWithoutFeedback, Image, StyleSheet, KeyboardAvoidingView } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { useWindowDimensions } from 'react-native';
@@ -221,6 +221,7 @@ export default function Register() {
 
   return (
     <TouchableWithoutFeedback onPress={handlePressOutside}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0}>
       <View className={isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'} style={{flex: 1}}>
         <View style={styles.container}>
           {/* Imagem lateral (visível apenas em desktop/tablet) */}
@@ -440,6 +441,7 @@ export default function Register() {
           </View>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
 } 

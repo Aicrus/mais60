@@ -1,7 +1,8 @@
 import React, { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Modal, Platform, ActivityIndicator, Image, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Modal, Platform, ActivityIndicator, Image, useWindowDimensions, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { fontFamily as dsFontFamily, getResponsiveValues } from '@/design-system/tokens/typography';
@@ -43,6 +44,13 @@ export default function VideoPlayerScreen() {
   const [isLandscapeDevice, setIsLandscapeDevice] = useState<boolean>(false);
   const [pendingFsClose, setPendingFsClose] = useState<boolean>(false);
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { width, height } = useResponsive();
+  const isShortScreen = height < 700;
+  const isNarrow = width < 360;
+  const isVeryNarrow = width < 330;
+  const compactGap = isVeryNarrow ? 6 : isNarrow ? 8 : 10;
+  const basePadding = isVeryNarrow ? 8 : isNarrow ? 10 : 14;
+  const concludePadding = isVeryNarrow ? 6 : isNarrow ? 8 : 12;
 
   // Tempos de espera de rotação, ajustados por plataforma
   const LANDSCAPE_ROTATION_TIMEOUT_MS = Platform.OS === 'ios' ? 500 : 900;
@@ -256,16 +264,17 @@ export default function VideoPlayerScreen() {
   return (
     <PageContainer>
       <Stack.Screen options={{ orientation: 'portrait' }} />
-      {/* App Bar */}
-      <View style={styles.appBar} accessibilityRole="header">
-        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: uiColors.bgSecondary, borderColor: uiColors.divider }]}>
-          <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
-        </Pressable>
-        <Text style={{ color: uiColors.textPrimary, fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Reprodução</Text>
-      </View>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 16 }} bounces={false}>
+        {/* App Bar */}
+        <View style={styles.appBar} accessibilityRole="header">
+          <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: uiColors.bgSecondary, borderColor: uiColors.divider }]}>
+            <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
+          </Pressable>
+          <Text style={{ color: uiColors.textPrimary, fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Reprodução</Text>
+        </View>
 
-      {/* Player YouTube */}
-      <View style={styles.player} accessibilityLabel="Player de vídeo">
+        {/* Player YouTube */}
+        <View style={styles.player} accessibilityLabel="Player de vídeo">
         <WebView
           key={embedMode}
           ref={webviewRef}
@@ -377,23 +386,23 @@ export default function VideoPlayerScreen() {
             <ActivityIndicator size="large" color="#FFFFFF" />
           </View>
         )}
-      </View>
+        </View>
 
-      {/* Infos */}
-      <View style={{ marginTop: 12 }}>
-        <Text style={{ color: uiColors.textPrimary, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>{initTitle || `Vídeo ${id}`}</Text>
-        {!!(initBenefits || initSubtitle) && (
-          <Text style={{ marginTop: 8, color: uiColors.textSecondary, fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>
-            {initBenefits || initSubtitle}
-          </Text>
-        )}
-      </View>
+        {/* Infos */}
+        <View style={{ marginTop: 12 }}>
+          <Text style={{ color: uiColors.textPrimary, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>{initTitle || `Vídeo ${id}`}</Text>
+          {!!(initBenefits || initSubtitle) && (
+            <Text style={{ marginTop: 8, color: uiColors.textSecondary, fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>
+              {initBenefits || initSubtitle}
+            </Text>
+          )}
+        </View>
 
-      {/* Controles inferiores compactos: -15s, +15s, Expandir, Favoritar, Concluir */}
-      {!showFullscreen && !isLandscapeDevice && (
-        <View style={styles.controlsCompactRow}>
+        {/* Controles inferiores compactos: -15s, +15s, Expandir, Favoritar, Concluir */}
+        {!showFullscreen && !isLandscapeDevice && (
+        <View style={[styles.controlsCompactRow, { gap: compactGap }]}>
           <Pressable
-            style={[styles.smallControl, { backgroundColor: colors['brand-purple'] }]}
+            style={[styles.smallControl, { paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
             accessibilityRole="button"
             accessibilityLabel="Voltar 15 segundos"
             onPress={() => sendJS('window.seekBy(-15)')}
@@ -401,7 +410,7 @@ export default function VideoPlayerScreen() {
             <Text style={styles.smallControlText}>-15s</Text>
           </Pressable>
           <Pressable
-            style={[styles.smallControl, { backgroundColor: colors['brand-purple'] }]}
+            style={[styles.smallControl, { paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
             accessibilityRole="button"
             accessibilityLabel="Avançar 15 segundos"
             onPress={() => sendJS('window.seekBy(15)')}
@@ -411,7 +420,7 @@ export default function VideoPlayerScreen() {
           <Pressable
             style={[
               styles.smallControl,
-              { backgroundColor: isDark ? colors['secondary-dark'] : colors['secondary-light'] },
+              { paddingHorizontal: basePadding, backgroundColor: isDark ? colors['secondary-dark'] : colors['secondary-light'] },
             ]}
             accessibilityRole="button"
             accessibilityLabel="Tela cheia"
@@ -422,7 +431,7 @@ export default function VideoPlayerScreen() {
           <Pressable
             style={[
               styles.smallControl,
-              { backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: uiColors.divider },
+              { paddingHorizontal: basePadding, backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: uiColors.divider },
             ]}
             accessibilityRole="button"
             accessibilityLabel={isFavorite(videoId) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
@@ -433,7 +442,7 @@ export default function VideoPlayerScreen() {
           <Pressable
             style={[
               styles.smallControl,
-              { backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'], opacity: 1 },
+              { paddingHorizontal: concludePadding, backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'], opacity: 1 },
             ]}
             accessibilityRole="button"
             accessibilityLabel={isCompleted ? 'Desmarcar concluído' : 'Marcar como concluído'}
@@ -451,6 +460,7 @@ export default function VideoPlayerScreen() {
           </Pressable>
         </View>
       )}
+      </ScrollView>
 
       <Modal
         visible={showFullscreen}
