@@ -187,36 +187,8 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
   // Paleta de alto contraste
   const uiColors = React.useMemo(() => {
     const highContrast = accessibility.contrast === 'alto';
-    if (highContrast) {
-      if (isDark) {
-        return {
-          bgPrimary: '#000000',
-          bgSecondary: '#000000',
-          textPrimary: '#FFFFFF',
-          textSecondary: '#FFFFFF',
-          divider: '#FFFFFF',
-          primary: colors['primary-dark'],
-          tint: colors['primary-dark'],
-        } as const;
-      }
-      return {
-        bgPrimary: '#FFFFFF',
-        bgSecondary: '#FFFFFF',
-        textPrimary: '#000000',
-        textSecondary: '#000000',
-        divider: '#000000',
-        primary: colors['primary-light'],
-        tint: colors['primary-light'],
-      } as const;
-    }
-    // Paleta normal dos tokens (com divisor suavizado)
-    const bgPrimary = isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'];
-    const bgSecondary = isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'];
-    const textPrimary = isDark ? colors['text-primary-dark'] : colors['text-primary-light'];
-    const textSecondary = isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'];
-    const dividerBase = isDark ? colors['divider-dark'] : colors['divider-light'];
 
-    // Converte #RRGGBB para rgba com opacidade reduzida (suaviza linhas)
+    // Utilitário para reduzir a "força" das linhas quando necessário
     const hexToRgba = (hex: string, alpha: number) => {
       try {
         const h = hex.replace('#', '');
@@ -229,15 +201,37 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
       }
     };
 
-    // Opacidade mais suave no modo normal (não HC)
-    const divider = hexToRgba(dividerBase, 0.12);
+    if (highContrast) {
+      // Alto contraste: fundo/texto bem contrastados, mas linhas um pouco menos sólidas
+      if (isDark) {
+        return {
+          bgPrimary: '#000000',
+          bgSecondary: '#000000',
+          textPrimary: '#FFFFFF',
+          textSecondary: '#FFFFFF',
+          divider: hexToRgba('#FFFFFF', 0.25),
+          primary: colors['primary-dark'],
+          tint: colors['primary-dark'],
+        } as const;
+      }
+      return {
+        bgPrimary: '#FFFFFF',
+        bgSecondary: '#FFFFFF',
+        textPrimary: '#000000',
+        textSecondary: '#000000',
+        divider: hexToRgba('#000000', 0.25),
+        primary: colors['primary-light'],
+        tint: colors['primary-light'],
+      } as const;
+    }
 
+    // Paleta normal dos tokens (sem suavização extra — mantém como já estava no design system)
     return {
-      bgPrimary,
-      bgSecondary,
-      textPrimary,
-      textSecondary,
-      divider,
+      bgPrimary: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
+      bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
+      textPrimary: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
+      textSecondary: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
+      divider: isDark ? colors['divider-dark'] : colors['divider-light'],
       primary: isDark ? colors['primary-dark'] : colors['primary-light'],
       tint: isDark ? colors['primary-dark'] : colors['primary-light'],
     } as const;
