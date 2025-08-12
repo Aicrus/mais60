@@ -6,7 +6,7 @@ import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { useFavorites } from '@/contexts/favorites';
 import { useRouter } from 'expo-router';
-import { Play, Trash2, HeartOff } from 'lucide-react-native';
+import { Play, Trash2, HeartOff, Heart } from 'lucide-react-native';
 
 export default function FavoritosScreen() {
   const { currentTheme } = useTheme();
@@ -42,12 +42,9 @@ export default function FavoritosScreen() {
 
         {favorites.length === 0 ? (
           <View style={[styles.emptyCard, { borderColor: ui.divider, backgroundColor: ui.card }] }>
-            <Image
-              source={require('@/assets/images/placeholder-img.png')}
-              style={{ width: 120, height: 120, opacity: 0.85, marginBottom: 12 }}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
+            <View style={{ marginBottom: 12 }}>
+              <Heart size={64} color={ui.tint} />
+            </View>
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: emptyTitleType.fontSize.default, lineHeight: emptyTitleType.lineHeight.default, textAlign: 'center' }}>Nenhum favorito ainda</Text>
             <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: emptyDescType.fontSize.default, lineHeight: emptyDescType.lineHeight.default, textAlign: 'center', marginTop: 6 }}>Toque no coração ao assistir um vídeo para salvar aqui.</Text>
           </View>
