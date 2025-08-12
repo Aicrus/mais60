@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { Pressable, View, Platform, Text } from 'react-native';
-import { Sun, Moon, Monitor } from 'lucide-react-native';
+import { Sun, Moon } from 'lucide-react-native';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -15,7 +15,6 @@ import { colors } from '../../design-system/tokens/colors';
  * Ícones para cada modo de tema
  */
 const THEME_ICONS = {
-  system: Monitor,
   light: Sun,
   dark: Moon,
 } as const;
@@ -83,7 +82,7 @@ export interface ThemeSelectorProps {
   size?: ThemeSelectorSize;
   variant?: ThemeSelectorVariant;
   showLabels?: boolean;
-  showSystemOption?: boolean;
+  showLabelsOnlyForTwoModes?: boolean; // placeholder para manter compatibilidade, não usado
   transparentSingle?: boolean;
   iconOnly?: boolean; // Nova prop para mostrar apenas o ícone sem fundo e sem borda
   customColors?: {
@@ -99,21 +98,15 @@ export interface ThemeSelectorProps {
 /**
  * Calcula a posição inicial do slider com base no modo atual e opções disponíveis
  */
-const getInitialPosition = (mode: 'system' | 'light' | 'dark', showSystemOption: boolean) => {
-  if (!showSystemOption) {
-    return mode === 'light' ? 0 : 1;
-  }
-  return mode === 'light' ? 0 : mode === 'dark' ? 1 : 2;
-};
+const getInitialPosition = (mode: 'light' | 'dark') => (mode === 'light' ? 0 : 1);
 
 /**
  * Obtém a etiqueta baseada no modo
  */
-const getLabel = (mode: 'system' | 'light' | 'dark') => {
+const getLabel = (mode: 'light' | 'dark') => {
   switch(mode) {
     case 'light': return 'Claro';
     case 'dark': return 'Escuro';
-    case 'system': return 'Sistema';
   }
 };
 
@@ -139,7 +132,6 @@ export function ThemeSelector({
   size = 'md',
   variant = 'default',
   showLabels = false,
-  showSystemOption = true,
   transparentSingle = false,
   iconOnly = false,
   customColors = {}
@@ -177,10 +169,8 @@ export function ThemeSelector({
     
   const padding = Math.max(2, Math.floor(buttonWidth * 0.05)); // Padding proporcional
   
-  // Definir modos disponíveis com base em showSystemOption
-  const availableModes = showSystemOption 
-    ? ['light', 'dark', 'system'] as const
-    : ['light', 'dark'] as const;
+  // Apenas dois modos disponíveis
+  const availableModes = ['light', 'dark'] as const;
     
   // No caso do toggle, só usar 'light' e 'dark'
   const toggleModes = ['light', 'dark'] as const;
@@ -253,7 +243,7 @@ export function ThemeSelector({
   const textColor = customColors.textColor || textColors[variant];
   
   // Função para obter a cor do ícone com base no modo
-  const getIconColor = (mode: 'system' | 'light' | 'dark') => {
+  const getIconColor = (mode: 'light' | 'dark') => {
     // Para variantes com slider que cobre o ícone (default, pill, labeled, toggle)
     if (mode === themeMode) {
       if (variant === 'minimal') {
@@ -279,12 +269,12 @@ export function ThemeSelector({
   };
   
   // Configurar posição inicial e animação
-  const targetPosition = useSharedValue(getInitialPosition(themeMode, showSystemOption));
+  const targetPosition = useSharedValue(getInitialPosition(themeMode));
   
   // Atualiza a posição alvo quando o themeMode muda
   useEffect(() => {
-    targetPosition.value = getInitialPosition(themeMode, showSystemOption);
-  }, [themeMode, showSystemOption]);
+    targetPosition.value = getInitialPosition(themeMode);
+  }, [themeMode]);
   
   // Valor derivado para garantir que a animação fique dentro dos limites
   const clampedTranslateX = useDerivedValue(() => {
@@ -293,7 +283,7 @@ export function ThemeSelector({
     return withSpring(targetX, SPRING_CONFIG);
   });
 
-  const handlePress = useCallback((mode: 'system' | 'light' | 'dark') => {
+  const handlePress = useCallback((mode: 'light' | 'dark') => {
     if (mode === themeMode) return; // Evita animações desnecessárias
     setThemeMode(mode);
   }, [setThemeMode, themeMode]);

@@ -64,20 +64,15 @@ export function getThemedValue<T>(
 }
 
 // Tipos globais do sistema de design
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = 'light' | 'dark';
 
 // Configuração padrão do tema
 export const defaultTheme = {
-  mode: 'system' as ThemeMode,
+  mode: 'light' as ThemeMode,
 } as const;
 
 // Funções utilitárias globais
 export function getThemeValue<T>(lightValue: T, darkValue: T, mode: ThemeMode): T {
-  if (mode === 'system') {
-    // No caso de 'system', você pode implementar a lógica para detectar o tema do sistema
-    // Por enquanto, vamos retornar o tema claro como padrão
-    return lightValue;
-  }
   return mode === 'light' ? lightValue : darkValue;
 }
 

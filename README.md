@@ -334,22 +334,20 @@ function ComponenteInteligente() {
 }
 ```
 
-### 🎨 **Tema Claro/Escuro Automático**
+### 🎨 **Tema Claro/Escuro**
 
-O sistema de tema é **completamente automático** e oferece três modos:
+O sistema de tema oferece dois modos, com padrão em Claro:
 
 ```tsx
 const { themeMode, currentTheme, setThemeMode, isDark } = useDesignSystem();
 
 // Modos disponíveis:
-setThemeMode('light');   // ☀️ Força tema claro
+setThemeMode('light');   // ☀️ Força tema claro (padrão)
 setThemeMode('dark');    // 🌙 Força tema escuro  
-setThemeMode('system');  // 🔄 Segue o sistema (padrão)
 
 // Helpers úteis:
 isDark   // boolean - true se estiver no modo escuro
 isLight  // boolean - true se estiver no modo claro
-isSystem // boolean - true se estiver seguindo o sistema
 ```
 
 ### 🔧 **Personalizando o Design System**

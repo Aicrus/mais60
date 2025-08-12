@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Appearance } from 'react-native';
 
 // Importar tokens diretamente do design system
 import { colors } from '../design-system/tokens/colors';
@@ -10,7 +9,7 @@ import { borderRadius } from '../design-system/tokens/borders';
 import { boxShadow, opacity, zIndex, transitionDuration } from '../design-system/tokens/effects';
 
 // Tipos básicos mantidos
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = 'light' | 'dark';
 export type ColorScheme = 'light' | 'dark';
 
 interface DesignSystemContextType {
@@ -56,7 +55,6 @@ interface DesignSystemContextType {
   // Helpers
   isDark: boolean;
   isLight: boolean;
-  isSystem: boolean;
 }
 
 const DesignSystemContext = createContext<DesignSystemContextType | undefined>(undefined);
@@ -64,10 +62,8 @@ const DesignSystemContext = createContext<DesignSystemContextType | undefined>(u
 const THEME_STORAGE_KEY = '@app_theme';
 
 export function DesignSystemProvider({ children }: { children: React.ReactNode }) {
-  // Estado para o modo do tema (light/dark/system)
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  // Estado para o tema do dispositivo
-  const [systemTheme, setSystemTheme] = useState<ColorScheme>(Appearance.getColorScheme() || 'light');
+  // Estado para o modo do tema (apenas light/dark)
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
   const [isLoading, setIsLoading] = useState(true);
   // Preferências de acessibilidade
   const [accessibility, setAccessibilityState] = useState<{
@@ -84,8 +80,14 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
       try {
         const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
         console.log('🎨 Tema salvo carregado:', savedTheme);
-        if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme as ThemeMode)) {
+        if (savedTheme === 'light' || savedTheme === 'dark') {
           setThemeModeState(savedTheme as ThemeMode);
+        } else if (savedTheme === 'system') {
+          // Migração: se estava 'system', padronizar para 'light'
+          setThemeModeState('light');
+          try { await AsyncStorage.setItem(THEME_STORAGE_KEY, 'light'); } catch {}
+        } else {
+          setThemeModeState('light');
         }
         // Carrega acessibilidade
         const savedAccess = await AsyncStorage.getItem(ACCESS_STORAGE_KEY);
@@ -116,18 +118,7 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
     loadSavedTheme();
   }, []);
 
-  // Monitora mudanças no tema do sistema
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      const newTheme = colorScheme || 'light';
-      console.log('🔄 Tema do sistema mudou para:', newTheme);
-      setSystemTheme(newTheme as ColorScheme);
-    });
-
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+  // Removido: não seguimos mais o tema do sistema
 
   // Função para alterar o modo do tema
   const setThemeMode = async (mode: ThemeMode) => {
@@ -165,14 +156,12 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
 
   // Função para alternar entre os temas
   const toggleTheme = () => {
-    const newMode: ThemeMode = 
-      themeMode === 'light' ? 'dark' : 
-      themeMode === 'dark' ? 'system' : 'light';
+    const newMode: ThemeMode = themeMode === 'light' ? 'dark' : 'light';
     setThemeMode(newMode);
   };
 
   // Determina o tema atual baseado no modo e tema do sistema
-  const currentTheme: ColorScheme = themeMode === 'system' ? systemTheme : (themeMode as ColorScheme);
+  const currentTheme: ColorScheme = themeMode as ColorScheme;
   
   // Função utilitária para obter valores baseados no tema
   const getThemed = <T,>(lightValue: T, darkValue: T): T => {
@@ -182,7 +171,6 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
   // Helpers para verificar o estado do tema
   const isDark = currentTheme === 'dark';
   const isLight = currentTheme === 'light';
-  const isSystem = themeMode === 'system';
 
   // Paleta de alto contraste
   const uiColors = React.useMemo(() => {
@@ -241,13 +229,11 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     console.log('📱 Estado do tema:', {
       themeMode,
-      systemTheme,
       currentTheme,
       isDark,
       isLight,
-      isSystem
     });
-  }, [themeMode, systemTheme, currentTheme]);
+  }, [themeMode, currentTheme]);
 
   if (isLoading) {
     return null;
@@ -288,7 +274,6 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
         // Helpers
         isDark,
         isLight,
-        isSystem,
       }}>
       {children}
     </DesignSystemContext.Provider>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Animated, TouchableOpacity, Pressable, Platform, Dimensions, ViewStyle, Text } from 'react-native';
-import { LogOut, Settings, Sun, Moon, Monitor } from 'lucide-react-native';
+import { LogOut, Settings, Sun, Moon } from 'lucide-react-native';
 import { HoverableView } from '../effects/HoverableView';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { LucideIcon } from 'lucide-react-native';
@@ -378,7 +378,7 @@ export function ProfileMenu({
 
           <View style={[styles.divider, { backgroundColor: themeColors['divider'] }]} />
 
-          {/* Opções de Tema */}
+          {/* Opções de Tema (apenas Claro/Escuro) */}
           <View style={styles.themeSection}>
             <Text style={[styles.sectionTitle, { color: themeColors['text-primary'] }]}>Tema</Text>
             <View style={styles.themeOptions}>
@@ -402,17 +402,6 @@ export function ProfileMenu({
                   styles.themeText,
                   { color: themeMode === 'dark' ? themeColors['primary'] : themeColors['text-primary'] }
                 ]}>Escuro</Text>
-              </HoverableView>
-
-              <HoverableView
-                style={getThemeOptionStyle(themeMode === 'system')}
-                onPress={() => setThemeMode('system')}
-              >
-                <Monitor size={16} color={themeMode === 'system' ? themeColors['primary'] : themeColors['text-primary']} />
-                <Text style={[
-                  styles.themeText,
-                  { color: themeMode === 'system' ? themeColors['primary'] : themeColors['text-primary'] }
-                ]}>Sistema</Text>
               </HoverableView>
             </View>
           </View>

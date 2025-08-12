@@ -3197,8 +3197,8 @@ showToast({
 
           {/* Sem opção de sistema */}
           <View className="mb-lg">
-            <Text className={`text-subtitle-sm font-jakarta-bold ${textPrimary} mb-sm`}>Sem opção de sistema</Text>
-            <ThemeSelector showSystemOption={false} size={isSmallScreen ? "sm" : "md"} />
+            <Text className={`text-subtitle-sm font-jakarta-bold ${textPrimary} mb-sm`}>Apenas dois modos (Claro/Escuro)</Text>
+            <ThemeSelector size={isSmallScreen ? "sm" : "md"} />
             <Text className={`text-body-sm ${textSecondary} mt-xs`}>
               Versão com apenas dois modos (claro/escuro).
             </Text>
@@ -3304,8 +3304,8 @@ showToast({
           </View>
           
           <View className="mb-sm">
-            <Text className={`text-label-md font-jakarta-bold ${textPrimary}`}>showSystemOption</Text>
-            <Text className={`text-body-sm ${textSecondary}`}>Exibir opção de tema do sistema (boolean, padrão: true)</Text>
+            <Text className={`text-label-md font-jakarta-bold ${textPrimary}`}>Opções disponíveis</Text>
+            <Text className={`text-body-sm ${textSecondary}`}>O seletor agora oferece apenas Claro e Escuro.</Text>
           </View>
           
           <View className="mb-sm">
