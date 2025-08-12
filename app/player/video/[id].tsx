@@ -15,11 +15,14 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 export default function VideoPlayerScreen() {
   const { id, title: initTitle, subtitle: initSubtitle, module: initModule, benefits: initBenefits } = useLocalSearchParams<{ id: string; title?: string; subtitle?: string; module?: string; benefits?: string }>();
   const router = useRouter();
-  const { currentTheme, uiColors } = useTheme();
+  const { currentTheme, uiColors, accessibility } = useTheme();
   const isDark = currentTheme === 'dark';
 
+  // Tipografia base
   const titleType = getResponsiveValues('title-md');
+  const titleTypeSm = getResponsiveValues('title-sm');
   const bodyType = getResponsiveValues('body-lg');
+  const bodyTypeSm = getResponsiveValues('body-md');
   const appBarLabelType = getResponsiveValues('label-md');
 
   const videoId = useMemo(() => {
@@ -48,9 +51,14 @@ export default function VideoPlayerScreen() {
   const isShortScreen = height < 700;
   const isNarrow = width < 360;
   const isVeryNarrow = width < 330;
+  const isSmallPhone = isNarrow || isShortScreen;
   const compactGap = isVeryNarrow ? 6 : isNarrow ? 8 : 10;
   const basePadding = isVeryNarrow ? 8 : isNarrow ? 10 : 14;
-  const concludePadding = isVeryNarrow ? 6 : isNarrow ? 8 : 12;
+  const concludePadding = isVeryNarrow ? 4 : isNarrow ? 6 : 12;
+  const concludeFontSize = (isVeryNarrow || isNarrow) ? 12 : 14;
+  const controlFontSize = (isVeryNarrow || isNarrow) ? 12 : 14;
+  const controlHeight = isVeryNarrow ? 36 : isNarrow ? 40 : 44;
+  const shouldStackConclude = (width <= 400) || isVeryNarrow || (isNarrow && accessibility?.fontScale !== 'normal') || (isShortScreen && accessibility?.fontScale === 'muito-grande');
 
   // Tempos de espera de rotação, ajustados por plataforma
   const LANDSCAPE_ROTATION_TIMEOUT_MS = Platform.OS === 'ios' ? 500 : 900;
@@ -390,9 +398,9 @@ export default function VideoPlayerScreen() {
 
         {/* Infos */}
         <View style={{ marginTop: 12 }}>
-          <Text style={{ color: uiColors.textPrimary, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>{initTitle || `Vídeo ${id}`}</Text>
+          <Text style={{ color: uiColors.textPrimary, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: (isSmallPhone ? titleTypeSm.fontSize.default : titleType.fontSize.default), lineHeight: (isSmallPhone ? titleTypeSm.lineHeight.default : titleType.lineHeight.default) }}>{initTitle || `Vídeo ${id}`}</Text>
           {!!(initBenefits || initSubtitle) && (
-            <Text style={{ marginTop: 8, color: uiColors.textSecondary, fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>
+            <Text style={{ marginTop: 8, color: uiColors.textSecondary, fontFamily: dsFontFamily['jakarta-medium'], fontSize: (isSmallPhone ? bodyTypeSm.fontSize.default : bodyType.fontSize.default), lineHeight: (isSmallPhone ? bodyTypeSm.lineHeight.default : bodyType.lineHeight.default) }}>
               {initBenefits || initSubtitle}
             </Text>
           )}
@@ -402,25 +410,25 @@ export default function VideoPlayerScreen() {
         {!showFullscreen && !isLandscapeDevice && (
         <View style={[styles.controlsCompactRow, { gap: compactGap }]}>
           <Pressable
-            style={[styles.smallControl, { paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
+            style={[styles.smallControl, { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
             accessibilityRole="button"
             accessibilityLabel="Voltar 15 segundos"
             onPress={() => sendJS('window.seekBy(-15)')}
           >
-            <Text style={styles.smallControlText}>-15s</Text>
+            <Text style={[styles.smallControlText, { fontSize: controlFontSize }]}>-15s</Text>
           </Pressable>
           <Pressable
-            style={[styles.smallControl, { paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
+            style={[styles.smallControl, { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
             accessibilityRole="button"
             accessibilityLabel="Avançar 15 segundos"
             onPress={() => sendJS('window.seekBy(15)')}
           >
-            <Text style={styles.smallControlText}>+15s</Text>
+            <Text style={[styles.smallControlText, { fontSize: controlFontSize }]}>+15s</Text>
           </Pressable>
           <Pressable
             style={[
               styles.smallControl,
-              { paddingHorizontal: basePadding, backgroundColor: isDark ? colors['secondary-dark'] : colors['secondary-light'] },
+              { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: isDark ? colors['secondary-dark'] : colors['secondary-light'] },
             ]}
             accessibilityRole="button"
             accessibilityLabel="Tela cheia"
@@ -431,7 +439,7 @@ export default function VideoPlayerScreen() {
           <Pressable
             style={[
               styles.smallControl,
-              { paddingHorizontal: basePadding, backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: uiColors.divider },
+              { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: uiColors.divider },
             ]}
             accessibilityRole="button"
             accessibilityLabel={isFavorite(videoId) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
@@ -439,10 +447,11 @@ export default function VideoPlayerScreen() {
           >
             <Heart size={20} color={isFavorite(videoId) ? '#FFFFFF' : (isDark ? '#FFFFFF' : colors['brand-purple'])} />
           </Pressable>
+          {!shouldStackConclude && (
           <Pressable
             style={[
               styles.smallControl,
-              { paddingHorizontal: concludePadding, backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'], opacity: 1 },
+              { height: controlHeight, paddingHorizontal: concludePadding, backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'], opacity: 1 },
             ]}
             accessibilityRole="button"
             accessibilityLabel={isCompleted ? 'Desmarcar concluído' : 'Marcar como concluído'}
@@ -453,10 +462,37 @@ export default function VideoPlayerScreen() {
               } else {
                 await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
                 setIsCompleted(true);
+                try { router.back(); } catch {}
+              }
+            }}
+           >
+            <Text style={[styles.smallControlText, { fontSize: concludeFontSize }]}>
+              {isVeryNarrow ? 'OK' : isNarrow ? (isCompleted ? 'Feito' : 'Concluir') : (isCompleted ? 'Concluído' : 'Concluir')}
+            </Text>
+          </Pressable>
+          )}
+        </View>
+      )}
+      {!showFullscreen && !isLandscapeDevice && shouldStackConclude && (
+        <View style={[styles.controlsCompactRow, { marginTop: 8 }]}> 
+          <Pressable
+            style={[styles.smallControl, { flex: 1, height: controlHeight, paddingHorizontal: concludePadding, backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'] }]}
+            accessibilityRole="button"
+            accessibilityLabel={isCompleted ? 'Desmarcar concluído' : 'Marcar como concluído'}
+              onPress={async () => {
+              if (isCompleted) {
+                await unmarkCompleted({ videoId });
+                setIsCompleted(false);
+              } else {
+                await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+                setIsCompleted(true);
+                  try { router.back(); } catch {}
               }
             }}
           >
-            <Text style={styles.smallControlText}>{isCompleted ? 'Concluído' : 'Concluir'}</Text>
+            <Text style={[styles.smallControlText, { fontSize: concludeFontSize, textAlign: 'center' }]}> 
+              {isVeryNarrow ? 'OK' : isNarrow ? (isCompleted ? 'Feito' : 'Concluir') : (isCompleted ? 'Concluído' : 'Concluir')}
+            </Text>
           </Pressable>
         </View>
       )}

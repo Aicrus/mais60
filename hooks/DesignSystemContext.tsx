@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Importar tokens diretamente do design system
@@ -94,9 +95,15 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
         if (savedAccess) {
           try {
             const parsed = JSON.parse(savedAccess);
-            if (parsed.fontScale === 'grande') setTypographyScale(1.00);
-            else if (parsed.fontScale === 'muito-grande') setTypographyScale(1.15);
-            else setTypographyScale(0.90);
+            // Ajuste de escala para telas pequenas
+            const { width, height } = Dimensions.get('window');
+            const isSmallPhone = width < 360 || height < 700;
+            const computeScale = (level: 'normal' | 'grande' | 'muito-grande') => {
+              if (level === 'muito-grande') return isSmallPhone ? 1.08 : 1.15;
+              if (level === 'grande') return isSmallPhone ? 0.96 : 1.00;
+              return 0.90; // normal
+            };
+            setTypographyScale(computeScale(parsed.fontScale ?? 'normal'));
             setAccessibilityState({
               fontScale: parsed.fontScale ?? 'normal',
               contrast: parsed.contrast ?? 'normal',
@@ -142,9 +149,14 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
     }
     // Aplica escala tipográfica global
     if (prefs.fontScale) {
-      if (prefs.fontScale === 'grande') setTypographyScale(1.00);
-      else if (prefs.fontScale === 'muito-grande') setTypographyScale(1.15);
-      else setTypographyScale(0.90);
+      const { width, height } = Dimensions.get('window');
+      const isSmallPhone = width < 360 || height < 700;
+      const computeScale = (level: 'normal' | 'grande' | 'muito-grande') => {
+        if (level === 'muito-grande') return isSmallPhone ? 1.08 : 1.15;
+        if (level === 'grande') return isSmallPhone ? 0.96 : 1.00;
+        return 0.90; // normal
+      };
+      setTypographyScale(computeScale(prefs.fontScale));
       // Força re-render global
       setTypographyVersion((v) => v + 1);
     }

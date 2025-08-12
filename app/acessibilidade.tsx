@@ -6,6 +6,7 @@ import { colors } from '@/design-system/tokens/colors';
 import { Type, Contrast, Volume2, ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { useResponsive } from '@/hooks/useResponsive';
 // Persistência principal já é feita no DesignSystemContext via AsyncStorage
 
 export default function PerfilAcessibilidadeScreen() {
@@ -13,6 +14,8 @@ export default function PerfilAcessibilidadeScreen() {
   const { currentTheme, uiColors, accessibility, setAccessibility, typographyVersion, applyFontScale } = useTheme();
   const isDark = currentTheme === 'dark';
   const appBarLabelType = getResponsiveValues('label-md');
+  const { width, height } = useResponsive();
+  const isSmallPhone = width < 360 || height < 700;
 
   const [fontSize, setFontSize] = useState<'normal' | 'grande' | 'muito-grande'>(accessibility.fontScale);
   const [contrast, setContrast] = useState<'normal' | 'alto'>(accessibility.contrast);
@@ -81,14 +84,14 @@ export default function PerfilAcessibilidadeScreen() {
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
             <Pill label="Normal" active={fontSize === 'normal'} onPress={() => { setFontSize('normal'); applyFontScale('normal'); }} />
-            <Pill label="Grande" active={fontSize === 'grande'} onPress={() => { setFontSize('grande'); applyFontScale('grande'); }} />
-            <Pill label="Muito grande" active={fontSize === 'muito-grande'} onPress={() => { setFontSize('muito-grande'); applyFontScale('muito-grande'); }} />
+            <Pill label={isSmallPhone ? 'Médio' : 'Grande'} active={fontSize === 'grande'} onPress={() => { setFontSize('grande'); applyFontScale('grande'); }} />
+            <Pill label={isSmallPhone ? 'Grande' : 'Muito grande'} active={fontSize === 'muito-grande'} onPress={() => { setFontSize('muito-grande'); applyFontScale('muito-grande'); }} />
           </View>
           {/* Pré-visualização de tamanhos (apenas um texto dinâmico) */}
           <View style={{ marginTop: 12 }}>
             {(() => {
               // Recalcula quando typographyVersion muda
-              const preview = getResponsiveValues('body-md');
+              const preview = getResponsiveValues(isSmallPhone ? 'body-sm' : 'body-md');
               return (
                 <Text style={{ color: uiColors.textPrimary, fontFamily: dsFontFamily['jakarta-regular'], fontSize: preview.fontSize.default, lineHeight: preview.lineHeight.default }}>
                   Exemplo de texto
