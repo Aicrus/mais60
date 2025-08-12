@@ -80,7 +80,7 @@ export default function TabsLayout() {
               },
               android: {
                 ...styles.androidTabBar,
-                height: 60,
+                height: 72,
                 backgroundColor: tabBackgroundColor,
                 borderTopWidth: StyleSheet.hairlineWidth,
                 borderTopColor: tabBorderColor,
@@ -105,7 +105,7 @@ export default function TabsLayout() {
             },
             native: {
               ...styles.tabItem,
-              marginTop: -6,
+              marginTop: -10,
             },
           }),
           tabBarLabelStyle: (() => {

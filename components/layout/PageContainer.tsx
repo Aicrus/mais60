@@ -184,7 +184,7 @@ export function PageContainer({
   // Altura aproximada da Tab Bar por plataforma (sincronizado com app/(tabs)/_layout.tsx)
   const tabBarHeight = Platform.select<number>({
     ios: 88,
-    android: 60,
+    android: 72,
     web: 70,
     default: 60,
   }) as number;
