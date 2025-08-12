@@ -5,6 +5,7 @@ import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system
 import { colors } from '@/design-system/tokens/colors';
 import { Type, Contrast, Volume2, ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { PageContainer } from '@/components/layout/PageContainer';
 // Persistência principal já é feita no DesignSystemContext via AsyncStorage
 
 export default function PerfilAcessibilidadeScreen() {
@@ -33,7 +34,8 @@ export default function PerfilAcessibilidadeScreen() {
   );
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: uiColors.bgPrimary }} contentContainerStyle={{ padding: 16 }}>
+    <PageContainer>
+      <ScrollView contentContainerStyle={{}}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 2, paddingBottom: 8 }}>
         <Pressable
           accessibilityRole="button"
@@ -118,7 +120,8 @@ export default function PerfilAcessibilidadeScreen() {
           </View>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </PageContainer>
   );
 }
 
