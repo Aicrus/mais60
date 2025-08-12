@@ -4,7 +4,7 @@ import '@/lib/polyfills';
 import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider, useFocusEffect } from '@react-navigation/native';
 // 🎯 IMPORT DINÂMICO - NUNCA MAIS PRECISA ALTERAR!
 import { useDynamicFonts } from '@/hooks/useDynamicFonts';
-import { Stack } from 'expo-router';
+import { Stack, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, memo, useRef } from 'react';
@@ -172,6 +172,8 @@ const RootLayoutNav = memo(function RootLayoutNav() {
   const { currentTheme } = useTheme();
   const { isLoading, isInitialized, session } = useAuth();
   const isDark = currentTheme === 'dark';
+  const pathname = usePathname();
+  const isWelcomeOnboarding = pathname?.includes('/onboarding/welcome');
 
   // Reforça retrato sempre que a navegação principal ganha foco
   useFocusEffect(
@@ -262,9 +264,9 @@ const RootLayoutNav = memo(function RootLayoutNav() {
   return (
     <SafeAreaView 
       className={`flex-1 ${isDark ? 'bg-bg-tertiary-dark' : 'bg-bg-tertiary-light'}`}
-      edges={['top', 'right', 'left']}
+      edges={isWelcomeOnboarding ? ['right', 'left'] : ['top', 'right', 'left']}
       style={{ 
-        backgroundColor: isDark ? headerColors.dark : headerColors.light 
+        backgroundColor: isWelcomeOnboarding ? 'transparent' : (isDark ? headerColors.dark : headerColors.light) 
       }}
     >
       {MainContent}
