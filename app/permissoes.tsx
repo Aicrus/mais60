@@ -7,6 +7,7 @@ import { Activity, Database, BellRing, ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import { Pedometer } from 'expo-sensors';
+import { PageContainer } from '@/components/layout/PageContainer';
 
 export default function PerfilPermissoesScreen() {
   const router = useRouter();
@@ -44,7 +45,8 @@ export default function PerfilPermissoesScreen() {
   // Sem solicitação para sensores de movimento
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: uiColors.bgPrimary }} contentContainerStyle={{ padding: 16 }}>
+    <PageContainer>
+      <ScrollView contentContainerStyle={{}}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 2, paddingBottom: 8 }}>
         <Pressable
           accessibilityRole="button"
@@ -123,7 +125,8 @@ export default function PerfilPermissoesScreen() {
           </Text>
         </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </PageContainer>
   );
 }
 
