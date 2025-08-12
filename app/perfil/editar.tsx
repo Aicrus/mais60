@@ -125,31 +125,41 @@ export default function EditarPerfilScreen() {
 
   const handlePickImageNative = async () => {
     try {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      // iOS pode retornar 'limited' quando o usuário escolhe fotos específicas
-      if (!(status === 'granted' || status === 'limited')) {
+      // 1) Verifica a permissão primeiro, sem re-solicitar à toa (evita abrir o
+      //    gerenciador de "Biblioteca limitada" do iOS, que não retorna a foto)
+      let perm = await ImagePicker.getMediaLibraryPermissionsAsync();
+      if (perm.status === 'undetermined' || perm.status === 'denied') {
+        perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      }
+      if (!(perm.status === 'granted' || perm.status === 'limited')) {
         alert('Permissão para acessar a galeria foi negada. Você pode permitir o acesso nas Configurações.');
         return;
       }
-      const pickerOptions: any = { quality: 0.8 };
-      // Compat: SDKs mais antigos usam MediaTypeOptions; SDKs recentes usam MediaType (e aceita array)
+
+      // 2) Abre a galeria com seleção única. No iOS, tocar na foto já confirma
+      //    a escolha e fecha o picker; no Android, o comportamento é similar.
+      const pickerOptions: any = { quality: 0.8, allowsMultipleSelection: false, selectionLimit: 1 };
+      // Compat: SDKs mais antigos usam MediaTypeOptions; SDKs recentes usam MediaType
       if ((ImagePicker as any).MediaType) {
         pickerOptions.mediaTypes = [(ImagePicker as any).MediaType.Images];
       } else {
         pickerOptions.mediaTypes = (ImagePicker as any).MediaTypeOptions?.Images;
       }
+
       const result = await ImagePicker.launchImageLibraryAsync(pickerOptions);
       if (result.canceled || !result.assets?.length) return;
       const asset = result.assets[0];
-      // Normaliza formato para JPEG (corrige HEIC/HEIF e CMYK)
+
+      // 3) Normaliza para JPEG para evitar problemas com HEIC/CMYK
       const manipulated = await ImageManipulator.manipulateAsync(
         asset.uri,
         [],
         { compress: 0.85, format: ImageManipulator.SaveFormat.JPEG }
       );
-      // Lê como base64 para garantir bytes válidos no RN e converte para Blob
+
+      // 4) Converte para bytes e faz upload
       const base64 = await FileSystem.readAsStringAsync(manipulated.uri, { encoding: FileSystem.EncodingType.Base64 });
-      const bytes = toByteArray(base64); // Uint8Array com bytes válidos
+      const bytes = toByteArray(base64);
       const publicUrl = await uploadToSupabaseStorage(bytes as unknown as Blob, 'image/jpeg');
       if (publicUrl) setAvatarUrl(publicUrl);
     } catch (e) {

@@ -14,6 +14,7 @@ import SafetyChecklist from '@/components/modules/SafetyChecklist';
 import Sheet from '@/components/sheets/Sheet';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
 
@@ -182,6 +183,42 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
       } catch {}
     })();
   }, []);
+
+  // Revalida no foco para não reabrir o modal se o perfil já estiver concluído
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      (async () => {
+        try {
+          const { data: auth } = await supabase.auth.getUser();
+          const userId = auth.user?.id;
+          if (!userId) return;
+          const { data } = await supabase
+            .from('usuarios')
+            .select('perfil_concluido, nome, email, telefone')
+            .eq('id', userId)
+            .maybeSingle();
+          const nomeOk = !!(data?.nome && data.nome.trim().length >= 3);
+          const emailOk = !!(data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
+          const telOk = !!(data?.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
+          const concluded = (data as any)?.perfil_concluido ?? (nomeOk && emailOk && telOk);
+          if (!isActive) return;
+          if (concluded) {
+            setShowCompleteModal(false);
+          } else {
+            try {
+              const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
+              const next = nextStr ? parseInt(nextStr, 10) : 0;
+              if (!next || Date.now() >= next) setShowCompleteModal(true);
+            } catch {
+              setShowCompleteModal(true);
+            }
+          }
+        } catch {}
+      })();
+      return () => { isActive = false; };
+    }, [])
+  );
 
   return (
     <PageContainer>
