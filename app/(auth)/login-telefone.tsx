@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/useToast';
 import { supabase } from '@/lib/supabase';
 import { useResponsive } from '@/hooks/useResponsive';
 import { Link } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function normalizePhone(raw: string) {
   const digits = (raw || '').replace(/\D/g, '');
@@ -29,6 +30,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   const isDark = currentTheme === 'dark';
   const { showToast } = useToast();
   const { responsive } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   const titleType = getResponsiveValues('headline-md');
   const bodyMdType = getResponsiveValues('body-md');
@@ -126,13 +128,13 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
                 ? require('@/assets/images/Logo Mais 60 Branco.png')
                 : require('@/assets/images/Logo Mais 60 Roxo.png')}
               style={{
-                width: responsive({ mobile: 160, tablet: 192, desktop: 208, default: 160 }),
-                height: responsive({ mobile: 48, tablet: 58, desktop: 64, default: 48 }),
+                width: responsive({ mobile: 176, tablet: 208, desktop: 232, default: 176 }),
+                height: responsive({ mobile: 52, tablet: 62, desktop: 70, default: 52 }),
               }}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />
-            <View style={{ height: 48 }} />
+            <View style={{ height: 0 }} />
           </View>
 
           <View style={styles.formWrapper}>
@@ -181,19 +183,25 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
             </View>
           </View>
         </View>
-        {/* Rodapé com texto e faixas coloridas */}
-        <View style={{ paddingHorizontal: 24, paddingBottom: 16 }}>
-          <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
-            Para conhecer os termos e políticas de uso do app Mais 60,{' '}
-            <Link href="/(auth)/termos" asChild>
-              <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>clique aqui</Text>
-            </Link>
-            .
-          </Text>
+        {/* Rodapé fixo com texto e faixas coloridas */}
+        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 10) }}>
+          <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
+            <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
+              Para conhecer os{' '}
+              <Link href="/sobre/termos-de-uso" asChild>
+                <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>termos de uso</Text>
+              </Link>
+              {' '}e a{' '}
+              <Link href="/sobre/politica-de-privacidade" asChild>
+                <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>política de privacidade</Text>
+              </Link>
+              {' '}do app Mais 60.
+            </Text>
+          </View>
+          <View style={{ height: 2, backgroundColor: '#430593' }} />
+          <View style={{ height: 2, backgroundColor: '#27CC95' }} />
+          <View style={{ height: 2, backgroundColor: '#FB5C3D' }} />
         </View>
-        <View style={{ height: 2, backgroundColor: '#430593' }} />
-        <View style={{ height: 2, backgroundColor: '#27CC95' }} />
-        <View style={{ height: 2, backgroundColor: '#FB5C3D' }} />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -201,7 +209,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24 },
-  logoContainer: { alignItems: 'center', marginTop: 8 },
+  logoContainer: { alignItems: 'center', marginTop: 48 },
   formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   formContainer: {
     width: '100%',

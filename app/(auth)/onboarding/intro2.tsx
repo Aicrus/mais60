@@ -51,11 +51,11 @@ export default function OnboardingIntro2() {
             const { dx, vx } = gestureState;
             const distanceThreshold = 40;
             const velocityThreshold = 0.3;
-            if (dx < -distanceThreshold || vx < -velocityThreshold) {
-              router.push('/(auth)/onboarding/intro3');
-            } else if (dx > distanceThreshold || vx > velocityThreshold) {
-              router.back();
-            }
+             if (dx < -distanceThreshold || vx < -velocityThreshold) {
+               router.replace('/(auth)/onboarding/intro3');
+             } else if (dx > distanceThreshold || vx > velocityThreshold) {
+               router.replace('/(auth)/onboarding/welcome');
+             }
           },
         })
       ).current.panHandlers}
@@ -95,7 +95,7 @@ export default function OnboardingIntro2() {
       <View style={{ position: 'absolute', left: 24, right: 24, bottom: 48 }}>
         <View style={{ gap: 16 }}>
           <ProgressDots />
-          <Pressable onPress={() => router.push('/(auth)/onboarding/intro3')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors['brand-green'], shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
+          <Pressable onPress={() => router.replace('/(auth)/onboarding/intro3')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors['brand-green'], shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
             <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: buttonType.fontSize.default, lineHeight: buttonType.lineHeight.default }}>Avançar</Text>
           </Pressable>
         </View>

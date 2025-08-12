@@ -22,6 +22,8 @@ export default function AuthLayout() {
       screenOptions={{
         headerShown: false,
         orientation: 'portrait',
+        // Desabilita gesto nativo de voltar por padrão (iOS)
+        gestureEnabled: false,
         animation: Platform.OS === 'web' ? 'none' : 'fade',
         animationDuration: Platform.OS === 'web' ? 0 : 200,
         contentStyle: {
@@ -30,9 +32,9 @@ export default function AuthLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Auth' }} />
-      <Stack.Screen name="onboarding/welcome" options={{ title: 'Boas-vindas' }} />
-      <Stack.Screen name="onboarding/intro2" options={{ title: 'Introdução 2' }} />
-      <Stack.Screen name="onboarding/intro3" options={{ title: 'Introdução 3' }} />
+      <Stack.Screen name="onboarding/welcome" options={{ title: 'Boas-vindas', gestureEnabled: true }} />
+      <Stack.Screen name="onboarding/intro2" options={{ title: 'Introdução 2', gestureEnabled: true }} />
+      <Stack.Screen name="onboarding/intro3" options={{ title: 'Introdução 3', gestureEnabled: true }} />
       <Stack.Screen
         name="login"
         options={{

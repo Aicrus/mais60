@@ -51,9 +51,9 @@ export default function OnboardingIntro3() {
             const { dx, vx } = gestureState;
             const distanceThreshold = 40;
             const velocityThreshold = 0.3;
-            if (dx > distanceThreshold || vx > velocityThreshold) {
-              router.back();
-            }
+             if (dx > distanceThreshold || vx > velocityThreshold) {
+               router.replace('/(auth)/onboarding/intro2');
+             }
           },
         })
       ).current.panHandlers}

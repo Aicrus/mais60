@@ -26,7 +26,7 @@ export default function OnboardingWelcome() {
         const distanceThreshold = 40;
         const velocityThreshold = 0.3;
         if (dx < -distanceThreshold || vx < -velocityThreshold) {
-          router.push('/(auth)/onboarding/intro2');
+          router.replace('/(auth)/onboarding/intro2');
         }
       },
     })
@@ -98,7 +98,7 @@ export default function OnboardingWelcome() {
       <View style={{ position: 'absolute', left: 24, right: 24, bottom: 48 }}>
         <View style={{ gap: 16 }}>
           <ProgressDots />
-          <Pressable onPress={() => router.push('/(auth)/onboarding/intro2')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
+          <Pressable onPress={() => router.replace('/(auth)/onboarding/intro2')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
             <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: buttonType.fontSize.default, lineHeight: buttonType.lineHeight.default }}>Avançar</Text>
           </Pressable>
         </View>
