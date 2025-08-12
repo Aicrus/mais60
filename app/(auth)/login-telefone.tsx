@@ -35,6 +35,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   const titleType = getResponsiveValues('headline-md');
   const bodyMdType = getResponsiveValues('body-md');
   const bodySmType = getResponsiveValues('body-sm');
+  const codeType = getResponsiveValues('headline-xl');
 
   const ui = useMemo(() => ({
     text: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
@@ -156,9 +157,15 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
               </>
             ) : (
               <>
-              <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-extrabold'], marginBottom: 8, textAlign: 'center' }}>
-                  Use este código: {generated}
-                </Text>
+                <View style={styles.codeContainer}>
+                  <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], marginBottom: 6, textAlign: 'center' }}>
+                    Use este código
+                  </Text>
+                  <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: codeType.fontSize.default, lineHeight: codeType.lineHeight.default, letterSpacing: 4, textAlign: 'center' }}>
+                    {generated}
+                  </Text>
+                </View>
+                <View style={{ height: 12 }} />
                 <CodeInput value={code} onChange={setCode} length={4} />
                 <View style={{ height: 12 }} />
                 <Button variant="primary" onPress={confirmCode} fullWidth loading={loading} loadingText="Entrando...">
@@ -198,11 +205,11 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
               {' '}do app Mais 60.
             </Text>
           </View>
-          <View style={{ height: 4, backgroundColor: '#430593' }} />
-          <View style={{ height: 6 }} />
-          <View style={{ height: 4, backgroundColor: '#27CC95' }} />
-          <View style={{ height: 6 }} />
-          <View style={{ height: 4, backgroundColor: '#FB5C3D' }} />
+          <View style={{ height: 6, backgroundColor: '#430593' }} />
+          <View style={{ height: 2 }} />
+          <View style={{ height: 6, backgroundColor: '#27CC95' }} />
+          <View style={{ height: 2 }} />
+          <View style={{ height: 6, backgroundColor: '#FB5C3D' }} />
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -244,6 +251,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors['bg-secondary-dark'],
     borderWidth: 1,
     borderColor: colors['divider-dark'],
+  },
+  codeContainer: {
+    alignItems: 'center',
   },
 });
 
