@@ -37,7 +37,7 @@ export default function OnboardingIntro3() {
 
   return (
     <ImageBackground
-      source={require('@/assets/images/Homem Idoso Hidratando-se.jpg')}
+      source={require('@/assets/images/Mulher Sênior com Figos (1).jpg')}
       style={{ flex: 1 }}
       resizeMode="cover"
       accessibilityIgnoresInvertColors
