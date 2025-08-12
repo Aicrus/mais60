@@ -173,7 +173,13 @@ const RootLayoutNav = memo(function RootLayoutNav() {
   const { isLoading, isInitialized, session } = useAuth();
   const isDark = currentTheme === 'dark';
   const pathname = usePathname();
-  const isWelcomeOnboarding = pathname?.includes('/onboarding/welcome');
+  const isOnboardingFullscreen = Boolean(
+    pathname && (
+      pathname.includes('/onboarding/welcome') ||
+      pathname.includes('/onboarding/intro2') ||
+      pathname.includes('/onboarding/intro3')
+    )
+  );
 
   // Reforça retrato sempre que a navegação principal ganha foco
   useFocusEffect(
@@ -202,21 +208,31 @@ const RootLayoutNav = memo(function RootLayoutNav() {
   useEffect(() => {
     if (Platform.OS !== 'web') {
       // Configurações para Android e iOS
-      StatusBar.setBarStyle(isDark ? 'light-content' : 'dark-content');
-      
-      if (Platform.OS === 'android') {
-        StatusBar.setBackgroundColor(isDark ? headerColors.dark : headerColors.light);
+      if (isOnboardingFullscreen) {
+        StatusBar.setBarStyle('light-content');
+        if (Platform.OS === 'android') {
+          StatusBar.setBackgroundColor('transparent');
+          // @ts-ignore - RN API disponível no Android
+          StatusBar.setTranslucent?.(true);
+        }
+      } else {
+        StatusBar.setBarStyle(isDark ? 'light-content' : 'dark-content');
+        if (Platform.OS === 'android') {
+          StatusBar.setBackgroundColor(isDark ? headerColors.dark : headerColors.light);
+          // @ts-ignore - RN API disponível no Android
+          StatusBar.setTranslucent?.(false);
+        }
       }
     }
-  }, [isDark, headerColors]);
+  }, [isDark, headerColors, isOnboardingFullscreen]);
 
   const MainContent = (
     <NavigationThemeProvider value={currentTheme === 'dark' ? DarkTheme : DefaultTheme}>
       <View className={`flex-1 ${isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}`}>
         {/* Usando a ExpoStatusBar apenas para manter compatibilidade, mas as configurações reais vêm do StatusBar nativo */}
         <ExpoStatusBar 
-          style={currentTheme === 'dark' ? 'light' : 'dark'}
-          backgroundColor={isDark ? headerColors.dark : headerColors.light}
+          style={isOnboardingFullscreen ? 'light' : (currentTheme === 'dark' ? 'light' : 'dark')}
+          backgroundColor={isOnboardingFullscreen ? 'transparent' : (isDark ? headerColors.dark : headerColors.light)}
         />
         <Stack 
           screenOptions={{
@@ -264,9 +280,9 @@ const RootLayoutNav = memo(function RootLayoutNav() {
   return (
     <SafeAreaView 
       className={`flex-1 ${isDark ? 'bg-bg-tertiary-dark' : 'bg-bg-tertiary-light'}`}
-      edges={isWelcomeOnboarding ? ['right', 'left'] : ['top', 'right', 'left']}
+      edges={isOnboardingFullscreen ? ['right', 'left'] : ['top', 'right', 'left']}
       style={{ 
-        backgroundColor: isWelcomeOnboarding ? 'transparent' : (isDark ? headerColors.dark : headerColors.light) 
+        backgroundColor: isOnboardingFullscreen ? 'transparent' : (isDark ? headerColors.dark : headerColors.light) 
       }}
     >
       {MainContent}

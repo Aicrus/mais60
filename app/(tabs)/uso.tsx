@@ -32,6 +32,9 @@ export default function UsoScreen() {
   const locationTrack = useLocationTrack();
   const { session } = useAuth();
   const [showCompleteModal, setShowCompleteModal] = React.useState(false);
+  const [historyMode, setHistoryMode] = React.useState<'7d' | '4w'>('7d');
+  const [showAllRecent, setShowAllRecent] = React.useState(false);
+  const [showRoute, setShowRoute] = React.useState(false);
 
   const titleType = getResponsiveValues('headline-lg');
   const sectionType = getResponsiveValues('title-sm');
@@ -161,66 +164,71 @@ export default function UsoScreen() {
 
         {/* Sensores */}
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Sensores</Text>
-        <View style={{ gap: 12 }}>
-          <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Passos hoje</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default, marginTop: 4 }}>{sensors.stepsToday ?? '—'}</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between' }}>
+          <View style={[styles.card, { width: '48%', borderColor: ui.divider, backgroundColor: ui.card }]}>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Passos hoje</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], marginTop: 4 }}>{sensors.stepsToday ?? '—'}</Text>
           </View>
-          <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Movimento (aceleração)</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default, marginTop: 4 }}>{sensors.accelMagnitude ?? '—'}</Text>
+          <View style={[styles.card, { width: '48%', borderColor: ui.divider, backgroundColor: ui.card }]}>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Movimento</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], marginTop: 4 }}>{sensors.accelMagnitude ?? '—'}</Text>
           </View>
-          <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Bateria</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default, marginTop: 4 }}>{sensors.batteryLevel != null ? `${Math.round((sensors.batteryLevel || 0) * 100)}%` : '—'}</Text>
+          <View style={[styles.card, { width: '48%', borderColor: ui.divider, backgroundColor: ui.card }]}>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'] }}>Bateria</Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-bold'], marginTop: 4 }}>{sensors.batteryLevel != null ? `${Math.round((sensors.batteryLevel || 0) * 100)}%` : '—'}</Text>
           </View>
-          <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Caminhada (hoje)</Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default, marginTop: 4 }}>{(locationTrack.todayMeters / 1000).toFixed(2)} km • pontos {locationTrack.pointsCount}</Text>
-            <View style={{ height: 8 }} />
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              {locationTrack.isTracking ? (
-                <Pressable onPress={locationTrack.stopTracking} style={{ height: 40, borderRadius: 10, backgroundColor: '#E11D48', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
-                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Parar</Text>
-                </Pressable>
-              ) : (
-                <Pressable onPress={locationTrack.startTracking} style={{ height: 40, borderRadius: 10, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
-                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Iniciar</Text>
-                </Pressable>
-              )}
-              {locationTrack.permission === 'denied' && (
-                <Pressable onPress={() => Platform.OS !== 'web' && require('expo-linking').openSettings()} style={{ height: 40, borderRadius: 10, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
-                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>Abrir ajustes</Text>
-                </Pressable>
-              )}
-            </View>
-            {!!MapView && (
-              <View style={{ height: 180, borderRadius: 12, overflow: 'hidden', marginTop: 10 }}>
-                {(() => {
-                  const pts = locationTrack.todayPoints || [];
-                  let region = { latitude: -14.235, longitude: -51.925, latitudeDelta: 0.3, longitudeDelta: 0.3 };
-                  if (pts.length > 0) {
-                    const lats = pts.map(p => p.latitude);
-                    const lons = pts.map(p => p.longitude);
-                    const minLat = Math.min(...lats);
-                    const maxLat = Math.max(...lats);
-                    const minLon = Math.min(...lons);
-                    const maxLon = Math.max(...lons);
-                    const latDelta = Math.max(0.01, (maxLat - minLat) * 1.4);
-                    const lonDelta = Math.max(0.01, (maxLon - minLon) * 1.4);
-                    region = { latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2, latitudeDelta: latDelta, longitudeDelta: lonDelta };
-                  }
-                  return (
-                    <MapView style={{ flex: 1 }} initialRegion={region}>
-                      {!!Polyline && pts.length > 1 && (
-                        <Polyline coordinates={pts.map(p => ({ latitude: p.latitude, longitude: p.longitude }))} strokeColor={colors['brand-purple']} strokeWidth={4} />
-                      )}
-                    </MapView>
-                  );
-                })()}
-              </View>
+        </View>
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Caminhada</Text>
+            <Pressable onPress={() => setShowRoute((prev) => !prev)}>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>{showRoute ? 'Esconder percurso' : 'Ver percurso'}</Text>
+            </Pressable>
+          </View>
+          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default, marginTop: 4 }}>{(locationTrack.todayMeters / 1000).toFixed(2)} km • pontos {locationTrack.pointsCount}</Text>
+          <View style={{ height: 8 }} />
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {locationTrack.isTracking ? (
+              <Pressable onPress={locationTrack.stopTracking} style={{ height: 40, borderRadius: 10, backgroundColor: '#E11D48', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
+                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Parar</Text>
+              </Pressable>
+            ) : (
+              <Pressable onPress={locationTrack.startTracking} style={{ height: 40, borderRadius: 10, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
+                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Iniciar</Text>
+              </Pressable>
+            )}
+            {locationTrack.permission === 'denied' && (
+              <Pressable onPress={() => Platform.OS !== 'web' && require('expo-linking').openSettings()} style={{ height: 40, borderRadius: 10, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 }}>
+                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>Abrir ajustes</Text>
+              </Pressable>
             )}
           </View>
+          {!!MapView && showRoute && (
+            <View style={{ height: 180, borderRadius: 12, overflow: 'hidden', marginTop: 10 }}>
+              {(() => {
+                const pts = locationTrack.todayPoints || [];
+                let region = { latitude: -14.235, longitude: -51.925, latitudeDelta: 0.3, longitudeDelta: 0.3 };
+                if (pts.length > 0) {
+                  const lats = pts.map(p => p.latitude);
+                  const lons = pts.map(p => p.longitude);
+                  const minLat = Math.min(...lats);
+                  const maxLat = Math.max(...lats);
+                  const minLon = Math.min(...lons);
+                  const maxLon = Math.max(...lons);
+                  const latDelta = Math.max(0.01, (maxLat - minLat) * 1.4);
+                  const lonDelta = Math.max(0.01, (maxLon - minLon) * 1.4);
+                  region = { latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2, latitudeDelta: latDelta, longitudeDelta: lonDelta };
+                }
+                return (
+                  <MapView style={{ flex: 1 }} initialRegion={region}>
+                    {!!Polyline && pts.length > 1 && (
+                      <Polyline coordinates={pts.map(p => ({ latitude: p.latitude, longitude: p.longitude }))} strokeColor={colors['brand-purple']} strokeWidth={4} />
+                    )}
+                  </MapView>
+                );
+              })()}
+            </View>
+          )}
         </View>
 
         {/* Uso por módulo (hoje) */}
@@ -253,11 +261,24 @@ export default function UsoScreen() {
           )}
         </View>
 
-        {/* Histórico (7 dias) */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Histórico (7 dias)</Text>
+        {/* Histórico */}
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Histórico</Text>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
+          <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+            {(['7d', '4w'] as const).map((tab) => (
+              <Pressable key={tab} onPress={() => setHistoryMode(tab)} style={{
+                paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999,
+                backgroundColor: historyMode === tab ? colors['brand-purple'] : 'transparent',
+                borderWidth: 1, borderColor: ui.divider,
+              }}>
+                <Text style={{ color: historyMode === tab ? '#FFFFFF' : ui.text, fontFamily: dsFontFamily['jakarta-semibold'] }}>
+                  {tab === '7d' ? '7 dias' : 'Semanas'}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
           <BarChart
-            data={last7Bars}
+            data={historyMode === '7d' ? last7Bars : last4Bars}
             width={undefined}
             barBorderRadius={6}
             noOfSections={4}
@@ -265,59 +286,49 @@ export default function UsoScreen() {
             xAxisLabelTextStyle={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}
             isAnimated
             animationDuration={800}
-            spacing={18}
+            spacing={historyMode === '7d' ? 18 : 28}
             xAxisThickness={0}
             yAxisThickness={0}
-            initialSpacing={12}
-            labelWidth={28}
+            initialSpacing={historyMode === '7d' ? 12 : 18}
+            labelWidth={historyMode === '7d' ? 28 : 42}
           />
         </View>
 
-        {/* Semanas (últimas 4) */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Semanas (últimas 4)</Text>
-        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
-          <BarChart
-            data={last4Bars}
-            width={undefined}
-            barBorderRadius={6}
-            noOfSections={4}
-            yAxisTextStyle={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}
-            xAxisLabelTextStyle={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}
-            isAnimated
-            animationDuration={800}
-            spacing={28}
-            xAxisThickness={0}
-            yAxisThickness={0}
-            initialSpacing={18}
-            labelWidth={42}
-          />
-        </View>
+        {/* Seção de semanas incorporada ao card de Histórico */}
 
-        {/* Lista de vídeos recentes */}
+        {/* Recentes */}
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Recentes</Text>
         <View style={{ gap: 12 }}>
           {aggregates.recentVideos.length === 0 ? (
             <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, alignItems: 'center', justifyContent: 'center' }] }>
-              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>Nenhuma atividade recente.</Text>
-              <Text style={{ marginTop: 6, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default, textAlign: 'center' }}>Assista a um vídeo para ele aparecer aqui.</Text>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Sem atividade recente.</Text>
             </View>
           ) : (
-            aggregates.recentVideos.map((v) => (
+            (showAllRecent ? aggregates.recentVideos : aggregates.recentVideos.slice(0, 3)).map((v) => (
               <View key={`${v.date}-${v.videoId}`} style={[styles.listCard, { borderColor: ui.divider, backgroundColor: ui.card }] }>
                 <View style={[styles.listIconCircle, { backgroundColor: colors['brand-purple'] }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }}>{v.title || `Vídeo ${v.videoId}`}</Text>
-                  <Text style={{ marginTop: 6, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>{new Date(v.lastAt).toLocaleDateString()} • {Math.max(1, Math.floor(v.seconds/60))} min</Text>
+                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }} numberOfLines={1}>
+                    {v.title || `Vídeo ${v.videoId}`}
+                  </Text>
+                  <Text style={{ marginTop: 4, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>
+                    {new Date(v.lastAt).toLocaleDateString()} • {Math.max(1, Math.floor(v.seconds/60))} min
+                  </Text>
                 </View>
               </View>
             ))
           )}
+          {aggregates.recentVideos.length > 3 && (
+            <Pressable onPress={() => setShowAllRecent((p) => !p)} style={{ alignSelf: 'center', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: ui.divider }}>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'] }}>{showAllRecent ? 'Ver menos' : 'Ver mais'}</Text>
+            </Pressable>
+          )}
         </View>
 
         {/* Ações */}
-        <View style={{ height: 12 }} />
-        <Pressable onPress={clearUsage} accessibilityRole="button" style={[styles.clearBtn]}> 
-          <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: listTitleType.fontSize.default, lineHeight: listTitleType.lineHeight.default }}>Limpar estatísticas</Text>
+        <View style={{ height: 8 }} />
+        <Pressable onPress={clearUsage} accessibilityRole="button" style={{ alignSelf: 'center', paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: ui.divider }}>
+          <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'] }}>Limpar estatísticas</Text>
         </Pressable>
       </ScrollView>
 

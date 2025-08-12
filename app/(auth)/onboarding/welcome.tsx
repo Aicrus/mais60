@@ -81,7 +81,7 @@ export default function OnboardingWelcome() {
         bounces={false}
       >
         <View style={{ alignItems: 'center', marginTop: 8 }}>
-          <Image source={require('@/assets/images/Logo Mais 60 Roxo.png')} style={{ width: 128, height: 38 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+          <Image source={require('@/assets/images/Logo Mais 60 Branco.png')} style={{ width: 128, height: 38 }} resizeMode="contain" accessibilityIgnoresInvertColors />
           {/* Espaço equivalente à imagem central removida para manter o layout como antes */}
           <View style={{ height: 300, marginTop: 8 }} />
         </View>
@@ -90,7 +90,7 @@ export default function OnboardingWelcome() {
           <Text style={{ marginTop: 8, color: colors['text-primary-dark'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: title.fontSize.default, lineHeight: title.lineHeight.default, textAlign: 'center' }}>
             Descubra conteúdos para o seu bem‑estar
           </Text>
-          <Text style={{ marginTop: 10, color: colors['text-secondary-dark'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: subtitle.fontSize.default, lineHeight: subtitle.lineHeight.default, textAlign: 'center' }}>
+          <Text style={{ marginTop: 10, color: 'rgba(255,255,255,0.88)', fontFamily: dsFontFamily['jakarta-medium'], fontSize: subtitle.fontSize.default, lineHeight: subtitle.lineHeight.default, textAlign: 'center' }}>
             Exercícios guiados, dicas de saúde e programas pensados para a sua rotina.
           </Text>
         </View>
