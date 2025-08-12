@@ -41,6 +41,12 @@ export default function Home() {
   const rowLabelType = getResponsiveValues('body-md');
   const moduleTitleType = getResponsiveValues('title-sm');
   const moduleSubtitleType = getResponsiveValues('body-md');
+  const promoTitleType = getResponsiveValues('subtitle-lg');
+  const promoSubtitleType = getResponsiveValues('body-md');
+  const movementTitleType = getResponsiveValues('title-md');
+  const movementSubtitleType = getResponsiveValues('body-md');
+  const textOnlyTitleType = getResponsiveValues('title-md');
+  const textOnlySubtitleType = getResponsiveValues('body-md');
   // Reforça orientação retrato quando a Home ganha foco
   useFocusEffect(
     React.useCallback(() => {
