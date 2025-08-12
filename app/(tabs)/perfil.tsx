@@ -274,12 +274,7 @@ export default function PerfilScreen() {
               onValueChange={async (value) => {
                 setHighContrast(value);
                 setAccessibility({ contrast: value ? 'alto' : 'normal' });
-                try {
-                  const userId = session?.user?.id;
-                  if (userId) {
-                    await supabase.from('usuarios').update({ acess_contrast: value ? 'alto' : 'normal' }).eq('id', userId);
-                  }
-                } catch {}
+                // Persistência local já é feita no contexto
               }}
               trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
               thumbColor={'#FFFFFF'}

@@ -5,13 +5,11 @@ import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system
 import { colors } from '@/design-system/tokens/colors';
 import { Type, Contrast, Volume2, ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '@/contexts/auth';
-import { supabase } from '@/lib/supabase';
+// Persistência principal já é feita no DesignSystemContext via AsyncStorage
 
 export default function PerfilAcessibilidadeScreen() {
   const router = useRouter();
   const { currentTheme, accessibility, setAccessibility } = useTheme();
-  const { session } = useAuth();
   const isDark = currentTheme === 'dark';
   const title = getResponsiveValues('headline-lg');
 
@@ -26,23 +24,7 @@ export default function PerfilAcessibilidadeScreen() {
     setSound(accessibility.sound);
   }, [accessibility]);
 
-  const persistToSupabase = async (prefs: { fontScale?: typeof fontSize; contrast?: typeof contrast; sound?: typeof sound }) => {
-    try {
-      const userId = session?.user?.id;
-      if (!userId) return;
-      await supabase
-        .from('usuarios')
-        .update({
-          acess_font_scale: prefs.fontScale ?? fontSize,
-          acess_contrast: prefs.contrast ?? contrast,
-          acess_sound: prefs.sound ?? sound,
-        })
-        .eq('id', userId);
-    } catch (e) {
-      // Silencioso: apenas loga
-      console.warn('Falha ao salvar preferências no Supabase:', e);
-    }
-  };
+  // Observação: não persistimos em Supabase para evitar custos. AsyncStorage já é persistente.
 
   const Pill = ({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) => (
     <Pressable onPress={onPress} style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: 999, borderWidth: 1, backgroundColor: active ? '#430593' : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderColor: active ? '#430593' : (isDark ? colors['divider-dark'] : '#E5E7EB') }}>
@@ -66,9 +48,16 @@ export default function PerfilAcessibilidadeScreen() {
             <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Tamanho da letra</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-            <Pill label="Normal" active={fontSize === 'normal'} onPress={async () => { setFontSize('normal'); setAccessibility({ fontScale: 'normal' }); await persistToSupabase({ fontScale: 'normal' }); }} />
-            <Pill label="Grande" active={fontSize === 'grande'} onPress={async () => { setFontSize('grande'); setAccessibility({ fontScale: 'grande' }); await persistToSupabase({ fontScale: 'grande' }); }} />
-            <Pill label="Muito grande" active={fontSize === 'muito-grande'} onPress={async () => { setFontSize('muito-grande'); setAccessibility({ fontScale: 'muito-grande' }); await persistToSupabase({ fontScale: 'muito-grande' }); }} />
+            <Pill label="Normal" active={fontSize === 'normal'} onPress={() => { setFontSize('normal'); setAccessibility({ fontScale: 'normal' }); }} />
+            <Pill label="Grande" active={fontSize === 'grande'} onPress={() => { setFontSize('grande'); setAccessibility({ fontScale: 'grande' }); }} />
+            <Pill label="Muito grande" active={fontSize === 'muito-grande'} onPress={() => { setFontSize('muito-grande'); setAccessibility({ fontScale: 'muito-grande' }); }} />
+          </View>
+          {/* Pré-visualização de tamanhos */}
+          <View style={{ marginTop: 12, gap: 6 }}>
+            <Text style={{ color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-regular'] }}>Exemplo:</Text>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: 14 }}>Normal: Este é um exemplo de texto.</Text>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: 14 * 1.00 }}>Grande: Este é um exemplo de texto.</Text>
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: 14 * 1.15 }}>Muito grande: Este é um exemplo de texto.</Text>
           </View>
         </View>
 
@@ -78,8 +67,8 @@ export default function PerfilAcessibilidadeScreen() {
             <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Contraste</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-            <Pill label="Normal" active={contrast === 'normal'} onPress={async () => { setContrast('normal'); setAccessibility({ contrast: 'normal' }); await persistToSupabase({ contrast: 'normal' }); }} />
-            <Pill label="Alto contraste" active={contrast === 'alto'} onPress={async () => { setContrast('alto'); setAccessibility({ contrast: 'alto' }); await persistToSupabase({ contrast: 'alto' }); }} />
+            <Pill label="Normal" active={contrast === 'normal'} onPress={() => { setContrast('normal'); setAccessibility({ contrast: 'normal' }); }} />
+            <Pill label="Alto contraste" active={contrast === 'alto'} onPress={() => { setContrast('alto'); setAccessibility({ contrast: 'alto' }); }} />
           </View>
         </View>
 
@@ -89,8 +78,8 @@ export default function PerfilAcessibilidadeScreen() {
             <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Sons</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-            <Pill label="Com som" active={sound === 'com'} onPress={async () => { setSound('com'); setAccessibility({ sound: 'com' }); await persistToSupabase({ sound: 'com' }); }} />
-            <Pill label="Sem som" active={sound === 'sem'} onPress={async () => { setSound('sem'); setAccessibility({ sound: 'sem' }); await persistToSupabase({ sound: 'sem' }); }} />
+            <Pill label="Com som" active={sound === 'com'} onPress={() => { setSound('com'); setAccessibility({ sound: 'com' }); }} />
+            <Pill label="Sem som" active={sound === 'sem'} onPress={() => { setSound('sem'); setAccessibility({ sound: 'sem' }); }} />
           </View>
         </View>
       </View>

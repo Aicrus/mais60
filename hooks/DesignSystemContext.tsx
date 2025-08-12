@@ -78,9 +78,9 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
         if (savedAccess) {
           try {
             const parsed = JSON.parse(savedAccess);
-            if (parsed.fontScale === 'grande') setTypographyScale(1.12);
-            else if (parsed.fontScale === 'muito-grande') setTypographyScale(1.25);
-            else setTypographyScale(1.0);
+            if (parsed.fontScale === 'grande') setTypographyScale(1.00);
+            else if (parsed.fontScale === 'muito-grande') setTypographyScale(1.15);
+            else setTypographyScale(1.00);
             setAccessibilityState({
               fontScale: parsed.fontScale ?? 'normal',
               contrast: parsed.contrast ?? 'normal',
@@ -88,7 +88,7 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
             });
           } catch {}
         } else {
-          setTypographyScale(1.0);
+          setTypographyScale(1.00);
         }
       } catch (error) {
         console.error('Erro ao carregar tema:', error);
@@ -135,9 +135,9 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
     }
     // Aplica escala tipográfica global
     if (prefs.fontScale) {
-      if (prefs.fontScale === 'grande') setTypographyScale(1.12);
-      else if (prefs.fontScale === 'muito-grande') setTypographyScale(1.25);
-      else setTypographyScale(1.0);
+      if (prefs.fontScale === 'grande') setTypographyScale(1.00);
+      else if (prefs.fontScale === 'muito-grande') setTypographyScale(1.15);
+      else setTypographyScale(1.00);
     }
   };
 

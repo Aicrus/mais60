@@ -37,7 +37,6 @@ export function AuthProvider({
   const segments = useSegments();
   const { showToast } = useToast();
   const { currentTheme } = useTheme();
-  const { setAccessibility } = useTheme();
   const isDark = currentTheme === 'dark';
 
   // Efeito para monitorar mudanças na sessão
@@ -45,24 +44,6 @@ export function AuthProvider({
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {      
       if (event === 'SIGNED_IN') {
         setSession(newSession);
-        try {
-          const userId = newSession?.user?.id;
-          if (userId) {
-            const { data } = await supabase
-              .from('usuarios')
-              .select('acess_font_scale, acess_contrast, acess_sound')
-              .eq('id', userId)
-              .maybeSingle();
-            if (data) {
-              const fontScale = (data.acess_font_scale as 'normal'|'grande'|'muito-grande') || 'normal';
-              const contrast = (data.acess_contrast as 'normal'|'alto') || 'normal';
-              const sound = (data.acess_sound as 'com'|'sem') || 'com';
-              setAccessibility({ fontScale, contrast, sound });
-            }
-          }
-        } catch (e) {
-          // silencioso
-        }
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
       } else if (event === 'TOKEN_REFRESHED') {
@@ -116,27 +97,7 @@ export function AuthProvider({
     };
   }, [session]);
 
-  // Carrega preferências de acessibilidade quando a sessão muda (ex.: app reaberto já logado)
-  useEffect(() => {
-    (async () => {
-      try {
-        const userId = session?.user?.id;
-        if (userId) {
-          const { data } = await supabase
-            .from('usuarios')
-            .select('acess_font_scale, acess_contrast, acess_sound')
-            .eq('id', userId)
-            .maybeSingle();
-          if (data) {
-            const fontScale = (data.acess_font_scale as 'normal'|'grande'|'muito-grande') || 'normal';
-            const contrast = (data.acess_contrast as 'normal'|'alto') || 'normal';
-            const sound = (data.acess_sound as 'com'|'sem') || 'com';
-            setAccessibility({ fontScale, contrast, sound });
-          }
-        }
-      } catch {}
-    })();
-  }, [session]);
+  // Preferências de acessibilidade ficam 100% locais (AsyncStorage) para não consumir Supabase
 
   const signUp = async ({ email, password, name }: { email: string; password: string; name: string }) => {
     try {
