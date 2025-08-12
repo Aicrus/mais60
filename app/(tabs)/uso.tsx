@@ -18,9 +18,10 @@ import { supabase } from '@/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 
-function formatMinutes(totalSeconds: number) {
-  const min = Math.floor(totalSeconds / 60);
-  return `${min} min`;
+function formatDuration(totalSeconds: number) {
+  if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '0s';
+  if (totalSeconds < 60) return `${Math.floor(totalSeconds)}s`;
+  return `${Math.floor(totalSeconds / 60)} min`;
 }
 
 export default function UsoScreen() {
@@ -89,12 +90,12 @@ export default function UsoScreen() {
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{formatMinutes(aggregates.todaySeconds)}</Text>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{formatDuration(aggregates.todaySeconds)}</Text>
               <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: statLabelType.fontSize.default, lineHeight: statLabelType.lineHeight.default, marginTop: 2 }}>Hoje</Text>
             </View>
             <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
             <View style={styles.statItem}>
-              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{formatMinutes(aggregates.weekSeconds)}</Text>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{formatDuration(aggregates.weekSeconds)}</Text>
               <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: statLabelType.fontSize.default, lineHeight: statLabelType.lineHeight.default, marginTop: 2 }}>Semana</Text>
             </View>
           </View>

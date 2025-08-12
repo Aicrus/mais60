@@ -31,6 +31,17 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const storageKey = useStorageKey(userId);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 
+  // Garante unicidade por id preservando a primeira ocorrência
+  const uniqueById = useCallback((items: FavoriteItem[]): FavoriteItem[] => {
+    const map = new Map<string, FavoriteItem>();
+    for (const it of items || []) {
+      if (it && typeof it.id === 'string' && !map.has(it.id)) {
+        map.set(it.id, it);
+      }
+    }
+    return Array.from(map.values());
+  }, []);
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -43,25 +54,22 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
             .eq('usuario_id', userId);
           if (!mounted) return;
           if (!error && data) {
-            // Deduplica por youtube_id para evitar chaves repetidas quando há
-            // múltiplos registros de vídeos diferentes apontando para o mesmo youtube_id
-            const dedupedMap = new Map<string, FavoriteItem>();
-            for (const row of data as any[]) {
-              const v = row?.videos as any;
-              if (!v || !v.youtube_id) continue;
-              if (!dedupedMap.has(v.youtube_id)) {
-                dedupedMap.set(v.youtube_id, {
+            const list: FavoriteItem[] = data
+              .map((row: any) => {
+                const v = row.videos as any;
+                if (!v || !v.youtube_id) return null;
+                return {
                   id: v.youtube_id,
                   title: v.titulo || `Vídeo ${v.youtube_id}`,
                   subtitle: v.descricao || 'YouTube',
-                  type: 'video',
-                  thumbnailUrl: `https://i.ytimg.com/vi/${v.youtube_id}/hqdefault.jpg`,
-                });
-              }
-            }
-            const list = Array.from(dedupedMap.values());
-            setFavorites(list);
-            await AsyncStorage.setItem(storageKey, JSON.stringify(list));
+                  type: 'video' as const,
+                  thumbnailUrl: `https://i.ytimg.com/vi/${v.youtube_id}/hqdefault.jpg`
+                };
+              })
+              .filter(Boolean) as FavoriteItem[];
+            const deduped = uniqueById(list);
+            setFavorites(deduped);
+            await AsyncStorage.setItem(storageKey, JSON.stringify(deduped));
             return;
           }
         }
@@ -70,12 +78,12 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         if (!mounted) return;
         if (raw) {
           const parsed: FavoriteItem[] = JSON.parse(raw);
-          // Deduplica também o cache local caso versões antigas tenham duplicados
-          const dedupedMap = new Map<string, FavoriteItem>();
-          for (const f of Array.isArray(parsed) ? parsed : []) {
-            if (f?.id && !dedupedMap.has(f.id)) dedupedMap.set(f.id, f);
+          const normalized = uniqueById(Array.isArray(parsed) ? parsed : []);
+          setFavorites(normalized);
+          // Se houverem duplicatas, reescrever o cache normalizado
+          if (Array.isArray(parsed) && parsed.length !== normalized.length) {
+            try { await AsyncStorage.setItem(storageKey, JSON.stringify(normalized)); } catch {}
           }
-          setFavorites(Array.from(dedupedMap.values()));
         } else {
           setFavorites([]);
         }
@@ -89,11 +97,12 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   }, [storageKey, userId]);
 
   const persist = useCallback(async (list: FavoriteItem[]) => {
-    setFavorites(list);
+    const normalized = uniqueById(list);
+    setFavorites(normalized);
     try {
-      await AsyncStorage.setItem(storageKey, JSON.stringify(list));
+      await AsyncStorage.setItem(storageKey, JSON.stringify(normalized));
     } catch {}
-  }, [storageKey]);
+  }, [storageKey, uniqueById]);
 
   const isFavorite = useCallback((id: string) => favorites.some(f => f.id === id), [favorites]);
 
