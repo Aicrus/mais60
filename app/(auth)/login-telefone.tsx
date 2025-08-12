@@ -198,9 +198,11 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
               {' '}do app Mais 60.
             </Text>
           </View>
-          <View style={{ height: 2, backgroundColor: '#430593' }} />
-          <View style={{ height: 2, backgroundColor: '#27CC95' }} />
-          <View style={{ height: 2, backgroundColor: '#FB5C3D' }} />
+          <View style={{ height: 4, backgroundColor: '#430593' }} />
+          <View style={{ height: 6 }} />
+          <View style={{ height: 4, backgroundColor: '#27CC95' }} />
+          <View style={{ height: 6 }} />
+          <View style={{ height: 4, backgroundColor: '#FB5C3D' }} />
         </View>
       </View>
     </TouchableWithoutFeedback>
@@ -210,7 +212,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24 },
   logoContainer: { alignItems: 'center', marginTop: 48 },
-  formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: -35 },
+  formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: -45 },
   formContainer: {
     width: '100%',
     maxWidth: 460,
