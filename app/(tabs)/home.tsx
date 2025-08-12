@@ -356,7 +356,7 @@ export default function Home() {
               <>
                 <Stat value={todayLabel} label="Hoje" />
                 <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
-                <Stat value={String(todayActivities)} label="Atividades" />
+                <Stat value={String(todayActivities)} label="Vídeos" />
                 <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
                 <Stat value={String(favCount)} label="Favoritos" />
               </>

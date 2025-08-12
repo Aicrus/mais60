@@ -26,13 +26,12 @@ export default function VideoPlayerScreen() {
     return /^[a-zA-Z0-9_-]{6,}$/.test(raw) ? raw : 'dQw4w9WgXcQ';
   }, [id]);
 
-  const webviewRef = useRef<WebView>(null);
   const fsWebviewRef = useRef<WebView>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { aggregates, logWatch, markCompleted, unmarkCompleted } = useUsage();
-  const hasLoggedShortRef = useRef<boolean>(false);
   const prevIsPlayingRef = useRef<boolean>(false);
+  const playStartAtRef = useRef<number | null>(null);
   const initialCompleted = useMemo(() => {
     const list = aggregates?.recentVideos || [];
     return list.some(v => v.videoId === videoId && v.completed === true);
@@ -142,10 +141,6 @@ export default function VideoPlayerScreen() {
 
   
 
-  const sendJS = useCallback((js: string) => {
-    webviewRef.current?.injectJavaScript(js + '; true;');
-  }, []);
-
   const sendFsJS = useCallback((js: string) => {
     fsWebviewRef.current?.injectJavaScript(js + '; true;');
   }, []);
@@ -217,14 +212,11 @@ export default function VideoPlayerScreen() {
         const isLandscape = deviceOrientation === ScreenOrientation.Orientation.LANDSCAPE_LEFT || deviceOrientation === ScreenOrientation.Orientation.LANDSCAPE_RIGHT;
         setIsLandscapeDevice(isLandscape);
         if (!showFullscreen && isLandscape) {
-          // Pega o estado/tempo atual e abre fullscreen via onMessage -> 'current'
-          sendJS('window.getState()');
+          setFsStartAt(0);
+          setFsAutoPlay(true);
+          setShowFullscreen(true);
         } else if (showFullscreen && !isLandscape) {
-          // Em retrato, sincroniza FS->embed e fecha
-          if (!pendingFsClose) {
-            setPendingFsClose(true);
-            fsWebviewRef.current?.injectJavaScript('window.ReactNativeWebView && window.getCurrent ? window.getCurrent() : (function(){var t=player?player.getCurrentTime():0; var s=player?player.getPlayerState():2; window.ReactNativeWebView.postMessage(JSON.stringify({type:\'fsCurrent\', data:{time:t,state:s}}));})(); true;');
-          }
+          setShowFullscreen(false);
         }
       } catch {}
     };
@@ -237,7 +229,7 @@ export default function VideoPlayerScreen() {
     return () => {
       ScreenOrientation.removeOrientationChangeListener(sub);
     };
-  }, [showFullscreen, sendJS, pendingFsClose]);
+  }, [showFullscreen]);
 
   const openFullscreenFromState = useCallback(async (timeSeconds: number, playerState: number) => {
     // playerState: 1=playing, 3=buffering
@@ -256,25 +248,39 @@ export default function VideoPlayerScreen() {
     return () => clearInterval(tid);
   }, [isPlaying, videoId, initTitle, initModule, logWatch]);
 
-  // Registrar 1s quando houver transição de playing -> paused sem ter batido o intervalo de 5s
+  // Ao alternar play/pause, computa e registra o restante (<5s) não capturado pelo intervalo
   useEffect(() => {
     const wasPlaying = prevIsPlayingRef.current;
-    if (wasPlaying && !isPlaying && !hasLoggedShortRef.current) {
-      logWatch({ videoId, seconds: 1, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
-      hasLoggedShortRef.current = true;
+    // Transição para play: marca início
+    if (!wasPlaying && isPlaying) {
+      playStartAtRef.current = Date.now();
     }
-    if (isPlaying) {
-      // reset para próxima sessão de play
-      hasLoggedShortRef.current = false;
+    // Transição para pause: registra segundos restantes não capturados pelo intervalo
+    if (wasPlaying && !isPlaying) {
+      const startedAt = playStartAtRef.current;
+      if (startedAt) {
+        const diffSec = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+        const remainder = diffSec % 5;
+        if (remainder > 0) {
+          logWatch({ videoId, seconds: remainder, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+        }
+      }
     }
     prevIsPlayingRef.current = isPlaying;
   }, [isPlaying, videoId, initTitle, initModule, logWatch]);
 
-  // Ao desmontar: se estava reproduzindo mas não registrou nenhum tick, garante 1s
+  // Ao desmontar: se estava reproduzindo, registra restante não capturado
   useEffect(() => {
     return () => {
-      if (prevIsPlayingRef.current && !hasLoggedShortRef.current) {
-        logWatch({ videoId, seconds: 1, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+      if (prevIsPlayingRef.current) {
+        const startedAt = playStartAtRef.current;
+        if (startedAt) {
+          const diffSec = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+          const remainder = diffSec % 5;
+          if (remainder > 0) {
+            logWatch({ videoId, seconds: remainder, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+          }
+        }
       }
     };
   }, [videoId, initTitle, initModule, logWatch]);
@@ -290,12 +296,10 @@ export default function VideoPlayerScreen() {
         <Text style={[styles.appTitle, { color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'] }]}>Reprodução</Text>
       </View>
 
-      {/* Player YouTube */}
+      {/* Player YouTube (embed padrão, sem overlay) */}
       <View style={styles.player} accessibilityLabel="Player de vídeo">
         <WebView
-          key={embedMode}
-          ref={webviewRef}
-          source={{ html: html, baseUrl: 'https://www.youtube.com' }}
+          source={{ uri: `https://www.youtube.com/embed/${videoId}?playsinline=1&rel=0&modestbranding=1&controls=1` }}
           allowsFullscreenVideo={false}
           javaScriptEnabled
           domStorageEnabled
@@ -305,68 +309,13 @@ export default function VideoPlayerScreen() {
           scrollEnabled={false}
           allowsLinkPreview={false}
           setSupportMultipleWindows={false}
-            cacheEnabled
-            cacheMode={Platform.OS === 'android' ? 'LOAD_DEFAULT' as any : undefined}
-          onShouldStartLoadWithRequest={(req) => {
-            // Permite o documento inicial e recursos dentro de iframes; bloqueia navegações externas
-            if ((req as any).isTopFrame === false) return true;
-            if (req.url === 'about:blank') return true;
-            try {
-              const { hostname } = new URL(req.url);
-              const allowedHosts = [
-                'www.youtube.com',
-                'youtube.com',
-                'm.youtube.com',
-                'www.youtube-nocookie.com',
-                's.ytimg.com'
-              ];
-              return allowedHosts.includes(hostname);
-            } catch {
-              return false;
-            }
-          }}
+          cacheEnabled
+          cacheMode={Platform.OS === 'android' ? 'LOAD_DEFAULT' as any : undefined}
           onLoadStart={() => { setStatusOriginal('carregando'); }}
           onLoadEnd={() => { setPlayerVisible(true); setStatusOriginal('carregado'); }}
           onError={() => { setStatusOriginal('erro: webview'); }}
-          onMessage={(e) => {
-            try {
-              const msg = JSON.parse(e.nativeEvent.data);
-              if (msg?.type === 'state') {
-                // 1 = playing, 2 = paused
-                const playing = msg.data === 1;
-                setIsPlaying(playing);
-                setPlayerVisible(true);
-                setStatusOriginal(playing ? 'reproduzindo' : 'pausado');
-              } else if (msg?.type === 'fsCurrent') {
-                // Sincroniza estado do FS no embed e garante play visível
-                const t = Number(msg?.data?.time) || 0;
-                sendJS(`window.seekTo(${Math.floor(t)});`);
-                sendJS('window.playVideo()');
-                setIsPlaying(true);
-                setPlayerVisible(true);
-                setStatusOriginal('reproduzindo');
-                if (pendingFsClose) {
-                  setPendingFsClose(false);
-                  setShowFullscreen(false);
-                }
-              } else if (msg?.type === 'ready') {
-                // Exibe thumbnail/play sem mostrar telas de erro transitórias
-                setPlayerVisible(true);
-                setStatusOriginal('pronto');
-              } else if (msg?.type === 'error') {
-                // Fallback simples: privacy -> standard
-                setEmbedMode((prev) => (prev === 'privacy' ? 'standard' : prev));
-                setStatusOriginal(`erro: yt-${msg?.data}`);
-              } else if (msg?.type === 'current') {
-                const t = Number(msg?.data?.time) || 0;
-                const st = Number(msg?.data?.state) || 2;
-                openFullscreenFromState(t, st);
-              }
-            } catch {}
-          }}
           style={{ flex: 1, borderRadius: 16, overflow: 'hidden', opacity: playerVisible ? 1 : 0 }}
         />
-        {/* Controles nativos do YouTube habilitados (sem overlay custom) */}
         {!playerVisible && (
           <View style={styles.placeholder} pointerEvents="none">
             <Image
