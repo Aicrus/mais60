@@ -85,7 +85,7 @@ export default function PaginaSobre() {
           accessibilityRole="button"
           accessibilityLabel="Voltar"
           onPress={() => router.back()}
-          style={[styles.appBarBack, { backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderColor: isDark ? colors['divider-dark'] : 'transparent' }]}
+          style={[styles.appBarBack, { backgroundColor: ui.card, borderColor: ui.divider }]}
           hitSlop={10}
         >
           <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />

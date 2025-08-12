@@ -119,8 +119,8 @@ export default function NotificacoesScreen() {
           style={[
             styles.appBarBack,
             {
-              backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
-              borderColor: isDark ? colors['divider-dark'] : 'transparent',
+              backgroundColor: ui.bgSecondary,
+              borderColor: ui.divider,
             },
           ]}
           hitSlop={10}

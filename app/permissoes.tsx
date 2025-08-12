@@ -66,8 +66,8 @@ export default function PerfilPermissoesScreen() {
             shadowRadius: 8,
             shadowOffset: { width: 0, height: 4 },
             elevation: 2,
-            backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
-            borderColor: isDark ? colors['divider-dark'] : 'transparent',
+            backgroundColor: uiColors.bgSecondary,
+            borderColor: uiColors.divider,
           }}
         >
           <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />

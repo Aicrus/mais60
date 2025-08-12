@@ -209,13 +209,35 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
         tint: colors['primary-light'],
       } as const;
     }
-    // Paleta normal dos tokens
+    // Paleta normal dos tokens (com divisor suavizado)
+    const bgPrimary = isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'];
+    const bgSecondary = isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'];
+    const textPrimary = isDark ? colors['text-primary-dark'] : colors['text-primary-light'];
+    const textSecondary = isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'];
+    const dividerBase = isDark ? colors['divider-dark'] : colors['divider-light'];
+
+    // Converte #RRGGBB para rgba com opacidade reduzida (suaviza linhas)
+    const hexToRgba = (hex: string, alpha: number) => {
+      try {
+        const h = hex.replace('#', '');
+        const r = parseInt(h.substring(0, 2), 16);
+        const g = parseInt(h.substring(2, 4), 16);
+        const b = parseInt(h.substring(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+      } catch {
+        return hex;
+      }
+    };
+
+    // Opacidade mais suave no modo normal (não HC)
+    const divider = hexToRgba(dividerBase, 0.12);
+
     return {
-      bgPrimary: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
-      bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
-      textPrimary: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-      textSecondary: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
-      divider: isDark ? colors['divider-dark'] : colors['divider-light'],
+      bgPrimary,
+      bgSecondary,
+      textPrimary,
+      textSecondary,
+      divider,
       primary: isDark ? colors['primary-dark'] : colors['primary-light'],
       tint: isDark ? colors['primary-dark'] : colors['primary-light'],
     } as const;

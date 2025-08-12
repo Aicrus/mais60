@@ -258,7 +258,7 @@ export default function VideoPlayerScreen() {
       <Stack.Screen options={{ orientation: 'portrait' }} />
       {/* App Bar */}
       <View style={styles.appBar} accessibilityRole="header">
-        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderColor: isDark ? colors['divider-dark'] : 'transparent' }]}>
+        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: uiColors.bgSecondary, borderColor: uiColors.divider }]}>
           <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
         </Pressable>
         <Text style={{ color: uiColors.textPrimary, fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Reprodução</Text>
@@ -422,7 +422,7 @@ export default function VideoPlayerScreen() {
           <Pressable
             style={[
               styles.smallControl,
-              { backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' },
+              { backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: uiColors.divider },
             ]}
             accessibilityRole="button"
             accessibilityLabel={isFavorite(videoId) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}

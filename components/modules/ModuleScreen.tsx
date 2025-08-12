@@ -188,8 +188,8 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           style={[
             styles.appBarBack,
             {
-              backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
-              borderColor: isDark ? colors['divider-dark'] : 'transparent',
+              backgroundColor: uiColors.bgSecondary,
+              borderColor: uiColors.divider,
             },
           ]}
         >
