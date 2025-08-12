@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, TouchableWithoutFeedback, Keyboard, Platform, ImageBackground, Image, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, Pressable, TouchableWithoutFeedback, Keyboard, Platform, Image } from 'react-native';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -110,43 +109,28 @@ export default function LoginTelefone() {
   React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, []);
 
   return (
-    <ImageBackground
-      source={require('@/assets/images/Homem Idoso Hidratando-se.jpg')}
-      style={{ flex: 1 }}
-      resizeMode="cover"
-      accessibilityIgnoresInvertColors
-    >
-      <LinearGradient
-        pointerEvents="none"
-        colors={[
-          'rgba(0,0,0,0.97)',
-          'rgba(0,0,0,0.85)',
-          'rgba(0,0,0,0.45)',
-          'rgba(0,0,0,0)'
-        ]}
-        locations={[0, 0.5, 0.9, 1]}
-        start={{ x: 0.5, y: 1 }}
-        end={{ x: 0.5, y: 0 }}
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '55%' }}
-      />
-      <TouchableWithoutFeedback onPress={handlePressOutside}>
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: 64, paddingBottom: 160, justifyContent: 'flex-start' }}
-          keyboardShouldPersistTaps="handled"
-          bounces={false}
-        >
-          <View style={{ alignItems: 'center', marginTop: 8 }}>
-            <Image source={require('@/assets/images/Logo Mais 60 Branco.png')} style={{ width: 128, height: 38 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+    <TouchableWithoutFeedback onPress={handlePressOutside}>
+      <View style={{ flex: 1 }} className={isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}>
+        <View style={styles.container}>
+          {/* Logo superior, mesmo tamanho/posição do onboarding */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('@/assets/images/Logo Mais 60 Roxo.png')}
+              style={{ width: 128, height: 38 }}
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+            />
+            <View style={{ height: 32 }} />
           </View>
-          <View style={[styles.container, { paddingTop: 24 }]}>
+
+          <View style={styles.formWrapper}>
             <View style={styles.formContainer}>
-              <Text style={{ color: colors['text-primary-dark'], fontFamily: dsFontFamily['jakarta-bold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default, marginBottom: 8 }}>
-                Entrar com telefone
-              </Text>
-              <Text style={{ color: 'rgba(255,255,255,0.88)', fontFamily: dsFontFamily['jakarta-regular'], fontSize: bodyMdType.fontSize.default, lineHeight: bodyMdType.lineHeight.default, marginBottom: 18 }}>
-                Informe seu número de telefone e valide o código. Use o código exibido abaixo (estamos em testes).
-              </Text>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default, marginBottom: 8 }}>
+              Entrar com telefone
+            </Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'], fontSize: bodyMdType.fontSize.default, lineHeight: bodyMdType.lineHeight.default, marginBottom: 18 }}>
+              Informe seu número de telefone e valide o código. Use o código exibido abaixo (estamos em testes).
+            </Text>
 
             {step === 'phone' ? (
               <>
@@ -184,14 +168,16 @@ export default function LoginTelefone() {
 
             </View>
           </View>
-        </ScrollView>
-      </TouchableWithoutFeedback>
-    </ImageBackground>
+        </View>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  container: { flex: 1, padding: 24 },
+  logoContainer: { alignItems: 'center', marginTop: 8 },
+  formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   formContainer: { width: '100%', maxWidth: 420 },
 });
 

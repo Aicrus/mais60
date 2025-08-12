@@ -61,6 +61,15 @@ export default function UsoScreen() {
     '#EF4444',
   ], []);
 
+  // Cores fixas por módulo para consistência entre sessões
+  const moduleColorMap = useMemo(() => ({
+    'atividade-fisica': colors['brand-green'],
+    'habitos-alimentares': colors['brand-orange'],
+    'seguranca-domiciliar': colors['brand-blue'],
+    'estimulacao-cognitiva': colors['brand-light'],
+    'saude-mental': colors['brand-coral'],
+  } as Record<string, string>), []);
+
   const perModulePieData = useMemo(() => {
     const entries = Object.entries(aggregates.perModuleToday || {})
       .map(([name, sec]) => ({ name, seconds: Number(sec || 0) }))
@@ -69,25 +78,31 @@ export default function UsoScreen() {
     const total = entries.reduce((acc, i) => acc + i.seconds, 0) || 1;
     return entries.map((item, idx) => ({
       value: Math.max(1, Math.round((item.seconds / total) * 100)),
-      color: palette[idx % palette.length],
+      color: moduleColorMap[item.name] || palette[idx % palette.length],
       text: item.name,
       label: item.name,
       seconds: item.seconds,
-      minutes: Math.max(1, Math.floor(item.seconds / 60)),
+      minutes: Math.floor(item.seconds / 60),
+      timeText: Math.floor(item.seconds / 60) > 0
+        ? `${Math.floor(item.seconds / 60)} min`
+        : `${Math.max(1, Math.floor(item.seconds))}s`,
       accesses: (aggregates.perModuleCountToday || {})[item.name] || 0,
     }));
-  }, [aggregates.perModuleToday, aggregates.perModuleCountToday, palette]);
+  }, [aggregates.perModuleToday, aggregates.perModuleCountToday, palette, moduleColorMap]);
 
   const last7Bars = useMemo(() => {
     return (aggregates.last7Days || []).map((d) => {
-      const minutes = Math.floor((d.seconds || 0) / 60);
+      const totalSeconds = Math.floor(d.seconds || 0);
+      const minutes = Math.floor(totalSeconds / 60);
+      const labelText = minutes > 0 ? `${minutes}m` : `${totalSeconds}s`;
+      const value = minutes > 0 ? minutes : (totalSeconds > 0 ? 1 : 0);
       const label = new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short' });
       return {
-        value: minutes,
+        value,
         label,
         frontColor: ui.tint,
-        topLabelComponent: minutes > 0 ? () => (
-          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{minutes}</Text>
+        topLabelComponent: totalSeconds > 0 ? () => (
+          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{labelText}</Text>
         ) : undefined,
       } as any;
     });
@@ -95,14 +110,17 @@ export default function UsoScreen() {
 
   const last4Bars = useMemo(() => {
     return (aggregates.last4Weeks || []).map((w) => {
-      const minutes = Math.floor((w.seconds || 0) / 60);
+      const totalSeconds = Math.floor(w.seconds || 0);
+      const minutes = Math.floor(totalSeconds / 60);
+      const labelText = minutes > 0 ? `${minutes}m` : `${totalSeconds}s`;
+      const value = minutes > 0 ? minutes : (totalSeconds > 0 ? 1 : 0);
       const label = new Date(w.weekStart + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
       return {
-        value: minutes,
+        value,
         label,
         frontColor: ui.tint,
-        topLabelComponent: minutes > 0 ? () => (
-          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{minutes}</Text>
+        topLabelComponent: totalSeconds > 0 ? () => (
+          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{labelText}</Text>
         ) : undefined,
       } as any;
     });
@@ -207,6 +225,13 @@ export default function UsoScreen() {
               </Pressable>
             )}
           </View>
+          {showRoute && !MapView && (
+            <View style={{ height: 140, borderRadius: 12, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: smallLabelType.fontSize.default, lineHeight: smallLabelType.lineHeight.default, textAlign: 'center', paddingHorizontal: 10 }}>
+                Mapa indisponível neste modo. Para visualizar o percurso, use um build de desenvolvimento ou habilite o módulo de mapas.
+              </Text>
+            </View>
+          )}
           {!!MapView && showRoute && (
             <View style={{ height: 180, borderRadius: 12, overflow: 'hidden', marginTop: 10 }}>
               {(() => {
@@ -223,9 +248,18 @@ export default function UsoScreen() {
                   const lonDelta = Math.max(0.01, (maxLon - minLon) * 1.4);
                   region = { latitude: (minLat + maxLat) / 2, longitude: (minLon + maxLon) / 2, latitudeDelta: latDelta, longitudeDelta: lonDelta };
                 }
+                if (pts.length < 2) {
+                  return (
+                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                      <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: smallLabelType.fontSize.default, lineHeight: smallLabelType.lineHeight.default, textAlign: 'center', paddingHorizontal: 10 }}>
+                        Sem percurso registrado hoje. Inicie a caminhada para começar a registrar.
+                      </Text>
+                    </View>
+                  );
+                }
                 return (
                   <MapView style={{ flex: 1 }} initialRegion={region}>
-                    {!!Polyline && pts.length > 1 && (
+                    {!!Polyline && (
                       <Polyline coordinates={pts.map(p => ({ latitude: p.latitude, longitude: p.longitude }))} strokeColor={colors['brand-purple']} strokeWidth={4} />
                     )}
                   </MapView>
@@ -256,7 +290,7 @@ export default function UsoScreen() {
                   <View key={i.label + idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: i.color }} />
                     <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>
-                      {i.label} • {i.minutes} min • {i.accesses} acessos
+                      {i.label} • {i.timeText} • {i.accesses} acessos
                     </Text>
                   </View>
                 ))}

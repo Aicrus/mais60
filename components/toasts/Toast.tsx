@@ -389,20 +389,34 @@ export function Toast({
             <View style={styles.textContainer}>
               <Text 
                 className={`${toastConfig[type].textColor} font-jakarta-semibold`}
-                style={styles.message}
+                style={[
+                  styles.message,
+                  {
+                    fontSize: responsive(messageTypography.fontSize),
+                    lineHeight: responsive(messageTypography.lineHeight),
+                    fontFamily: messageTypography.fontFamily,
+                  }
+                ]}
                 numberOfLines={2}
               >
                 {message}
               </Text>
               
               {description ? (
-                <Text 
-                  className={`${toastConfig[type].textColor} opacity-90 font-jakarta-regular`}
-                  style={styles.description}
-                  numberOfLines={3}
-                >
-                  {description}
-                </Text>
+              <Text 
+                className={`${toastConfig[type].textColor} opacity-90 font-jakarta-regular`}
+                style={[
+                  styles.description,
+                  {
+                    fontSize: responsive(descriptionTypography.fontSize),
+                    lineHeight: responsive(descriptionTypography.lineHeight),
+                    fontFamily: descriptionTypography.fontFamily,
+                  }
+                ]}
+                numberOfLines={3}
+              >
+                {description}
+              </Text>
               ) : null}
             </View>
             
