@@ -7,7 +7,7 @@ import { colors } from '@/design-system/tokens/colors';
 
 export default function OnboardingWelcome() {
   const router = useRouter();
-  const { currentTheme, applyFontScale } = useTheme();
+  const { currentTheme, applyFontScale, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
 
   const title = getResponsiveValues('headline-xl');
@@ -29,7 +29,7 @@ export default function OnboardingWelcome() {
 
   return (
     <View
-      style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-secondary-light'] }}
+      style={{ flex: 1, backgroundColor: uiColors.bgPrimary }}
       {...React.useRef(
         PanResponder.create({
           onMoveShouldSetPanResponder: (_evt, gestureState) => {
