@@ -50,7 +50,7 @@ export default function OnboardingWelcome() {
         {(() => { React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, []); return null; })()}
         <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: 'flex-start' }}
+          contentContainerStyle={{ flexGrow: 1, padding: 24, paddingBottom: 160, justifyContent: 'flex-start' }}
           bounces={false}
         >
           <View style={{ alignItems: 'center', marginTop: 8 }}>
@@ -67,14 +67,15 @@ export default function OnboardingWelcome() {
           Exercícios guiados, dicas de saúde e programas pensados para a sua rotina.
         </Text>
       </View>
-
-          <View style={{ gap: 16, marginTop: 24 }}>
+        </ScrollView>
+        <View style={{ position: 'absolute', left: 24, right: 24, bottom: 48 }}>
+          <View style={{ gap: 16 }}>
             <ProgressDots />
             <Pressable onPress={() => router.push('/(auth)/onboarding/intro2')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
               <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: buttonType.fontSize.default, lineHeight: buttonType.lineHeight.default }}>Avançar</Text>
             </Pressable>
           </View>
-        </ScrollView>
+        </View>
     </View>
   );
 }

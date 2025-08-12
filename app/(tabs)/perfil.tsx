@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function PerfilScreen() {
   const router = useRouter();
-  const { currentTheme, setThemeMode } = useTheme();
+  const { currentTheme, setThemeMode, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
   const { signOut, session } = useAuth();
 
@@ -33,11 +33,11 @@ export default function PerfilScreen() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const ui = {
-    bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
-    bgPrimary: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
-    divider: isDark ? colors['divider-dark'] : colors['divider-light'],
-    textPrimary: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-    textSecondary: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
+    bgSecondary: uiColors.bgSecondary,
+    bgPrimary: uiColors.bgPrimary,
+    divider: uiColors.divider,
+    textPrimary: uiColors.textPrimary,
+    textSecondary: uiColors.textSecondary,
   };
 
   const Row = ({

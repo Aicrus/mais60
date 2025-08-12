@@ -12,7 +12,6 @@ import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system
 import { useUsage } from '@/contexts/usage';
 import { useSensors } from '@/contexts/sensors';
 import { useLocationTrack } from '@/contexts/location';
-import { Activity, Database } from 'lucide-react-native';
 import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -39,7 +38,6 @@ export default function UsoScreen() {
   const statLabelType = getResponsiveValues('label-lg');
   const listTitleType = getResponsiveValues('title-sm');
   const listSubtitleType = getResponsiveValues('body-lg');
-  const appBarLabelType = getResponsiveValues('label-md');
 
   const ui = useMemo(() => ({
     card: uiColors.bgSecondary,
@@ -79,33 +77,7 @@ export default function UsoScreen() {
   return (
     <PageContainer>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* App Bar simples com voltar */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2, paddingBottom: 8, marginBottom: 6 }}>
-          <Pressable
-            onPress={() => require('expo-router').router.back()}
-            accessibilityRole="button"
-            accessibilityLabel="Voltar"
-            style={{
-              height: 44,
-              paddingHorizontal: 10,
-              borderRadius: 22,
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexDirection: 'row',
-              gap: 6,
-              borderWidth: 1,
-              shadowColor: '#000',
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-              shadowOffset: { width: 0, height: 4 },
-              elevation: 2,
-              backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
-              borderColor: isDark ? colors['divider-dark'] : 'transparent',
-            }}
-          >
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Voltar</Text>
-          </Pressable>
-        </View>
+        
         <Text style={{
           color: ui.text,
           fontFamily: dsFontFamily['jakarta-extrabold'],

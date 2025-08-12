@@ -29,7 +29,7 @@ export default function OnboardingIntro3() {
 
   return (
     <View
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-secondary-light'] }}
       {...React.useRef(
         PanResponder.create({
           onMoveShouldSetPanResponder: (_evt, gestureState) => {
@@ -47,15 +47,16 @@ export default function OnboardingIntro3() {
         })
       ).current.panHandlers}
     >
-        {React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, [])}
+        {(() => { React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, []); return null; })()}
       <ScrollView
-        style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'] }}
-        contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: 'flex-start' }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, padding: 24, paddingBottom: 160, justifyContent: 'flex-start' }}
         bounces={false}
       >
         <View style={{ alignItems: 'center', marginTop: 8 }}>
           <Image source={require('@/assets/images/Logo Mais 60 Amarelo (1).png')} style={{ width: 108, height: 32 }} resizeMode="contain" accessibilityIgnoresInvertColors />
-        <Image source={require('@/assets/images/Imagem idoso feliz 8 ago 2025 (1).png')} style={{ width: '100%', height: 260, marginTop: 8 }} resizeMode="contain" accessibilityIgnoresInvertColors />
+        {/** Espaço equivalente à imagem central removida para manter o layout como antes */}
+        <View style={{ height: 300, marginTop: 8 }} />
       </View>
 
       <View style={{ alignItems: 'center' }}>
@@ -67,13 +68,16 @@ export default function OnboardingIntro3() {
         </Text>
       </View>
 
-        <View style={{ gap: 16, marginTop: 24 }}>
-        <ProgressDots />
+      
+      </ScrollView>
+      <View style={{ position: 'absolute', left: 24, right: 24, bottom: 48 }}>
+        <View style={{ gap: 16 }}>
+          <ProgressDots />
           <Pressable onPress={() => router.replace('/(auth)/login')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors['brand-orange'], shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Começar">
             <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: buttonType.fontSize.default, lineHeight: buttonType.lineHeight.default }}>Começar</Text>
-        </Pressable>
+          </Pressable>
+        </View>
       </View>
-      </ScrollView>
     </View>
   );
 }

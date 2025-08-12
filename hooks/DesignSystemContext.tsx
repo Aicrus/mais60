@@ -74,7 +74,7 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
     fontScale: 'normal' | 'grande' | 'muito-grande';
     contrast: 'normal' | 'alto';
     sound: 'com' | 'sem';
-  }>({ fontScale: 'grande', contrast: 'normal', sound: 'com' });
+  }>({ fontScale: 'normal', contrast: 'normal', sound: 'com' });
   const ACCESS_STORAGE_KEY = '@app_accessibility';
   const [typographyVersion, setTypographyVersion] = useState(0);
 
@@ -96,17 +96,15 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
             else if (parsed.fontScale === 'muito-grande') setTypographyScale(1.15);
             else setTypographyScale(0.90);
             setAccessibilityState({
-              fontScale: parsed.fontScale ?? 'grande',
+              fontScale: parsed.fontScale ?? 'normal',
               contrast: parsed.contrast ?? 'normal',
               sound: parsed.sound ?? 'com',
             });
           } catch {}
         } else {
-          // Primeira vez: default "grande" (1.00)
-          setTypographyScale(1.00);
-          const defaults = { fontScale: 'grande', contrast: 'normal', sound: 'com' } as const;
-          setAccessibilityState(defaults as any);
-          try { await AsyncStorage.setItem(ACCESS_STORAGE_KEY, JSON.stringify(defaults)); } catch {}
+          // Primeira vez: default "normal" (0.90). Não persiste até o usuário alterar.
+          setTypographyScale(0.90);
+          setAccessibilityState({ fontScale: 'normal', contrast: 'normal', sound: 'com' });
         }
       } catch (error) {
         console.error('Erro ao carregar tema:', error);
