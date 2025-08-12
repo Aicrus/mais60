@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, Pressable, ScrollView, PanResponder, ImageBackground } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -61,6 +62,19 @@ export default function OnboardingWelcome() {
       accessibilityIgnoresInvertColors
       {...panResponder.panHandlers}
     >
+      <LinearGradient
+        pointerEvents="none"
+        colors={[
+          'rgba(0,0,0,0.97)',
+          'rgba(0,0,0,0.85)',
+          'rgba(0,0,0,0.45)',
+          'rgba(0,0,0,0)'
+        ]}
+        locations={[0, 0.5, 0.9, 1]}
+        start={{ x: 0.5, y: 1 }}
+        end={{ x: 0.5, y: 0 }}
+        style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '55%' }}
+      />
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: 64, paddingBottom: 160, justifyContent: 'flex-start' }}
