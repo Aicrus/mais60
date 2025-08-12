@@ -734,13 +734,11 @@ const styles = StyleSheet.create({
   },
   promoTitle: {
     fontFamily: dsFontFamily['jakarta-bold'],
-    fontSize: 18,
     textAlign: 'center',
     marginBottom: 6,
   },
   promoSubtitle: {
     fontFamily: dsFontFamily['jakarta-medium'],
-    fontSize: 14,
     textAlign: 'center',
     marginBottom: 16,
   },
@@ -778,13 +776,11 @@ const styles = StyleSheet.create({
   movementTitle: {
     color: '#3E0A7A', // tom roxo mais escuro próximo ao BRAND.purple para contraste
     fontFamily: dsFontFamily['jakarta-extrabold'],
-    fontSize: 22,
   },
   movementSubtitle: {
     marginTop: 4,
     color: 'rgba(17,24,39,0.75)',
     fontFamily: dsFontFamily['jakarta-medium'],
-    fontSize: 15,
   },
   textOnlyContent: {
     position: 'absolute',
@@ -795,12 +791,10 @@ const styles = StyleSheet.create({
   textOnlyTitle: {
     color: '#FFFFFF',
     fontFamily: dsFontFamily['jakarta-extrabold'],
-    fontSize: 22,
   },
   textOnlySubtitle: {
     marginTop: 4,
     color: 'rgba(255,255,255,0.9)',
     fontFamily: dsFontFamily['jakarta-medium'],
-    fontSize: 15,
   },
 });

@@ -28,6 +28,7 @@ export default function CodeInput({ length = 4, value, onChange }: CodeInputProp
   } as const;
 
   const labelType = getResponsiveValues('label-lg');
+  const digitType = getResponsiveValues('headline-md');
 
   return (
     <View style={styles.wrapper}>
@@ -35,7 +36,9 @@ export default function CodeInput({ length = 4, value, onChange }: CodeInputProp
         {new Array(length).fill(0).map((_, idx) => (
           <TextInput
             key={idx}
-            ref={(r) => (inputs.current[idx] = r)}
+            ref={(r) => {
+              inputs.current[idx] = r;
+            }}
             value={chars[idx]}
             onChangeText={(t) => {
               const d = (t || '').replace(/\D/g, '').slice(-1);
@@ -69,6 +72,8 @@ export default function CodeInput({ length = 4, value, onChange }: CodeInputProp
                 borderColor: ui.border,
                 backgroundColor: ui.bg,
                 color: ui.text,
+                fontSize: digitType.fontSize.default,
+                lineHeight: digitType.lineHeight.default,
               },
             ]}
             textAlign="center"
@@ -92,7 +97,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     fontFamily: dsFontFamily['jakarta-bold'],
-    fontSize: 22,
   },
 });
 

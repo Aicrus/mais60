@@ -28,6 +28,7 @@ export default function LoginTelefone() {
   const titleType = getResponsiveValues('headline-md');
   const bodyMdType = getResponsiveValues('body-md');
   const bodySmType = getResponsiveValues('body-sm');
+  const appBarLabelType = getResponsiveValues('label-md');
 
   const ui = useMemo(() => ({
     text: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
@@ -112,6 +113,33 @@ export default function LoginTelefone() {
     <TouchableWithoutFeedback onPress={handlePressOutside}>
       <View style={{ flex: 1 }} className={isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}>
         <View style={styles.container}>
+          {/* App Bar simples com voltar */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2, paddingBottom: 8, marginBottom: 6 }}>
+            <Pressable
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Voltar"
+              style={{
+                height: 44,
+                paddingHorizontal: 10,
+                borderRadius: 22,
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+                gap: 6,
+                borderWidth: 1,
+                shadowColor: '#000',
+                shadowOpacity: 0.08,
+                shadowRadius: 8,
+                shadowOffset: { width: 0, height: 4 },
+                elevation: 2,
+                backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+                borderColor: isDark ? colors['divider-dark'] : 'transparent',
+              }}
+            >
+              <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Voltar</Text>
+            </Pressable>
+          </View>
           <View style={styles.formContainer}>
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default, marginBottom: 8 }}>
               Entrar com telefone
