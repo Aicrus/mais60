@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 
 export default function PerfilAcessibilidadeScreen() {
   const router = useRouter();
-  const { currentTheme, accessibility, setAccessibility } = useTheme();
+  const { currentTheme, accessibility, setAccessibility, typographyVersion, applyFontScale } = useTheme();
   const isDark = currentTheme === 'dark';
   const title = getResponsiveValues('headline-lg');
 
@@ -34,8 +34,29 @@ export default function PerfilAcessibilidadeScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'] }} contentContainerStyle={{ padding: 16 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Voltar" style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB', backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 2, paddingBottom: 8 }}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Voltar"
+          style={{
+            height: 44,
+            paddingHorizontal: 10,
+            borderRadius: 22,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            gap: 6,
+            borderWidth: 1,
+            shadowColor: '#000',
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 4 },
+            elevation: 2,
+            backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+            borderColor: isDark ? colors['divider-dark'] : 'transparent',
+          }}
+        >
           <ChevronLeft size={20} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
         </Pressable>
         <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: title.fontSize.default }}>Acessibilidade</Text>
@@ -48,21 +69,19 @@ export default function PerfilAcessibilidadeScreen() {
             <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 18 }}>Tamanho da letra</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-            <Pill label="Normal" active={fontSize === 'normal'} onPress={() => { setFontSize('normal'); setAccessibility({ fontScale: 'normal' }); }} />
-            <Pill label="Grande" active={fontSize === 'grande'} onPress={() => { setFontSize('grande'); setAccessibility({ fontScale: 'grande' }); }} />
-            <Pill label="Muito grande" active={fontSize === 'muito-grande'} onPress={() => { setFontSize('muito-grande'); setAccessibility({ fontScale: 'muito-grande' }); }} />
+            <Pill label="Normal" active={fontSize === 'normal'} onPress={() => { setFontSize('normal'); applyFontScale('normal'); }} />
+            <Pill label="Grande" active={fontSize === 'grande'} onPress={() => { setFontSize('grande'); applyFontScale('grande'); }} />
+            <Pill label="Muito grande" active={fontSize === 'muito-grande'} onPress={() => { setFontSize('muito-grande'); applyFontScale('muito-grande'); }} />
           </View>
-          {/* Pré-visualização de tamanhos (usando tokens responsivos) */}
-          <View style={{ marginTop: 12, gap: 6 }}>
-            <Text style={{ color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-regular'] }}>Exemplo:</Text>
+          {/* Pré-visualização de tamanhos (apenas um texto dinâmico) */}
+          <View style={{ marginTop: 12 }}>
             {(() => {
-              const previewBody = getResponsiveValues('body-md');
-              const previewLabel = getResponsiveValues('label-md');
+              // Recalcula quando typographyVersion muda
+              const preview = getResponsiveValues('body-md');
               return (
-                <>
-                  <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: previewBody.fontSize.default, lineHeight: previewBody.lineHeight.default }}>Texto de corpo (body-md)</Text>
-                  <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-semibold'], fontSize: previewLabel.fontSize.default, lineHeight: previewLabel.lineHeight.default }}>Rótulo (label-md)</Text>
-                </>
+                <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-regular'], fontSize: preview.fontSize.default, lineHeight: preview.lineHeight.default }}>
+                  Exemplo de texto
+                </Text>
               );
             })()}
           </View>

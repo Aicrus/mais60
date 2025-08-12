@@ -269,10 +269,12 @@ export default function EditarPerfilScreen() {
             <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
           </Pressable>
           <Text
-            style={[
-              styles.appBarLabel,
-              { color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'] },
-            ]}
+            style={{
+              color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
+              fontFamily: labelType.fontFamily,
+              fontSize: labelType.fontSize.default,
+              lineHeight: labelType.lineHeight.default,
+            }}
           >
             Voltar
           </Text>
@@ -405,7 +407,6 @@ const styles = StyleSheet.create({
   },
   appBarLabel: {
     fontFamily: dsFontFamily['jakarta-medium'],
-    fontSize: 16,
   },
   card: {
     borderWidth: 1,

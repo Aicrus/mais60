@@ -23,6 +23,7 @@ export default function NotificacoesScreen() {
   const { session } = useAuth();
 
   const titleType = getResponsiveValues('headline-lg');
+  const appBarLabelType = getResponsiveValues('label-md');
   const itemTitleType = getResponsiveValues('body-lg');
   const itemDescType = getResponsiveValues('body-md');
   const itemTimeType = getResponsiveValues('label-sm');
@@ -127,10 +128,7 @@ export default function NotificacoesScreen() {
           <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
         </Pressable>
         <Text
-          style={[
-            styles.appBarLabel,
-            { color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'] },
-          ]}
+          style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}
         >
           Voltar
         </Text>
@@ -273,7 +271,6 @@ const styles = StyleSheet.create({
   },
   appBarLabel: {
     fontFamily: dsFontFamily['jakarta-medium'],
-    fontSize: 16,
   },
   item: {
     borderRadius: 16,

@@ -6,7 +6,6 @@ import { colors } from '@/design-system/tokens/colors';
 import { Activity, Database, BellRing, ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import * as Notifications from 'expo-notifications';
-import * as Location from 'expo-location';
 import { Pedometer } from 'expo-sensors';
 
 export default function PerfilPermissoesScreen() {
@@ -19,7 +18,7 @@ export default function PerfilPermissoesScreen() {
   const cardBtnType = getResponsiveValues('label-md');
   const [notifGranted, setNotifGranted] = useState<boolean | null>(null);
   const [motionAvailable, setMotionAvailable] = useState<boolean | null>(null);
-  const [locationStatus, setLocationStatus] = useState<'granted' | 'denied' | 'undetermined'>('undetermined');
+  // Sensores de movimento não exigem permissão explícita; exibimos disponibilidade
 
   useEffect(() => {
     (async () => {
@@ -31,10 +30,7 @@ export default function PerfilPermissoesScreen() {
         const isAvailable = await Pedometer.isAvailableAsync();
         setMotionAvailable(!!isAvailable);
       } catch { setMotionAvailable(false); }
-      try {
-        const { status } = await Location.getForegroundPermissionsAsync();
-        setLocationStatus(status);
-      } catch {}
+      // Localização não é solicitada nesta tela
     })();
   }, []);
 
@@ -45,17 +41,33 @@ export default function PerfilPermissoesScreen() {
     } catch {}
   };
 
-  const requestLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      setLocationStatus(status);
-    } catch {}
-  };
+  // Sem solicitação para sensores de movimento
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'] }} contentContainerStyle={{ padding: 16 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Voltar" style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB', backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 2, paddingBottom: 8 }}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Voltar"
+          style={{
+            height: 44,
+            paddingHorizontal: 10,
+            borderRadius: 22,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            gap: 6,
+            borderWidth: 1,
+            shadowColor: '#000',
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 4 },
+            elevation: 2,
+            backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
+            borderColor: isDark ? colors['divider-dark'] : 'transparent',
+          }}
+        >
           <ChevronLeft size={20} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
         </Pressable>
         <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: title.fontSize.default }}>Permissões</Text>
@@ -85,9 +97,11 @@ export default function PerfilPermissoesScreen() {
             Use os sensores (passos/aceleração) para enriquecer suas estatísticas.
           </Text>
           <View style={{ height: 8 }} />
-          <Pressable onPress={requestLocation} style={{ height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? colors['bg-tertiary-dark'] : '#F3F4F6', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' }} accessibilityRole="button" accessibilityLabel="Permitir localização">
-            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: cardBtnType.fontSize.default, lineHeight: cardBtnType.lineHeight.default }}>{locationStatus === 'granted' ? 'Permitido' : 'Permitir localização'}</Text>
-          </Pressable>
+          <View style={{ height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: isDark ? colors['bg-tertiary-dark'] : '#F3F4F6', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' }} accessibilityRole="text" accessibilityLabel="Status dos sensores de movimento">
+            <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: cardBtnType.fontSize.default, lineHeight: cardBtnType.lineHeight.default }}>
+              {motionAvailable ? 'Permitido' : 'Indisponível no dispositivo'}
+            </Text>
+          </View>
         </View>
 
         <View style={{ borderRadius: 14, padding: 12, backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderWidth: 1, borderColor: isDark ? colors['divider-dark'] : '#E5E7EB' }}>

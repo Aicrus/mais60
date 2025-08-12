@@ -18,6 +18,7 @@ export default function PaginaSobre() {
 
   const titleType = getResponsiveValues('headline-lg');
   const bodyType = getResponsiveValues('body-lg');
+  const appBarLabelType = getResponsiveValues('label-md');
 
   const ui = useMemo(() => ({
     bg: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
@@ -89,7 +90,7 @@ export default function PaginaSobre() {
         >
           <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
         </Pressable>
-        <Text style={[styles.appBarLabel, { color: ui.text }]}>
+        <Text style={{ color: ui.text, fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>
           Voltar
         </Text>
       </View>
@@ -151,7 +152,6 @@ const styles = StyleSheet.create({
   },
   appBarLabel: {
     fontFamily: dsFontFamily['jakarta-medium'],
-    fontSize: 16,
   },
   card: {
     borderRadius: 16,

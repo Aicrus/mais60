@@ -19,6 +19,7 @@ export default function VideoPlayerScreen() {
 
   const titleType = getResponsiveValues('title-md');
   const bodyType = getResponsiveValues('body-lg');
+  const appBarLabelType = getResponsiveValues('label-md');
 
   const videoId = useMemo(() => {
     const raw = (id || '').toString();
@@ -260,7 +261,7 @@ export default function VideoPlayerScreen() {
         <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderColor: isDark ? colors['divider-dark'] : 'transparent' }]}>
           <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
         </Pressable>
-        <Text style={[styles.appTitle, { color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'] }]}>Reprodução</Text>
+        <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Reprodução</Text>
       </View>
 
       {/* Player YouTube */}
@@ -593,8 +594,22 @@ export default function VideoPlayerScreen() {
 
 const styles = StyleSheet.create({
   appBar: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 2, paddingBottom: 8, marginBottom: 6 },
-  backBtn: { height: 44, paddingHorizontal: 10, borderRadius: 22, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
-  appTitle: { fontFamily: dsFontFamily['jakarta-medium'], fontSize: 16 },
+  backBtn: {
+    height: 44,
+    paddingHorizontal: 10,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 6,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  appTitle: { fontFamily: dsFontFamily['jakarta-medium'] },
   player: { height: 220, borderRadius: 16, overflow: 'hidden' },
   controlsRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
   control: { flex: 1, height: 56, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors['brand-purple'] },

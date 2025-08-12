@@ -40,6 +40,9 @@ interface DesignSystemContextType {
     sound: 'com' | 'sem';
   };
   setAccessibility: (prefs: Partial<DesignSystemContextType['accessibility']>) => void;
+  // Força re-render global quando a escala muda (atualiza rapidamente as telas)
+  typographyVersion: number;
+  applyFontScale: (level: 'normal' | 'grande' | 'muito-grande') => void;
   // Helpers
   isDark: boolean;
   isLight: boolean;
@@ -63,6 +66,7 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
     sound: 'com' | 'sem';
   }>({ fontScale: 'normal', contrast: 'normal', sound: 'com' });
   const ACCESS_STORAGE_KEY = '@app_accessibility';
+  const [typographyVersion, setTypographyVersion] = useState(0);
 
   // Carrega o tema salvo quando o app inicia
   useEffect(() => {
@@ -80,7 +84,7 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
             const parsed = JSON.parse(savedAccess);
             if (parsed.fontScale === 'grande') setTypographyScale(1.00);
             else if (parsed.fontScale === 'muito-grande') setTypographyScale(1.15);
-            else setTypographyScale(1.00);
+            else setTypographyScale(0.90);
             setAccessibilityState({
               fontScale: parsed.fontScale ?? 'normal',
               contrast: parsed.contrast ?? 'normal',
@@ -88,7 +92,8 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
             });
           } catch {}
         } else {
-          setTypographyScale(1.00);
+          // Sem preferências salvas, considere 'normal' levemente menor que o base
+          setTypographyScale(0.90);
         }
       } catch (error) {
         console.error('Erro ao carregar tema:', error);
@@ -137,8 +142,14 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
     if (prefs.fontScale) {
       if (prefs.fontScale === 'grande') setTypographyScale(1.00);
       else if (prefs.fontScale === 'muito-grande') setTypographyScale(1.15);
-      else setTypographyScale(1.00);
+      else setTypographyScale(0.90);
+      // Força re-render global
+      setTypographyVersion((v) => v + 1);
     }
+  };
+
+  const applyFontScale = (level: 'normal' | 'grande' | 'muito-grande') => {
+    setAccessibility({ fontScale: level });
   };
 
   // Função para alternar entre os temas
@@ -207,6 +218,8 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
         // Acessibilidade
         accessibility,
         setAccessibility,
+        typographyVersion,
+        applyFontScale,
         // Helpers
         isDark,
         isLight,

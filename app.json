@@ -16,8 +16,6 @@
         "NSPhotoLibraryUsageDescription": "Precisamos acessar sua biblioteca para escolher uma foto de perfil.",
         "NSLocationWhenInUseUsageDescription": "Usamos sua localização opcionalmente para registrar caminhadas e melhorar suas estatísticas.",
         "NSMotionUsageDescription": "Usamos os sensores de movimento para estimar passos e atividade.",
-        "NSHealthUpdateUsageDescription": "Precisamos de acesso para atualizar seus dados de saúde.",
-        "NSHealthShareUsageDescription": "Precisamos de acesso para ler dados de saúde, como passos.",
         "UISupportedInterfaceOrientations": [
           "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationLandscapeLeft",
@@ -39,7 +37,10 @@
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
-        "ACTIVITY_RECOGNITION"
+        "ACTIVITY_RECOGNITION",
+        "POST_NOTIFICATIONS",
+        "READ_MEDIA_IMAGES",
+        "READ_EXTERNAL_STORAGE"
       ]
     },
     "web": {

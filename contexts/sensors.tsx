@@ -56,12 +56,12 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     return () => { try { sub && sub.remove && sub.remove(); } catch {} };
   }, []);
 
-  // Location (só estado de permissão, sem trajetos)
+  // Location (só estado de permissão, sem solicitar ao abrir; pedido ocorre no LocationProvider quando o usuário iniciar o tracking)
   useEffect(() => {
     (async () => {
       try {
         if (Platform.OS === 'web') { setLocationEnabled(false); return; }
-        const { status } = await Location.requestForegroundPermissionsAsync();
+        const { status } = await Location.getForegroundPermissionsAsync();
         setLocationEnabled(status === 'granted');
       } catch { setLocationEnabled(false); }
     })();
