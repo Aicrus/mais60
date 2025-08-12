@@ -35,8 +35,9 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const uniqueById = useCallback((items: FavoriteItem[]): FavoriteItem[] => {
     const map = new Map<string, FavoriteItem>();
     for (const it of items || []) {
-      if (it && typeof it.id === 'string' && !map.has(it.id)) {
-        map.set(it.id, it);
+      const sanitizedId = typeof it?.id === 'string' ? it.id.trim() : '';
+      if (sanitizedId && !map.has(sanitizedId)) {
+        map.set(sanitizedId, { ...it, id: sanitizedId });
       }
     }
     return Array.from(map.values());
@@ -59,7 +60,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
                 const v = row.videos as any;
                 if (!v || !v.youtube_id) return null;
                 return {
-                  id: v.youtube_id,
+                  id: String(v.youtube_id || '').trim(),
                   title: v.titulo || `Vídeo ${v.youtube_id}`,
                   subtitle: v.descricao || 'YouTube',
                   type: 'video' as const,
@@ -107,10 +108,18 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const isFavorite = useCallback((id: string) => favorites.some(f => f.id === id), [favorites]);
 
   const toggleFavorite = useCallback(async (item: FavoriteItem) => {
+    const sanitizedId = String(item.id || '').trim();
+    const safeItem: FavoriteItem = {
+      id: sanitizedId,
+      title: item.title,
+      subtitle: item.subtitle,
+      type: item.type || 'video',
+      thumbnailUrl: item.thumbnailUrl,
+    };
     // Atualiza otimista local
-    const next = isFavorite(item.id)
-      ? favorites.filter(f => f.id !== item.id)
-      : [{ id: item.id, title: item.title, subtitle: item.subtitle, type: item.type || 'video', thumbnailUrl: item.thumbnailUrl }, ...favorites];
+    const next = isFavorite(sanitizedId)
+      ? favorites.filter(f => f.id !== sanitizedId)
+      : [safeItem, ...favorites];
     await persist(next);
 
     // Sincroniza com Supabase se logado
@@ -120,13 +129,13 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       const { data: v } = await supabase
         .from('videos')
         .select('id')
-        .eq('youtube_id', item.id)
+        .eq('youtube_id', sanitizedId)
         .limit(1)
         .maybeSingle();
       const videoUuid = v?.id as string | undefined;
       if (!videoUuid) return;
 
-      if (isFavorite(item.id)) {
+      if (isFavorite(sanitizedId)) {
         // Remover favorito
         await supabase
           .from('favoritos')
