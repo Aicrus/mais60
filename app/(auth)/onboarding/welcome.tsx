@@ -43,13 +43,13 @@ export default function OnboardingWelcome() {
 
   const ProgressDots = () => (
     <View style={{ gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 2 }}>
+      <Text style={{ color: colors['text-secondary-dark'], fontFamily: dsFontFamily['jakarta-medium'], marginBottom: 2 }}>
         Passo 1 de 3
       </Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <View style={{ width: 10, height: 10, borderRadius: 999, backgroundColor: '#430593' }} />
-        <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: isDark ? '#3F3F46' : '#E5E7EB' }} />
-        <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: isDark ? '#3F3F46' : '#E5E7EB' }} />
+        <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: '#E5E7EB' }} />
+        <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: '#E5E7EB' }} />
       </View>
     </View>
   );
@@ -87,10 +87,10 @@ export default function OnboardingWelcome() {
         </View>
 
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ marginTop: 8, color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: title.fontSize.default, lineHeight: title.lineHeight.default, textAlign: 'center' }}>
+          <Text style={{ marginTop: 8, color: colors['text-primary-dark'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: title.fontSize.default, lineHeight: title.lineHeight.default, textAlign: 'center' }}>
             Descubra conteúdos para o seu bem‑estar
           </Text>
-          <Text style={{ marginTop: 10, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: subtitle.fontSize.default, lineHeight: subtitle.lineHeight.default, textAlign: 'center' }}>
+          <Text style={{ marginTop: 10, color: colors['text-secondary-dark'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: subtitle.fontSize.default, lineHeight: subtitle.lineHeight.default, textAlign: 'center' }}>
             Exercícios guiados, dicas de saúde e programas pensados para a sua rotina.
           </Text>
         </View>
