@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Pressable, ScrollView } from 'react-native';
-import { Sparkles } from 'lucide-react-native';
+import { View, Text, Image, Pressable, ScrollView, PanResponder } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -21,23 +20,41 @@ export default function OnboardingIntro2() {
       </Text>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: isDark ? '#3F3F46' : '#E5E7EB' }} />
-        <View style={{ width: 10, height: 10, borderRadius: 999, backgroundColor: '#430593' }} />
+        <View style={{ width: 10, height: 10, borderRadius: 999, backgroundColor: colors['brand-green'] }} />
         <View style={{ width: 8, height: 8, borderRadius: 999, backgroundColor: isDark ? '#3F3F46' : '#E5E7EB' }} />
       </View>
     </View>
   );
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'] }}
-      contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: 'space-between' }}
-      bounces={false}
+    <View
+      style={{ flex: 1 }}
+      {...React.useRef(
+        PanResponder.create({
+          onMoveShouldSetPanResponder: (_evt, gestureState) => {
+            const { dx, dy } = gestureState;
+            return Math.abs(dx) > 16 && Math.abs(dx) > Math.abs(dy);
+          },
+          onPanResponderRelease: (_evt, gestureState) => {
+            const { dx, vx } = gestureState;
+            const distanceThreshold = 40;
+            const velocityThreshold = 0.3;
+            if (dx < -distanceThreshold || vx < -velocityThreshold) {
+              router.push('/(auth)/onboarding/intro3');
+            } else if (dx > distanceThreshold || vx > velocityThreshold) {
+              router.back();
+            }
+          },
+        })
+      ).current.panHandlers}
     >
-      <View style={{ alignItems: 'center', marginTop: 8 }}>
-        <View style={{ width: 88, height: 36, borderRadius: 999, backgroundColor: isDark ? 'rgba(67,5,147,0.18)' : 'rgba(67,5,147,0.08)', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
-          <Sparkles size={16} color={'#430593'} />
-          <Text style={{ color: '#430593', fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 12 }}>Mais 60</Text>
-        </View>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'] }}
+        contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: 'flex-start' }}
+        bounces={false}
+      >
+        <View style={{ alignItems: 'center', marginTop: 8 }}>
+          <Image source={require('@/assets/images/Logo Mais 60 Verde.png')} style={{ width: 108, height: 32 }} resizeMode="contain" accessibilityIgnoresInvertColors />
         <Image source={require('@/assets/images/logo-mais60.png')} style={{ width: '100%', height: 220, marginTop: 8 }} resizeMode="contain" accessibilityIgnoresInvertColors />
       </View>
 
@@ -50,13 +67,14 @@ export default function OnboardingIntro2() {
         </Text>
       </View>
 
-      <View style={{ gap: 16 }}>
+        <View style={{ gap: 16, marginTop: 24 }}>
         <ProgressDots />
-        <Pressable onPress={() => router.push('/(auth)/onboarding/intro3')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
-          <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 18 }}>Avançar</Text>
+          <Pressable onPress={() => router.push('/(auth)/onboarding/intro3')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors['brand-green'], shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Avançar">
+            <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 18 }}>Avançar</Text>
         </Pressable>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 

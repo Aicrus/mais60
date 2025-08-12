@@ -31,6 +31,8 @@ export default function VideoPlayerScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { aggregates, logWatch, markCompleted, unmarkCompleted } = useUsage();
+  const hasLoggedShortRef = useRef<boolean>(false);
+  const prevIsPlayingRef = useRef<boolean>(false);
   const initialCompleted = useMemo(() => {
     const list = aggregates?.recentVideos || [];
     return list.some(v => v.videoId === videoId && v.completed === true);
@@ -42,6 +44,7 @@ export default function VideoPlayerScreen() {
   const [isLandscapeDevice, setIsLandscapeDevice] = useState<boolean>(false);
   const [pendingFsClose, setPendingFsClose] = useState<boolean>(false);
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  
 
   // Tempos de espera de rotação, ajustados por plataforma
   const LANDSCAPE_ROTATION_TIMEOUT_MS = Platform.OS === 'ios' ? 500 : 900;
@@ -58,8 +61,11 @@ export default function VideoPlayerScreen() {
       }
     };
   }, []);
-  const [embedMode, setEmbedMode] = useState<'privacy' | 'standard'>('privacy');
+  const [embedMode, setEmbedMode] = useState<'privacy' | 'standard'>('standard');
   const [playerVisible, setPlayerVisible] = useState<boolean>(false);
+  const [statusOriginal, setStatusOriginal] = useState<string>('inicial');
+  const [statusAltNoCookie, setStatusAltNoCookie] = useState<string>('inicial');
+  const [statusAltStandard, setStatusAltStandard] = useState<string>('inicial');
 
   // Oculta o WebView durante qualquer transição/fallback de modo
   useEffect(() => {
@@ -69,7 +75,7 @@ export default function VideoPlayerScreen() {
   const html = useMemo(() => {
     const id = videoId;
     const host = embedMode === 'privacy' ? 'https://www.youtube-nocookie.com' : 'https://www.youtube.com';
-    const controlsValue = 0;
+    const controlsValue = 1;
     return `<!DOCTYPE html>
 <html>
   <head>
@@ -133,6 +139,8 @@ export default function VideoPlayerScreen() {
   </body>
 </html>`;
   }, [videoId, embedMode]);
+
+  
 
   const sendJS = useCallback((js: string) => {
     webviewRef.current?.injectJavaScript(js + '; true;');
@@ -246,7 +254,30 @@ export default function VideoPlayerScreen() {
       logWatch({ videoId, seconds: 5, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
     }, 5000);
     return () => clearInterval(tid);
-  }, [isPlaying, videoId, initTitle, logWatch]);
+  }, [isPlaying, videoId, initTitle, initModule, logWatch]);
+
+  // Registrar 1s quando houver transição de playing -> paused sem ter batido o intervalo de 5s
+  useEffect(() => {
+    const wasPlaying = prevIsPlayingRef.current;
+    if (wasPlaying && !isPlaying && !hasLoggedShortRef.current) {
+      logWatch({ videoId, seconds: 1, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+      hasLoggedShortRef.current = true;
+    }
+    if (isPlaying) {
+      // reset para próxima sessão de play
+      hasLoggedShortRef.current = false;
+    }
+    prevIsPlayingRef.current = isPlaying;
+  }, [isPlaying, videoId, initTitle, initModule, logWatch]);
+
+  // Ao desmontar: se estava reproduzindo mas não registrou nenhum tick, garante 1s
+  useEffect(() => {
+    return () => {
+      if (prevIsPlayingRef.current && !hasLoggedShortRef.current) {
+        logWatch({ videoId, seconds: 1, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+      }
+    };
+  }, [videoId, initTitle, initModule, logWatch]);
 
   return (
     <PageContainer>
@@ -294,6 +325,9 @@ export default function VideoPlayerScreen() {
               return false;
             }
           }}
+          onLoadStart={() => { setStatusOriginal('carregando'); }}
+          onLoadEnd={() => { setPlayerVisible(true); setStatusOriginal('carregado'); }}
+          onError={() => { setStatusOriginal('erro: webview'); }}
           onMessage={(e) => {
             try {
               const msg = JSON.parse(e.nativeEvent.data);
@@ -302,6 +336,7 @@ export default function VideoPlayerScreen() {
                 const playing = msg.data === 1;
                 setIsPlaying(playing);
                 setPlayerVisible(true);
+                setStatusOriginal(playing ? 'reproduzindo' : 'pausado');
               } else if (msg?.type === 'fsCurrent') {
                 // Sincroniza estado do FS no embed e garante play visível
                 const t = Number(msg?.data?.time) || 0;
@@ -309,6 +344,7 @@ export default function VideoPlayerScreen() {
                 sendJS('window.playVideo()');
                 setIsPlaying(true);
                 setPlayerVisible(true);
+                setStatusOriginal('reproduzindo');
                 if (pendingFsClose) {
                   setPendingFsClose(false);
                   setShowFullscreen(false);
@@ -316,9 +352,11 @@ export default function VideoPlayerScreen() {
               } else if (msg?.type === 'ready') {
                 // Exibe thumbnail/play sem mostrar telas de erro transitórias
                 setPlayerVisible(true);
+                setStatusOriginal('pronto');
               } else if (msg?.type === 'error') {
                 // Fallback simples: privacy -> standard
                 setEmbedMode((prev) => (prev === 'privacy' ? 'standard' : prev));
+                setStatusOriginal(`erro: yt-${msg?.data}`);
               } else if (msg?.type === 'current') {
                 const t = Number(msg?.data?.time) || 0;
                 const st = Number(msg?.data?.state) || 2;
@@ -328,24 +366,7 @@ export default function VideoPlayerScreen() {
           }}
           style={{ flex: 1, borderRadius: 16, overflow: 'hidden', opacity: playerVisible ? 1 : 0 }}
         />
-        {/* Overlay: exibe apenas o botão de play quando pausado; nada quando reproduzindo */}
-        <Pressable
-          onPress={() => sendJS('window.togglePlay()')}
-          accessibilityRole="button"
-          accessibilityLabel={isPlaying ? 'Pausar vídeo' : 'Reproduzir vídeo'}
-          style={styles.touchBlocker}
-        >
-          {!isPlaying && (
-            <>
-              <View style={styles.overlayScrim} pointerEvents="none" />
-              <View style={styles.centerControls} pointerEvents="none">
-                <View style={styles.bigCircle}>
-                  <Play size={36} color={'#FFFFFF'} />
-                </View>
-              </View>
-            </>
-          )}
-        </Pressable>
+        {/* Controles nativos do YouTube habilitados (sem overlay custom) */}
         {!playerVisible && (
           <View style={styles.placeholder} pointerEvents="none">
             <Image
@@ -358,6 +379,52 @@ export default function VideoPlayerScreen() {
           </View>
         )}
       </View>
+      <Text style={{ marginTop: 6, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>Status (original): {statusOriginal}</Text>
+
+      {/* Players simples adicionais */}
+      <View style={[styles.player, { marginTop: 12 }]} accessibilityLabel="Player de vídeo (embed nocookie)">
+        <WebView
+          source={{ uri: `https://www.youtube-nocookie.com/embed/${videoId}?playsinline=1&rel=0&modestbranding=1&controls=1` }}
+          allowsFullscreenVideo={false}
+          javaScriptEnabled
+          domStorageEnabled
+          allowsInlineMediaPlayback
+          mediaPlaybackRequiresUserAction={false}
+          originWhitelist={["*"]}
+          scrollEnabled={false}
+          allowsLinkPreview={false}
+          setSupportMultipleWindows={false}
+          cacheEnabled
+          cacheMode={Platform.OS === 'android' ? 'LOAD_DEFAULT' as any : undefined}
+          onLoadStart={() => { setStatusAltNoCookie('carregando'); setTimeout(() => setStatusAltNoCookie('carregado'), 800); }}
+          onLoadEnd={() => { setStatusAltNoCookie('carregado'); }}
+          onError={() => { setStatusAltNoCookie('erro: webview'); }}
+          style={{ flex: 1, borderRadius: 16, overflow: 'hidden' }}
+        />
+      </View>
+      <Text style={{ marginTop: 6, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>Status (embed nocookie): {statusAltNoCookie}</Text>
+
+      <View style={[styles.player, { marginTop: 12 }]} accessibilityLabel="Player de vídeo (embed padrão)">
+        <WebView
+          source={{ uri: `https://www.youtube.com/embed/${videoId}?playsinline=1&rel=0&modestbranding=1&controls=1` }}
+          allowsFullscreenVideo={false}
+          javaScriptEnabled
+          domStorageEnabled
+          allowsInlineMediaPlayback
+          mediaPlaybackRequiresUserAction={false}
+          originWhitelist={["*"]}
+          scrollEnabled={false}
+          allowsLinkPreview={false}
+          setSupportMultipleWindows={false}
+          cacheEnabled
+          cacheMode={Platform.OS === 'android' ? 'LOAD_DEFAULT' as any : undefined}
+          onLoadStart={() => { setStatusAltStandard('carregando'); setTimeout(() => setStatusAltStandard('carregado'), 800); }}
+          onLoadEnd={() => { setStatusAltStandard('carregado'); }}
+          onError={() => { setStatusAltStandard('erro: webview'); }}
+          style={{ flex: 1, borderRadius: 16, overflow: 'hidden' }}
+        />
+      </View>
+      <Text style={{ marginTop: 6, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'] }}>Status (embed padrão): {statusAltStandard}</Text>
 
       {/* Infos */}
       <View style={{ marginTop: 12 }}>

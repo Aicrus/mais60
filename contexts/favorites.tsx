@@ -43,19 +43,23 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
             .eq('usuario_id', userId);
           if (!mounted) return;
           if (!error && data) {
-            const list: FavoriteItem[] = data
-              .map((row: any) => {
-                const v = row.videos as any;
-                if (!v || !v.youtube_id) return null;
-                return {
+            // Deduplica por youtube_id para evitar chaves repetidas quando há
+            // múltiplos registros de vídeos diferentes apontando para o mesmo youtube_id
+            const dedupedMap = new Map<string, FavoriteItem>();
+            for (const row of data as any[]) {
+              const v = row?.videos as any;
+              if (!v || !v.youtube_id) continue;
+              if (!dedupedMap.has(v.youtube_id)) {
+                dedupedMap.set(v.youtube_id, {
                   id: v.youtube_id,
                   title: v.titulo || `Vídeo ${v.youtube_id}`,
                   subtitle: v.descricao || 'YouTube',
-                  type: 'video' as const,
-                  thumbnailUrl: `https://i.ytimg.com/vi/${v.youtube_id}/hqdefault.jpg`
-                };
-              })
-              .filter(Boolean) as FavoriteItem[];
+                  type: 'video',
+                  thumbnailUrl: `https://i.ytimg.com/vi/${v.youtube_id}/hqdefault.jpg`,
+                });
+              }
+            }
+            const list = Array.from(dedupedMap.values());
             setFavorites(list);
             await AsyncStorage.setItem(storageKey, JSON.stringify(list));
             return;
@@ -66,7 +70,12 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         if (!mounted) return;
         if (raw) {
           const parsed: FavoriteItem[] = JSON.parse(raw);
-          setFavorites(Array.isArray(parsed) ? parsed : []);
+          // Deduplica também o cache local caso versões antigas tenham duplicados
+          const dedupedMap = new Map<string, FavoriteItem>();
+          for (const f of Array.isArray(parsed) ? parsed : []) {
+            if (f?.id && !dedupedMap.has(f.id)) dedupedMap.set(f.id, f);
+          }
+          setFavorites(Array.from(dedupedMap.values()));
         } else {
           setFavorites([]);
         }

@@ -7,6 +7,7 @@ import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system
 import { ChevronLeft, Bell, Clock } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/auth';
 
 type NotificationData = {
   id: string;
@@ -19,6 +20,7 @@ export default function NotificacoesScreen() {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
   const router = useRouter();
+  const { session } = useAuth();
 
   const titleType = getResponsiveValues('headline-lg');
   const itemTitleType = getResponsiveValues('body-lg');
@@ -37,27 +39,45 @@ export default function NotificacoesScreen() {
 
   const [items, setItems] = useState<NotificationData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [clearing, setClearing] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('notificacoes')
-          .select('id, titulo, descricao, criado_em')
-          .order('criado_em', { ascending: false });
+        const userId = session?.user?.id;
+        const [notifsRes, dismissRes] = await Promise.all([
+          supabase
+            .from('notificacoes')
+            .select('id, titulo, descricao, criado_em')
+            .order('criado_em', { ascending: false }),
+          userId
+            ? supabase
+                .from('notificacoes_dismiss')
+                .select('notificacao_id')
+                .eq('usuario_id', userId)
+            : Promise.resolve({ data: [], error: null } as any),
+        ]);
+
         if (!mounted) return;
-        if (!error && data) setItems(data as NotificationData[]);
-        else setItems([]);
+
+        const notifs = (notifsRes.data || []) as any[];
+        const dismissedIds = new Set(
+          ((dismissRes.data as any[]) || []).map((d: any) => d.notificacao_id)
+        );
+        const visible = notifs.filter((n: any) => !dismissedIds.has(n.id));
+        setItems(visible as NotificationData[]);
       } catch {
         setItems([]);
       } finally {
         setLoading(false);
       }
     })();
-    return () => { mounted = false; };
-  }, []);
+    return () => {
+      mounted = false;
+    };
+  }, [session?.user?.id]);
 
   const formatTime = (iso: string) => {
     try { return new Date(iso).toLocaleString(); } catch { return ''; }
@@ -66,6 +86,25 @@ export default function NotificacoesScreen() {
   const IconFor = (createdAt?: string) => {
     const common = { size: 18, color: ui.tint, strokeWidth: 2 } as const;
     return createdAt && new Date(createdAt).getSeconds() % 2 === 0 ? <Bell {...common} /> : <Clock {...common} />;
+  };
+
+  const handleClearAll = async () => {
+    try {
+      if (!session?.user?.id || items.length === 0) return;
+      setClearing(true);
+      const rows = items.map((n) => ({
+        usuario_id: session.user.id,
+        notificacao_id: n.id,
+      }));
+      const { error } = await supabase
+        .from('notificacoes_dismiss')
+        .upsert(rows as any, { onConflict: 'usuario_id,notificacao_id' });
+      if (!error) {
+        setItems([]);
+      }
+    } finally {
+      setClearing(false);
+    }
   };
 
   return (
@@ -95,6 +134,45 @@ export default function NotificacoesScreen() {
         >
           Voltar
         </Text>
+      </View>
+
+      {/* Cabeçalho da lista com ação de limpar */}
+      <View style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 2,
+        marginBottom: 6,
+      }}>
+        <Text
+          style={{
+            color: ui.textPrimary,
+            fontFamily: dsFontFamily['jakarta-bold'],
+            fontSize: titleType.fontSize.default,
+            lineHeight: titleType.lineHeight.default,
+          }}
+        >
+          Notificações
+        </Text>
+        {items.length > 0 && (
+          <Pressable
+            onPress={handleClearAll}
+            disabled={clearing || !session?.user?.id}
+            accessibilityRole="button"
+            accessibilityLabel="Limpar todas as notificações"
+            hitSlop={8}
+          >
+            <Text
+              style={{
+                color: colors['brand-purple'],
+                opacity: clearing ? 0.6 : 1,
+                fontFamily: dsFontFamily['jakarta-medium'],
+              }}
+            >
+              {clearing ? 'Limpando…' : 'Limpar tudo'}
+            </Text>
+          </Pressable>
+        )}
       </View>
 
       <ScrollView

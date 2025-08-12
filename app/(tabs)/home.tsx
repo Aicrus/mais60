@@ -343,10 +343,13 @@ export default function Home() {
       <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
         <View style={styles.statsRow}>
           {(() => {
-            const todayMin = Math.floor((aggregates?.todaySeconds || 0) / 60);
-            const todayLabel = `${todayMin} min`;
+            const secondsToday = Math.max(0, aggregates?.todaySeconds || 0);
+            const todayLabel = secondsToday < 60
+              ? `${secondsToday}s`
+              : `${Math.floor(secondsToday / 60)} min`;
             // Contagem de atividades de hoje: número de vídeos registrados hoje
-            const todayKey = new Date().toISOString().slice(0, 10);
+            const d = new Date();
+            const todayKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             const todayActivities = (aggregates?.recentVideos || []).filter(v => v.date === todayKey).length;
             const favCount = favorites?.length || 0;
             return (
