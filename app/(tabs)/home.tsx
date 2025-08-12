@@ -23,7 +23,7 @@ import {
 } from 'lucide-react-native';
 
 export default function Home() {
-  const { currentTheme } = useTheme();
+  const { currentTheme, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
   const { session } = useAuth();
   const { showToast } = useToast();
@@ -59,12 +59,12 @@ export default function Home() {
 
 
   const ui = {
-    bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
-    bgPrimary: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
-    divider: isDark ? colors['divider-dark'] : colors['divider-light'],
-    textPrimary: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-    textSecondary: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
-    tint: isDark ? colors['primary-dark'] : colors['primary-light'],
+    bgSecondary: uiColors.bgSecondary,
+    bgPrimary: uiColors.bgPrimary,
+    divider: uiColors.divider,
+    textPrimary: uiColors.textPrimary,
+    textSecondary: uiColors.textSecondary,
+    tint: uiColors.tint,
   };
 
   // Paleta fixa da marca vinda do design-system

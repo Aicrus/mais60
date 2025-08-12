@@ -21,7 +21,7 @@ type Categoria = { id: string; titulo: string };
 type VideoItem = { id: string; youtube_id: string; titulo: string; descricao: string | null; categoria_id: string | null };
 
 export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
-  const { currentTheme } = useTheme();
+  const { currentTheme, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
   const router = useRouter();
   const { logModuleAccess } = useUsage();
@@ -222,10 +222,10 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
           />
           <View style={[
             styles.infoBar,
-            { backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF' },
+             { backgroundColor: uiColors.bgSecondary },
           ]}>
             <Text style={{
-              color: isDark ? colors['text-primary-dark'] : '#3E0A7A',
+               color: isDark ? colors['text-primary-dark'] : '#3E0A7A',
               fontFamily: dsFontFamily['jakarta-extrabold'],
               fontSize: titleType.fontSize.default,
               lineHeight: titleType.lineHeight.default,
@@ -233,7 +233,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
             }}>{config.title}</Text>
             <Text style={{
               marginTop: 6,
-              color: isDark ? colors['text-secondary-dark'] : '#6B7280',
+               color: isDark ? colors['text-secondary-dark'] : '#6B7280',
               fontFamily: dsFontFamily['jakarta-medium'],
               fontSize: subtitleType.fontSize.default,
               lineHeight: subtitleType.lineHeight.default,
@@ -257,7 +257,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                     selected === opt.id
                       ? (isDark ? colors['primary-dark'] : colors['primary-light'])
                       : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'),
-                  borderColor: isDark ? colors['divider-dark'] : '#E5E7EB',
+                   borderColor: uiColors.divider,
                 },
               ]}
             >

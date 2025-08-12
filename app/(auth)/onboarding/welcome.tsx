@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Pressable, ScrollView, PanResponder, ImageBackground } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, Image, Pressable, ScrollView, PanResponder } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -30,7 +29,7 @@ export default function OnboardingWelcome() {
 
   return (
     <View
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: isDark ? colors['bg-primary-dark'] : colors['bg-secondary-light'] }}
       {...React.useRef(
         PanResponder.create({
           onMoveShouldSetPanResponder: (_evt, gestureState) => {
@@ -49,20 +48,8 @@ export default function OnboardingWelcome() {
       ).current.panHandlers}
     >
         {(() => { React.useEffect(() => { try { applyFontScale('grande'); } catch {} }, []); return null; })()}
-      <ImageBackground
-        source={require('@/assets/images/Homem Idoso Hidratando-se.jpg')}
-        style={{ flex: 1 }}
-        imageStyle={{ resizeMode: 'cover' }}
-      >
-        <LinearGradient
-          colors={["rgba(0,0,0,0.6)", "rgba(0,0,0,0.35)", "rgba(0,0,0,0)"]}
-          start={{ x: 0, y: 1 }}
-          end={{ x: 0, y: 0 }}
-          style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
-          pointerEvents="none"
-        />
         <ScrollView
-          style={{ flex: 1, backgroundColor: 'transparent' }}
+          style={{ flex: 1 }}
           contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: 'flex-start' }}
           bounces={false}
         >
@@ -88,7 +75,6 @@ export default function OnboardingWelcome() {
             </Pressable>
           </View>
         </ScrollView>
-      </ImageBackground>
     </View>
   );
 }

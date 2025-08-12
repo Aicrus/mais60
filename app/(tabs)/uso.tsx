@@ -25,7 +25,7 @@ function formatDuration(totalSeconds: number) {
 }
 
 export default function UsoScreen() {
-  const { currentTheme } = useTheme();
+  const { currentTheme, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
   const { aggregates, clearUsage } = useUsage();
   const sensors = useSensors();
@@ -42,12 +42,12 @@ export default function UsoScreen() {
   const appBarLabelType = getResponsiveValues('label-md');
 
   const ui = useMemo(() => ({
-    card: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
-    divider: isDark ? colors['divider-dark'] : '#E5E7EB',
-    text: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-    text2: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
+    card: uiColors.bgSecondary,
+    divider: uiColors.divider,
+    text: uiColors.textPrimary,
+    text2: uiColors.textSecondary,
     tint: colors['brand-purple'],
-  }), [isDark]);
+  }), [uiColors]);
 
   React.useEffect(() => {
     (async () => {

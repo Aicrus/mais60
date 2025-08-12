@@ -13,7 +13,7 @@ type Pagina = { slug: string; titulo: string; conteudo: string };
 export default function PaginaSobre() {
   const { slug } = useLocalSearchParams<{ slug?: string }>();
   const router = useRouter();
-  const { currentTheme } = useTheme();
+  const { currentTheme, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
 
   const titleType = getResponsiveValues('headline-lg');
@@ -21,12 +21,12 @@ export default function PaginaSobre() {
   const appBarLabelType = getResponsiveValues('label-md');
 
   const ui = useMemo(() => ({
-    bg: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
-    card: isDark ? colors['bg-secondary-dark'] : '#FFFFFF',
-    divider: isDark ? colors['divider-dark'] : '#E5E7EB',
-    text: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-    text2: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
-  }), [isDark]);
+    bg: uiColors.bgPrimary,
+    card: uiColors.bgSecondary,
+    divider: uiColors.divider,
+    text: uiColors.textPrimary,
+    text2: uiColors.textSecondary,
+  }), [uiColors]);
 
   const [pagina, setPagina] = useState<Pagina | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

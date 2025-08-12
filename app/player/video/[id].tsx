@@ -14,7 +14,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 export default function VideoPlayerScreen() {
   const { id, title: initTitle, subtitle: initSubtitle, module: initModule, benefits: initBenefits } = useLocalSearchParams<{ id: string; title?: string; subtitle?: string; module?: string; benefits?: string }>();
   const router = useRouter();
-  const { currentTheme } = useTheme();
+  const { currentTheme, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
 
   const titleType = getResponsiveValues('title-md');
@@ -261,7 +261,7 @@ export default function VideoPlayerScreen() {
         <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Voltar" style={[styles.backBtn, { backgroundColor: isDark ? colors['bg-secondary-dark'] : '#FFFFFF', borderColor: isDark ? colors['divider-dark'] : 'transparent' }]}>
           <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
         </Pressable>
-        <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Reprodução</Text>
+        <Text style={{ color: uiColors.textPrimary, fontFamily: appBarLabelType.fontFamily, fontSize: appBarLabelType.fontSize.default, lineHeight: appBarLabelType.lineHeight.default }}>Reprodução</Text>
       </View>
 
       {/* Player YouTube */}
@@ -381,9 +381,9 @@ export default function VideoPlayerScreen() {
 
       {/* Infos */}
       <View style={{ marginTop: 12 }}>
-        <Text style={{ color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>{initTitle || `Vídeo ${id}`}</Text>
+        <Text style={{ color: uiColors.textPrimary, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>{initTitle || `Vídeo ${id}`}</Text>
         {!!(initBenefits || initSubtitle) && (
-          <Text style={{ marginTop: 8, color: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'], fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>
+          <Text style={{ marginTop: 8, color: uiColors.textSecondary, fontFamily: dsFontFamily['jakarta-medium'], fontSize: bodyType.fontSize.default, lineHeight: bodyType.lineHeight.default }}>
             {initBenefits || initSubtitle}
           </Text>
         )}

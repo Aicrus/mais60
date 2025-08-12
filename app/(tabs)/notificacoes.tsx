@@ -17,7 +17,7 @@ type NotificationData = {
 };
 
 export default function NotificacoesScreen() {
-  const { currentTheme } = useTheme();
+  const { currentTheme, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
   const router = useRouter();
   const { session } = useAuth();
@@ -29,14 +29,14 @@ export default function NotificacoesScreen() {
   const itemTimeType = getResponsiveValues('label-sm');
 
   const ui = useMemo(() => ({
-    bgPrimary: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
-    bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
-    divider: isDark ? colors['divider-dark'] : colors['divider-light'],
-    textPrimary: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-    textSecondary: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
+    bgPrimary: uiColors.bgPrimary,
+    bgSecondary: uiColors.bgSecondary,
+    divider: uiColors.divider,
+    textPrimary: uiColors.textPrimary,
+    textSecondary: uiColors.textSecondary,
     textTertiary: isDark ? colors['text-tertiary-dark'] : colors['text-tertiary-light'],
-    tint: isDark ? colors['primary-dark'] : colors['primary-light'],
-  }), [isDark]);
+    tint: uiColors.tint,
+  }), [uiColors, isDark]);
 
   const [items, setItems] = useState<NotificationData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

@@ -18,7 +18,7 @@ import { ChevronLeft, Upload } from 'lucide-react-native';
 export default function EditarPerfilScreen() {
   const router = useRouter();
   const { session } = useAuth();
-  const { currentTheme } = useTheme();
+  const { currentTheme, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
 
   const titleType = getResponsiveValues('headline-lg');
@@ -26,13 +26,13 @@ export default function EditarPerfilScreen() {
   const labelType = getResponsiveValues('label-md');
 
   const ui = useMemo(() => ({
-    bgPrimary: isDark ? colors['bg-primary-dark'] : colors['bg-primary-light'],
-    bgSecondary: isDark ? colors['bg-secondary-dark'] : colors['bg-secondary-light'],
-    divider: isDark ? colors['divider-dark'] : colors['divider-light'],
-    textPrimary: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
-    textSecondary: isDark ? colors['text-secondary-dark'] : colors['text-secondary-light'],
+    bgPrimary: uiColors.bgPrimary,
+    bgSecondary: uiColors.bgSecondary,
+    divider: uiColors.divider,
+    textPrimary: uiColors.textPrimary,
+    textSecondary: uiColors.textSecondary,
     primary: isDark ? colors['primary-dark'] : colors['primary-light'],
-  }), [isDark]);
+  }), [uiColors, isDark]);
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
