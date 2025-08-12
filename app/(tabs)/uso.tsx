@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/auth';
 import { supabase } from '@/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfirmModal from '@/components/modals/ConfirmModal';
+import { PieChart, BarChart } from 'react-native-gifted-charts';
 
 function formatDuration(totalSeconds: number) {
   if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '0s';
@@ -46,6 +47,63 @@ export default function UsoScreen() {
     text2: uiColors.textSecondary,
     tint: colors['brand-purple'],
   }), [uiColors]);
+
+  const palette = useMemo(() => [
+    colors['brand-purple'],
+    '#892CDC',
+    '#4F46E5',
+    '#06B6D4',
+    '#22C55E',
+    '#F59E0B',
+    '#EF4444',
+  ], []);
+
+  const perModulePieData = useMemo(() => {
+    const entries = Object.entries(aggregates.perModuleToday || {})
+      .map(([name, sec]) => ({ name, seconds: Number(sec || 0) }))
+      .filter((i) => i.seconds > 0)
+      .sort((a, b) => b.seconds - a.seconds);
+    const total = entries.reduce((acc, i) => acc + i.seconds, 0) || 1;
+    return entries.map((item, idx) => ({
+      value: Math.max(1, Math.round((item.seconds / total) * 100)),
+      color: palette[idx % palette.length],
+      text: item.name,
+      label: item.name,
+      seconds: item.seconds,
+      minutes: Math.max(1, Math.floor(item.seconds / 60)),
+      accesses: (aggregates.perModuleCountToday || {})[item.name] || 0,
+    }));
+  }, [aggregates.perModuleToday, aggregates.perModuleCountToday, palette]);
+
+  const last7Bars = useMemo(() => {
+    return (aggregates.last7Days || []).map((d) => {
+      const minutes = Math.floor((d.seconds || 0) / 60);
+      const label = new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short' });
+      return {
+        value: minutes,
+        label,
+        frontColor: ui.tint,
+        topLabelComponent: minutes > 0 ? (
+          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{minutes}</Text>
+        ) : undefined,
+      };
+    });
+  }, [aggregates.last7Days, ui.tint, ui.text2]);
+
+  const last4Bars = useMemo(() => {
+    return (aggregates.last4Weeks || []).map((w) => {
+      const minutes = Math.floor((w.seconds || 0) / 60);
+      const label = new Date(w.weekStart + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      return {
+        value: minutes,
+        label,
+        frontColor: ui.tint,
+        topLabelComponent: minutes > 0 ? (
+          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>{minutes}</Text>
+        ) : undefined,
+      };
+    });
+  }, [aggregates.last4Weeks, ui.tint, ui.text2]);
 
   React.useEffect(() => {
     (async () => {
@@ -165,58 +223,74 @@ export default function UsoScreen() {
           </View>
         </View>
 
-        {/* Gráfico simples: minutos por módulo hoje */}
+        {/* Uso por módulo (hoje) */}
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Uso por módulo (hoje)</Text>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
-          {Object.keys(aggregates.perModuleToday || {}).length === 0 ? (
+          {perModulePieData.length === 0 ? (
             <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>Sem dados hoje.</Text>
           ) : (
-            Object.entries(aggregates.perModuleToday).map(([k, sec]) => {
-              const min = Math.max(1, Math.floor((sec as number) / 60));
-              const widthPct = Math.min(100, Math.max(8, min));
-              return (
-                <View key={k} style={{ marginBottom: 8 }}>
-                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], marginBottom: 4 }}>{k} • {aggregates.perModuleCountToday?.[k] || 0} acessos</Text>
-                  <View style={{ height: 12, backgroundColor: isDark ? '#1F2937' : '#E5E7EB', borderRadius: 999, overflow: 'hidden' }}>
-                    <GradientView type="custom" colors={[colors['brand-purple'], '#892CDC']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ height: '100%', width: `${widthPct}%` }} />
+            <>
+              <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}>
+                <PieChart
+                  data={perModulePieData.map((i) => ({ value: i.value, color: i.color }))}
+                  donut
+                  radius={70}
+                  innerRadius={48}
+                  focusOnPress
+                />
+              </View>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 8 }}>
+                {perModulePieData.map((i, idx) => (
+                  <View key={i.label + idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: i.color }} />
+                    <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>
+                      {i.label} • {i.minutes} min • {i.accesses} acessos
+                    </Text>
                   </View>
-                  <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginTop: 4 }}>{min} min</Text>
-                </View>
-              );
-            })
+                ))}
+              </View>
+            </>
           )}
         </View>
 
-        {/* Histórico 7 dias */}
+        {/* Histórico (7 dias) */}
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Histórico (7 dias)</Text>
-        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, flexDirection: 'row', alignItems: 'flex-end', gap: 6 }]}> 
-          {aggregates.last7Days.map((d) => {
-            const min = Math.floor(d.seconds / 60);
-            const h = Math.min(80, Math.max(6, min));
-            const label = new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short' });
-            return (
-              <View key={d.date} style={{ width: 26, height: 110, alignItems: 'center', justifyContent: 'flex-end' }}>
-                <View style={{ width: 18, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 4, borderTopRightRadius: 4 }} />
-                <Text style={{ marginTop: 4, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>{label}</Text>
-              </View>
-            );
-          })}
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
+          <BarChart
+            data={last7Bars}
+            width={undefined}
+            barBorderRadius={6}
+            noOfSections={4}
+            yAxisTextStyle={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}
+            xAxisLabelTextStyle={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}
+            isAnimated
+            animationDuration={800}
+            spacing={18}
+            xAxisThickness={0}
+            yAxisThickness={0}
+            initialSpacing={12}
+            labelWidth={28}
+          />
         </View>
 
-        {/* Histórico semanal (4 semanas) */}
+        {/* Semanas (últimas 4) */}
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, marginBottom: 6, marginTop: 8 }}>Semanas (últimas 4)</Text>
-        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card, flexDirection: 'row', alignItems: 'flex-end', gap: 10 }]}> 
-          {aggregates.last4Weeks.map((w, idx) => {
-            const min = Math.floor(w.seconds / 60);
-            const h = Math.min(90, Math.max(8, Math.floor(min / 5))); // escala simples
-            const start = new Date(w.weekStart + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-            return (
-              <View key={w.weekStart + idx} style={{ width: 48, height: 120, alignItems: 'center', justifyContent: 'flex-end' }}>
-                <View style={{ width: 32, height: h, backgroundColor: colors['brand-purple'], borderTopLeftRadius: 6, borderTopRightRadius: 6 }} />
-                <Text style={{ marginTop: 6, color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: listSubtitleType.fontSize.default, lineHeight: listSubtitleType.lineHeight.default }}>{start}</Text>
-              </View>
-            );
-          })}
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
+          <BarChart
+            data={last4Bars}
+            width={undefined}
+            barBorderRadius={6}
+            noOfSections={4}
+            yAxisTextStyle={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}
+            xAxisLabelTextStyle={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}
+            isAnimated
+            animationDuration={800}
+            spacing={28}
+            xAxisThickness={0}
+            yAxisThickness={0}
+            initialSpacing={18}
+            labelWidth={42}
+          />
         </View>
 
         {/* Lista de vídeos recentes */}
