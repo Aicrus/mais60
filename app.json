@@ -1,5 +1,6 @@
 {
   "expo": {
+    "owner": "aicrustech",
     "name": "Mais 60",
     "slug": "mais60",
     "version": "1.0.0",
@@ -100,7 +101,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "seu-projeto-id"
+        "projectId": "5e50025f-fa27-4cbf-b237-c531b3c14c1e"
       }
     },
     "fonts": []
