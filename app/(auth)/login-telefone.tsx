@@ -8,6 +8,8 @@ import CodeInput from '@/components/inputs/CodeInput';
 import { Button } from '@/components/buttons/Button';
 import { useToast } from '@/hooks/useToast';
 import { supabase } from '@/lib/supabase';
+import { useResponsive } from '@/hooks/useResponsive';
+import { Link } from 'expo-router';
 
 function normalizePhone(raw: string) {
   const digits = (raw || '').replace(/\D/g, '');
@@ -18,10 +20,15 @@ function normalizePhone(raw: string) {
   return digits.startsWith('+') ? digits : `+${digits}`;
 }
 
-export default function LoginTelefone() {
+type LoginTelefoneProps = {
+  mode?: 'login' | 'register';
+};
+
+export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   const { currentTheme, applyFontScale } = useTheme();
   const isDark = currentTheme === 'dark';
   const { showToast } = useToast();
+  const { responsive } = useResponsive();
 
   const titleType = getResponsiveValues('headline-md');
   const bodyMdType = getResponsiveValues('body-md');
@@ -115,21 +122,26 @@ export default function LoginTelefone() {
           {/* Logo superior, mesmo tamanho/posição do onboarding */}
           <View style={styles.logoContainer}>
             <Image
-              source={require('@/assets/images/Logo Mais 60 Roxo.png')}
-              style={{ width: 128, height: 38 }}
+              source={isDark
+                ? require('@/assets/images/Logo Mais 60 Branco.png')
+                : require('@/assets/images/Logo Mais 60 Roxo.png')}
+              style={{
+                width: responsive({ mobile: 160, tablet: 192, desktop: 208, default: 160 }),
+                height: responsive({ mobile: 48, tablet: 58, desktop: 64, default: 48 }),
+              }}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />
-            <View style={{ height: 32 }} />
+            <View style={{ height: 48 }} />
           </View>
 
           <View style={styles.formWrapper}>
-            <View style={styles.formContainer}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default, marginBottom: 8 }}>
-              Entrar com telefone
+            <View style={[styles.formContainer, isDark ? styles.cardDark : styles.cardLight]}>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default, marginBottom: 6, textAlign: 'center' }}>
+              {mode === 'login' ? 'Entrar com telefone' : 'Cadastrar com telefone'}
             </Text>
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'], fontSize: bodyMdType.fontSize.default, lineHeight: bodyMdType.lineHeight.default, marginBottom: 18 }}>
-              Informe seu número de telefone e valide o código. Use o código exibido abaixo (estamos em testes).
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'], fontSize: bodyMdType.fontSize.default, lineHeight: bodyMdType.lineHeight.default, marginBottom: 16, textAlign: 'center' }}>
+                {mode === 'login' ? 'Informe seu número e valide o código exibido (modo de testes).' : 'Informe seu número para criar sua conta e valide o código (modo de testes).'}
             </Text>
 
             {step === 'phone' ? (
@@ -142,7 +154,7 @@ export default function LoginTelefone() {
               </>
             ) : (
               <>
-                <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-extrabold'], marginBottom: 8 }}>
+              <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-extrabold'], marginBottom: 8, textAlign: 'center' }}>
                   Use este código: {generated}
                 </Text>
                 <CodeInput value={code} onChange={setCode} length={4} />
@@ -169,6 +181,19 @@ export default function LoginTelefone() {
             </View>
           </View>
         </View>
+        {/* Rodapé com texto e faixas coloridas */}
+        <View style={{ paddingHorizontal: 24, paddingBottom: 16 }}>
+          <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
+            Para conhecer os termos e políticas de uso do app Mais 60,{' '}
+            <Link href="/(auth)/termos" asChild>
+              <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>clique aqui</Text>
+            </Link>
+            .
+          </Text>
+        </View>
+        <View style={{ height: 2, backgroundColor: '#430593' }} />
+        <View style={{ height: 2, backgroundColor: '#27CC95' }} />
+        <View style={{ height: 2, backgroundColor: '#FB5C3D' }} />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -178,7 +203,38 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 24 },
   logoContainer: { alignItems: 'center', marginTop: 8 },
   formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  formContainer: { width: '100%', maxWidth: 420 },
+  formContainer: {
+    width: '100%',
+    maxWidth: 460,
+    borderRadius: 16,
+    padding: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        // @ts-ignore web-only style
+        boxShadow: '0 8px 24px rgba(0,0,0,0.06)'
+      },
+      default: {},
+    }),
+  },
+  cardLight: {
+    backgroundColor: colors['bg-secondary-light'],
+    borderWidth: 1,
+    borderColor: colors['divider-light'],
+  },
+  cardDark: {
+    backgroundColor: colors['bg-secondary-dark'],
+    borderWidth: 1,
+    borderColor: colors['divider-dark'],
+  },
 });
 
 

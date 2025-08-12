@@ -57,6 +57,13 @@ export default function AuthLayout() {
           title: 'Cadastro por telefone'
         }}
       />
+      <Stack.Screen
+        name="termos"
+        options={{
+          title: 'Termos e Políticas',
+          headerShown: true,
+        }}
+      />
     </Stack>
   );
 } 
