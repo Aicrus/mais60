@@ -525,6 +525,10 @@ export const Input = ({
   };
 
   // Estilo do container do input
+  const labelBaseFontSize = Number(fontSize['label-sm'].size.replace('px', ''));
+  const labelBaseLineHeight = Number(fontSize['label-sm'].lineHeight.replace('px', ''));
+  const labelAndroidLineHeight = labelBaseFontSize + 6; // Dá respiro extra no Android para evitar corte
+
   const containerStyle = StyleSheet.create({
     container: {
       width: '100%',
@@ -565,12 +569,19 @@ export const Input = ({
       textAlignVertical: multiline ? 'top' : 'center',
       // Ajustes específicos para nativo
       ...(Platform.OS !== 'web' ? {
-        includeFontPadding: false, // Remove padding extra no Android
-        // Ajuste de lineHeight para evitar corte no Android
-        lineHeight: Platform.OS === 'android' ? 16 : sharedPlaceholderConfig.lineHeight,
-        // Ajuste sutil para centralizar melhor o texto
-        paddingTop: Number(spacing['3'].replace('px', '')) - 2, // 10px (2px menos)
-        paddingBottom: Number(spacing['3'].replace('px', '')) + 2, // 14px (2px mais)
+        // No Android, habilitar includeFontPadding e aumentar o lineHeight para evitar corte do placeholder
+        includeFontPadding: Platform.OS === 'android' ? true : false,
+        // lineHeight seguro: pelo menos 1.25x do fontSize ou o lineHeight base, o que for maior
+        lineHeight: Platform.OS === 'android' 
+          ? Math.max(Math.round(sharedPlaceholderConfig.fontSize * 1.25), sharedPlaceholderConfig.lineHeight)
+          : sharedPlaceholderConfig.lineHeight,
+        // Desloca o texto um pouco mais para BAIXO no Android
+        paddingTop: Platform.OS === 'android' 
+          ? Number(spacing['3'].replace('px', '')) + 2 
+          : Number(spacing['3'].replace('px', '')) - 1,
+        paddingBottom: Platform.OS === 'android' 
+          ? Number(spacing['3'].replace('px', '')) - 2 
+          : Number(spacing['3'].replace('px', '')) + 1,
       } : {
         // Web mantém configuração padrão
         lineHeight: sharedPlaceholderConfig.lineHeight,
@@ -589,10 +600,13 @@ export const Input = ({
     },
     // Label acima (padrão)
     labelStyle: {
-      fontSize: Number(fontSize['label-sm'].size.replace('px', '')), // 13px
-      lineHeight: Number(fontSize['label-sm'].lineHeight.replace('px', '')), // 17px
+      fontSize: labelBaseFontSize, // 13px
+      lineHeight: Platform.OS === 'android' ? labelAndroidLineHeight : labelBaseLineHeight, // +respiro no Android
       fontFamily: fontFamily['jakarta-semibold'], // Peso 600 - fontWeight: '600'
-      marginBottom: Number(spacing['1.5'].replace('px', '')),
+      marginBottom: Platform.OS === 'android' 
+        ? Number(spacing['2'].replace('px', '')) 
+        : Number(spacing['1.5'].replace('px', '')),
+      ...(Platform.OS === 'android' ? { paddingTop: 1 } : {}),
       color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'], // text-primary-light/dark
     },
     // Label flutuante

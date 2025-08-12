@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, Platform } from 'react-native';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { colors } from '@/design-system/tokens/colors';
 import { Activity, Database, BellRing, ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { Pedometer } from 'expo-sensors';
 import { PageContainer } from '@/components/layout/PageContainer';
 
@@ -13,6 +13,7 @@ export default function PerfilPermissoesScreen() {
   const router = useRouter();
   const { currentTheme, uiColors } = useTheme();
   const isDark = currentTheme === 'dark';
+  const isExpoGo = Constants.appOwnership === 'expo';
   const appBarLabelType = getResponsiveValues('label-md');
   const cardTitleType = getResponsiveValues('subtitle-md');
   const cardBodyType = getResponsiveValues('body-md');
@@ -24,8 +25,13 @@ export default function PerfilPermissoesScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const settings = await Notifications.getPermissionsAsync();
-        setNotifGranted(settings.status === 'granted');
+        if (!(Platform.OS === 'android' && isExpoGo)) {
+          const Notifications = await import('expo-notifications');
+          const settings = await Notifications.getPermissionsAsync();
+          setNotifGranted(settings.status === 'granted');
+        } else {
+          setNotifGranted(false);
+        }
       } catch {}
       try {
         const isAvailable = await Pedometer.isAvailableAsync();
@@ -37,6 +43,11 @@ export default function PerfilPermissoesScreen() {
 
   const requestNotifications = async () => {
     try {
+      if (Platform.OS === 'android' && isExpoGo) {
+        // Em Expo Go no Android, push notifications não são suportadas (SDK 53+)
+        return;
+      }
+      const Notifications = await import('expo-notifications');
       const { status } = await Notifications.requestPermissionsAsync();
       setNotifGranted(status === 'granted');
     } catch {}
@@ -94,8 +105,16 @@ export default function PerfilPermissoesScreen() {
             Autorize o envio de lembretes suaves sobre atividades do app (opcional).
           </Text>
           <View style={{ height: 8 }} />
-          <Pressable onPress={requestNotifications} style={{ height: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#430593' }} accessibilityRole="button" accessibilityLabel="Permitir notificações">
-            <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: cardBtnType.fontSize.default, lineHeight: cardBtnType.lineHeight.default }}>{notifGranted ? 'Permitido' : 'Permitir'}</Text>
+          <Pressable
+            onPress={requestNotifications}
+            disabled={Platform.OS === 'android' && isExpoGo}
+            style={{ height: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: Platform.OS === 'android' && isExpoGo ? uiColors.bgSecondary : '#430593', opacity: Platform.OS === 'android' && isExpoGo ? 0.6 : 1 }}
+            accessibilityRole="button"
+            accessibilityLabel="Permitir notificações"
+          >
+            <Text style={{ color: Platform.OS === 'android' && isExpoGo ? uiColors.textSecondary : '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: cardBtnType.fontSize.default, lineHeight: cardBtnType.lineHeight.default }}>
+              {Platform.OS === 'android' && isExpoGo ? 'Disponível no Dev Build' : (notifGranted ? 'Permitido' : 'Permitir')}
+            </Text>
           </Pressable>
         </View>
 
