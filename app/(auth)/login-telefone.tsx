@@ -128,13 +128,20 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 40}
+        keyboardVerticalOffset={
+          Platform.OS === 'ios'
+            ? insets.top
+            : responsive({ mobile: 30, tablet: 40, desktop: 50, default: 30 })
+        }
       >
         <View style={{ flex: 1 }} className={isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}>
           <ScrollView
             ref={scrollViewRef}
             style={{ flex: 1 }}
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: responsive({ mobile: 60, tablet: 80, desktop: 100, default: 60 })
+            }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
