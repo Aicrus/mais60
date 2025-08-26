@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { View, TextInput, StyleSheet, Text, Platform } from 'react-native';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -8,9 +8,10 @@ type CodeInputProps = {
   length?: number; // default 4
   value: string;
   onChange: (code: string) => void;
+  onFocus?: () => void;
 };
 
-export default function CodeInput({ length = 4, value, onChange }: CodeInputProps) {
+export default function CodeInput({ length = 4, value, onChange, onFocus }: CodeInputProps) {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
   const inputs = useRef<Array<TextInput | null>>([]);
@@ -62,6 +63,9 @@ export default function CodeInput({ length = 4, value, onChange }: CodeInputProp
                   if (idx > 0) inputs.current[idx - 1]?.focus();
                 }
               }
+            }}
+            onFocus={() => {
+              onFocus?.();
             }}
             keyboardType={Platform.OS === 'ios' ? 'number-pad' : 'numeric'}
             returnKeyType="done"

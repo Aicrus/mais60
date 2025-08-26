@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, TouchableWithoutFeedback, Keyboard, Platform, Image, KeyboardAvoidingView } from 'react-native';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Pressable, TouchableWithoutFeedback, Keyboard, Platform, Image, KeyboardAvoidingView, ScrollView } from 'react-native';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -54,6 +54,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   const [resendIn, setResendIn] = useState<number>(0);
   const [timerId, setTimerId] = useState<any>(null);
   const { footerTranslateStyle } = useKeyboardOffset();
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const sendCode = async () => {
     const normalized = normalizePhone(phone);
@@ -124,99 +125,124 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
 
   return (
     <TouchableWithoutFeedback onPress={handlePressOutside}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0}>
-      <View style={{ flex: 1 }} className={isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}>
-        <View style={styles.container}>
-          {/* Logo superior, mesmo tamanho/posição do onboarding */}
-          <View style={styles.logoContainer}>
-            <Image
-              source={isDark
-                ? require('@/assets/images/Logo Mais 60 Branco.png')
-                : require('@/assets/images/Logo Mais 60 Roxo.png')}
-              style={{
-                width: responsive({ mobile: 176, tablet: 208, desktop: 232, default: 176 }),
-                height: responsive({ mobile: 52, tablet: 62, desktop: 70, default: 52 }),
-              }}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-            <View style={{ height: 0 }} />
-          </View>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : 40}
+      >
+        <View style={{ flex: 1 }} className={isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}>
+          <ScrollView
+            ref={scrollViewRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.container}>
+              {/* Logo superior, mesmo tamanho/posição do onboarding */}
+              <View style={styles.logoContainer}>
+                <Image
+                  source={isDark
+                    ? require('@/assets/images/Logo Mais 60 Branco.png')
+                    : require('@/assets/images/Logo Mais 60 Roxo.png')}
+                  style={{
+                    width: responsive({ mobile: 176, tablet: 208, desktop: 232, default: 176 }),
+                    height: responsive({ mobile: 52, tablet: 62, desktop: 70, default: 52 }),
+                  }}
+                  resizeMode="contain"
+                  accessibilityIgnoresInvertColors
+                />
+                <View style={{ height: 0 }} />
+              </View>
 
-          <View style={styles.formWrapper}>
-            <View style={[styles.formContainer, isDark ? styles.cardDark : styles.cardLight]}>
-              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default, marginBottom: 6, textAlign: 'center' }}>
-              {mode === 'login' ? 'Entrar com telefone' : 'Cadastrar com telefone'}
-            </Text>
-              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'], fontSize: bodyMdType.fontSize.default, lineHeight: bodyMdType.lineHeight.default, marginBottom: 16, textAlign: 'center' }}>
-                {mode === 'login' ? 'Informe seu número e valide o código exibido (modo de testes).' : 'Informe seu número para criar sua conta e valide o código (modo de testes).'}
-            </Text>
+              <View style={styles.formWrapper}>
+                <View style={[styles.formContainer, isDark ? styles.cardDark : styles.cardLight]}>
+                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default, marginBottom: 6, textAlign: 'center' }}>
+                  {mode === 'login' ? 'Entrar com telefone' : 'Cadastrar com telefone'}
+                </Text>
+                  <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'], fontSize: bodyMdType.fontSize.default, lineHeight: bodyMdType.lineHeight.default, marginBottom: 16, textAlign: 'center' }}>
+                    {mode === 'login' ? 'Informe seu número e valide o código exibido (modo de testes).' : 'Informe seu número para criar sua conta e valide o código (modo de testes).'}
+                  </Text>
 
-            {step === 'phone' ? (
-              <>
-                <Input label="Telefone" value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="(11) 91234-5678" mask="phone" />
-                <View style={{ height: 12 }} />
-                <Button variant="primary" onPress={sendCode} fullWidth>
-                  Enviar código
-                </Button>
-              </>
-            ) : (
-              <>
-                <View style={styles.codeContainer}>
-                  <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], marginBottom: 6, textAlign: 'center' }}>
-                    Use este código
-                  </Text>
-                  <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: codeType.fontSize.default, lineHeight: codeType.lineHeight.default, letterSpacing: 4, textAlign: 'center' }}>
-                    {generated}
-                  </Text>
-                </View>
-                <View style={{ height: 12 }} />
-                <CodeInput value={code} onChange={setCode} length={4} />
-                <View style={{ height: 12 }} />
-                <Button variant="primary" onPress={confirmCode} fullWidth loading={loading} loadingText="Entrando...">
-                  Confirmar
-                </Button>
-                <View style={{ height: 12 }} />
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Pressable onPress={() => { setStep('phone'); setCode(''); setGenerated(''); setResendIn(0); if (timerId) { clearInterval(timerId); setTimerId(null); } }}>
-                    <Text style={{ color: ui.primary, fontFamily: dsFontFamily['jakarta-semibold'] }}>Alterar telefone</Text>
-                  </Pressable>
-                  {resendIn > 0 ? (
-                    <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Reenviar em {resendIn}s</Text>
+                  {step === 'phone' ? (
+                    <>
+                      <Input label="Telefone" value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="(11) 91234-5678" mask="phone" />
+                      <View style={{ height: 12 }} />
+                      <Button variant="primary" onPress={sendCode} fullWidth>
+                        Enviar código
+                      </Button>
+                    </>
                   ) : (
-                    <Pressable onPress={sendCode}>
-                      <Text style={{ color: ui.primary, fontFamily: dsFontFamily['jakarta-semibold'] }}>Reenviar código</Text>
-                    </Pressable>
+                    <>
+                      <View style={styles.codeContainer}>
+                        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], marginBottom: 6, textAlign: 'center' }}>
+                          Use este código
+                        </Text>
+                        <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: codeType.fontSize.default, lineHeight: codeType.lineHeight.default, letterSpacing: 4, textAlign: 'center' }}>
+                          {generated}
+                        </Text>
+                      </View>
+                      <View style={{ height: 12 }} />
+                      <CodeInput
+                        value={code}
+                        onChange={setCode}
+                        length={4}
+                        onFocus={() => {
+                          // Scroll suave e controlado para mostrar apenas o necessário
+                          setTimeout(() => {
+                            scrollViewRef.current?.scrollTo({
+                              y: 120, // Valor ainda menor para subir menos
+                              animated: true
+                            });
+                          }, 150);
+                        }}
+                      />
+                      <View style={{ height: 12 }} />
+                      <Button variant="primary" onPress={confirmCode} fullWidth loading={loading} loadingText="Entrando...">
+                        Confirmar
+                      </Button>
+                      <View style={{ height: 12 }} />
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Pressable onPress={() => { setStep('phone'); setCode(''); setGenerated(''); setResendIn(0); if (timerId) { clearInterval(timerId); setTimerId(null); } }}>
+                          <Text style={{ color: ui.primary, fontFamily: dsFontFamily['jakarta-semibold'] }}>Alterar telefone</Text>
+                        </Pressable>
+                        {resendIn > 0 ? (
+                          <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'] }}>Reenviar em {resendIn}s</Text>
+                        ) : (
+                          <Pressable onPress={sendCode}>
+                            <Text style={{ color: ui.primary, fontFamily: dsFontFamily['jakarta-semibold'] }}>Reenviar código</Text>
+                          </Pressable>
+                        )}
+                      </View>
+                    </>
                   )}
-                </View>
-              </>
-            )}
 
+                </View>
+              </View>
             </View>
+          </ScrollView>
+          {/* Rodapé fixo: no Android, desloca para baixo quando teclado aparece */}
+          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 10), ...(footerTranslateStyle || {}) }}>
+            <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
+              <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
+                Para conhecer os{' '}
+                <Link href="/sobre/termos-de-uso" asChild>
+                  <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>termos de uso</Text>
+                </Link>
+                {' '}e a{' '}
+                <Link href="/sobre/politica-de-privacidade" asChild>
+                  <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>política de privacidade</Text>
+                </Link>
+                {' '}do app Mais 60.
+              </Text>
+            </View>
+            <View style={{ height: 6, backgroundColor: '#430593' }} />
+            <View style={{ height: 2 }} />
+            <View style={{ height: 6, backgroundColor: '#27CC95' }} />
+            <View style={{ height: 2 }} />
+            <View style={{ height: 6, backgroundColor: '#FB5C3D' }} />
           </View>
         </View>
-        {/* Rodapé fixo: no Android, desloca para baixo quando teclado aparece */}
-        <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 10), ...(footerTranslateStyle || {}) }}>
-          <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
-            <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
-              Para conhecer os{' '}
-              <Link href="/sobre/termos-de-uso" asChild>
-                <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>termos de uso</Text>
-              </Link>
-              {' '}e a{' '}
-              <Link href="/sobre/politica-de-privacidade" asChild>
-                <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>política de privacidade</Text>
-              </Link>
-              {' '}do app Mais 60.
-            </Text>
-          </View>
-          <View style={{ height: 6, backgroundColor: '#430593' }} />
-          <View style={{ height: 2 }} />
-          <View style={{ height: 6, backgroundColor: '#27CC95' }} />
-          <View style={{ height: 2 }} />
-          <View style={{ height: 6, backgroundColor: '#FB5C3D' }} />
-        </View>
-      </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -224,8 +250,8 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24 },
-  logoContainer: { alignItems: 'center', marginTop: 48 },
-  formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: -45 },
+  logoContainer: { alignItems: 'center', marginTop: 48, marginBottom: 24 },
+  formWrapper: { flex: 1, alignItems: 'center', justifyContent: 'flex-start', paddingTop: 20 },
   formContainer: {
     width: '100%',
     maxWidth: 460,
