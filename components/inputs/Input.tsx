@@ -698,17 +698,35 @@ export const Input = ({
         return text;
         
       case 'phone':
-        // Remove caracteres não numéricos
-        text = text.replace(/\D/g, '');
-        // Aplica máscara de telefone: (00) 00000-0000 ou (00) 0000-0000
-        if (text.length > 10) {
-          // Celular: (00) 00000-0000
-          text = text.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        // Estratégia: trabalhar apenas com dígitos e aplicar formatação visual simples
+        const digits = text.replace(/\D/g, '');
+
+        // Se não há dígitos, retorna vazio
+        if (digits.length === 0) return '';
+
+        // Limita a 11 dígitos (DDD + 9 números) - máximo do Brasil
+        const cleanDigits = digits.substring(0, 11);
+
+        // Aplica formatação baseada na quantidade de dígitos
+        if (cleanDigits.length <= 2) {
+          // Apenas DDD ou início
+          return cleanDigits.length === 1 ? `(${cleanDigits}` : `(${cleanDigits})`;
+        } else if (cleanDigits.length <= 6) {
+          // DDD + até 4 dígitos
+          return `(${cleanDigits.substring(0, 2)}) ${cleanDigits.substring(2)}`;
         } else {
-          // Fixo: (00) 0000-0000
-          text = text.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+          // DDD + 5 dígitos + hífen + até 4 dígitos
+          const ddd = cleanDigits.substring(0, 2);
+          const first5 = cleanDigits.substring(2, 7);
+          const lastDigits = cleanDigits.substring(7);
+
+          let result = `(${ddd}) ${first5}`;
+          if (lastDigits.length > 0) {
+            result += `-${lastDigits}`;
+          }
+
+          return result;
         }
-        return text.substring(0, 15);
         
         
       case 'cep':
