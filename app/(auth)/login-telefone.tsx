@@ -188,10 +188,16 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
                         onChange={setCode}
                         length={4}
                         onFocus={() => {
-                          // Scroll suave e controlado para mostrar apenas o necessário
+                          // Scroll responsivo baseado na altura da tela
                           setTimeout(() => {
+                            const scrollDistance = responsive({
+                              mobile: 100,
+                              tablet: 120,
+                              desktop: 140,
+                              default: 100
+                            });
                             scrollViewRef.current?.scrollTo({
-                              y: 120, // Valor ainda menor para subir menos
+                              y: scrollDistance,
                               animated: true
                             });
                           }, 150);
