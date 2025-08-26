@@ -54,5 +54,3 @@ Vou explicar cada tarefa e seus itens de forma organizada para você:
 **Tarefa: Resolver problemas técnicos**
 
 • **Corrigir sistema de upload** - Especialmente para fotos do perfil que não estavam atualizando
-
-Agora você pode ir me dizendo quais dessas tarefas já foram concluídas!No celular, quando eu tô acessando o aplicativo e aí eu clico em uma das quatro caixinhas para digitar o código aparece o teclado e aí o que acontece? O container onde tem o texto entrar com o telefone onde tem um botão o container principal do meio ele acaba ficando em cima da logo, né? Então fica uma experiência estranha. Como que a gente pode melhorar isso?
