@@ -151,6 +151,23 @@ export default function UsoScreen() {
     tint: colors['brand-purple'],
   }), [uiColors]);
 
+  // Verificar permissões ao abrir a tela
+  useEffect(() => {
+    const checkPermsAndShowModal = async () => {
+      await checkPermissions(setPermissions);
+
+      // Pequeno delay antes de mostrar o modal para melhor UX
+      setTimeout(() => {
+        // Mostrar modal apenas se alguma permissão não foi concedida
+        if (permissions.notifications.granted === false || permissions.motion.available === false) {
+          setShowPermModal(true);
+        }
+      }, 1000);
+    };
+
+    checkPermsAndShowModal();
+  }, []);
+
   const palette = useMemo(() => [
     colors['brand-purple'],
     '#892CDC',
