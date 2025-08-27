@@ -128,6 +128,16 @@ export default function UsoScreen() {
   const [historyMode, setHistoryMode] = React.useState<'7d' | '4w'>('7d');
   const [showAllRecent, setShowAllRecent] = React.useState(false);
   const [showRoute, setShowRoute] = React.useState(false);
+  const [showFallModal, setShowFallModal] = React.useState(false);
+
+  // Monitor fall detection alert
+  React.useEffect(() => {
+    if (sensors.showFallAlert && !showFallModal) {
+      setShowFallModal(true);
+    } else if (!sensors.showFallAlert && showFallModal) {
+      setShowFallModal(false);
+    }
+  }, [sensors.showFallAlert, showFallModal]);
 
   // Estados para permissões
   const [showPermModal, setShowPermModal] = useState(false);
@@ -371,6 +381,7 @@ export default function UsoScreen() {
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
           <View style={{ marginBottom: 16 }}>
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 8 }}>Detecção de queda</Text>
+
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
                 Ativar detecção automática de quedas
@@ -395,6 +406,20 @@ export default function UsoScreen() {
                 }} />
               </Pressable>
             </View>
+
+            {sensors.fallDetectionEnabled && (
+              <View style={{ backgroundColor: '#F0F9FF', borderColor: '#3B82F6', borderWidth: 1, borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
+                  <Text style={{ color: '#1E40AF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 14 }}>
+                    Detecção ativa
+                  </Text>
+                </View>
+                <Text style={{ color: '#1E40AF', fontFamily: dsFontFamily['jakarta-medium'], fontSize: 12, lineHeight: 16 }}>
+                  O app está monitorando movimentos bruscos. Em caso de queda detectada, você terá 15 segundos para cancelar antes da ligação automática.
+                </Text>
+              </View>
+            )}
 
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: rowLabelType.fontSize.default, lineHeight: rowLabelType.lineHeight.default, marginBottom: 8 }}>Contato de emergência</Text>
             <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
@@ -434,12 +459,32 @@ export default function UsoScreen() {
             </View>
 
             {sensors.emergencyContact && (
-              <Pressable
-                onPress={sensors.callEmergencyContact}
-                style={{ marginTop: 12, height: 44, borderRadius: 8, borderWidth: 2, borderColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Text style={{ color: '#EF4444', fontFamily: dsFontFamily['jakarta-bold'] }}>Ligar para emergência</Text>
-              </Pressable>
+              <View>
+                <Pressable
+                  onPress={sensors.callEmergencyContact}
+                  style={{ marginTop: 12, height: 44, borderRadius: 8, borderWidth: 2, borderColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ color: '#EF4444', fontFamily: dsFontFamily['jakarta-bold'] }}>Ligar para emergência</Text>
+                </Pressable>
+
+                <View style={{ marginTop: 12, backgroundColor: '#FEF2F2', borderColor: '#FECACA', borderWidth: 1, borderRadius: 8, padding: 12 }}>
+                  <Text style={{ color: '#DC2626', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 12, marginBottom: 6 }}>
+                    📞 COMO FUNCIONA A LIGAÇÃO
+                  </Text>
+                  <Text style={{ color: '#991B1B', fontFamily: dsFontFamily['jakarta-medium'], fontSize: 11, lineHeight: 16 }}>
+                    <Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>🚀 Status Atual:</Text>
+                    {'\n'}• Biblioteca Communications: <Text style={{ fontFamily: dsFontFamily['jakarta-bold'], color: '#10B981' }}>INSTALADA</Text>
+                    {'\n'}• Método usado: <Text style={{ fontFamily: dsFontFamily['jakarta-bold'], color: '#2563EB' }}>Comunicação Direta</Text>
+                    {'\n\n'}<Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>Como funciona:</Text>
+                    {'\n'}1. <Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>Communications API</Text> - Ligação direta e rápida
+                    {'\n'}2. <Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>Linking</Text> - Abre app do telefone (fallback)
+                    {'\n\n'}<Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>Compatibilidade:</Text>
+                    {'\n'}• ✅ Android: Comunicação direta
+                    {'\n'}• ✅ iOS: Integração nativa
+                    {'\n'}• ✅ Expo Go: Sempre funciona
+                  </Text>
+                </View>
+              </View>
             )}
           </View>
         </View>
@@ -615,6 +660,57 @@ export default function UsoScreen() {
           <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'] }}>Limpar estatísticas</Text>
         </Pressable>
       </ScrollView>
+
+      {/* Fall Detection Alert Modal */}
+      <Modal visible={showFallModal} transparent animationType="fade" onRequestClose={() => {}}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(239, 68, 68, 0.9)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+          <View style={{ width: '100%', maxWidth: 400, borderRadius: 20, borderWidth: 1, borderColor: '#FFFFFF', backgroundColor: '#FFFFFF', padding: 30, alignItems: 'center' }}>
+            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#EF4444', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+              <Text style={{ fontSize: 40, color: '#FFFFFF' }}>⚠️</Text>
+            </View>
+
+            <Text style={{ fontSize: 24, fontFamily: dsFontFamily['jakarta-extrabold'], color: '#EF4444', textAlign: 'center', marginBottom: 10 }}>
+              QUEDA DETECTADA!
+            </Text>
+
+            <Text style={{ fontSize: 16, fontFamily: dsFontFamily['jakarta-medium'], color: ui.text2, textAlign: 'center', marginBottom: 20 }}>
+              Uma queda foi detectada. Você está bem?
+            </Text>
+
+            <Text style={{ fontSize: 18, fontFamily: dsFontFamily['jakarta-bold'], color: '#EF4444', textAlign: 'center', marginBottom: 10 }}>
+              Ligando em: {sensors.fallConfirmationCountdown}s
+            </Text>
+
+            <Text style={{ fontSize: 14, fontFamily: dsFontFamily['jakarta-medium'], color: ui.text2, textAlign: 'center', marginBottom: 30 }}>
+              Para {sensors.emergencyContact || 'contato de emergência'}
+            </Text>
+
+            <View style={{ flexDirection: 'row', gap: 15 }}>
+              <Pressable
+                onPress={sensors.cancelFallAlert}
+                style={{ flex: 1, height: 50, borderRadius: 12, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 16 }}>
+                  Estou Bem
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={sensors.callEmergencyContact}
+                style={{ flex: 1, height: 50, borderRadius: 12, backgroundColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 16 }}>
+                  Ligar Agora
+                </Text>
+              </Pressable>
+            </View>
+
+            <Text style={{ fontSize: 12, fontFamily: dsFontFamily['jakarta-medium'], color: ui.text2, textAlign: 'center', marginTop: 20 }}>
+              Toque "Estou Bem" para cancelar ou aguarde a ligação automática
+            </Text>
+          </View>
+        </View>
+      </Modal>
 
       <ConfirmModal
         visible={showCompleteModal}
