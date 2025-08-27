@@ -8,7 +8,7 @@ import { Stack, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, memo, useRef } from 'react';
-import { ActivityIndicator, Platform, View, StatusBar } from 'react-native';
+import { ActivityIndicator, Platform, View, StatusBar, Modal, Text, Pressable, Alert } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { OrientationManager } from '@/lib/orientation';
 import 'react-native-reanimated';
@@ -31,6 +31,7 @@ import { FavoritesProvider } from '@/contexts/favorites';
 import { UsageProvider } from '@/contexts/usage';
 import { SensorsProvider } from '@/contexts/sensors';
 import { LocationProvider } from '@/contexts/location';
+import FallAlertModal from '@/components/modals/FallAlertModal';
 
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -57,6 +58,8 @@ const LoadingScreen = memo(function LoadingScreen() {
 
 // Cria um contexto para o Helmet
 const helmetContext = {};
+
+
 
 export default function RootLayout() {
   // 🎯 CARREGAMENTO DINÂMICO - baseado na configuração central!
@@ -167,7 +170,7 @@ export default function RootLayout() {
   );
 }
 
-// Memoize o componente principal 
+// Memoize o componente principal
 const RootLayoutNav = memo(function RootLayoutNav() {
   const { currentTheme } = useTheme();
   const { isLoading, isInitialized, session } = useAuth();
@@ -269,6 +272,9 @@ const RootLayoutNav = memo(function RootLayoutNav() {
             }}
           />
         </Stack>
+
+        {/* Modal Global de Alerta de Queda - Aparece sobre qualquer tela */}
+        <FallAlertModal />
       </View>
     </NavigationThemeProvider>
   );

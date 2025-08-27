@@ -128,19 +128,12 @@ export default function UsoScreen() {
   const [historyMode, setHistoryMode] = React.useState<'7d' | '4w'>('7d');
   const [showAllRecent, setShowAllRecent] = React.useState(false);
   const [showRoute, setShowRoute] = React.useState(false);
-  const [showFallModal, setShowFallModal] = React.useState(false);
+
   const [showEmergencyContactModal, setShowEmergencyContactModal] = React.useState(false);
   const [emergencyPhoneInput, setEmergencyPhoneInput] = React.useState('');
   const [isLoadingEmergencyContact, setIsLoadingEmergencyContact] = React.useState(false);
 
-  // Monitor fall detection alert
-  React.useEffect(() => {
-    if (sensors.showFallAlert && !showFallModal) {
-      setShowFallModal(true);
-    } else if (!sensors.showFallAlert && showFallModal) {
-      setShowFallModal(false);
-    }
-  }, [sensors.showFallAlert, showFallModal]);
+
 
   // Funções para contato de emergência
   const loadEmergencyContact = async () => {
@@ -727,56 +720,7 @@ export default function UsoScreen() {
         </Pressable>
       </ScrollView>
 
-      {/* Fall Detection Alert Modal */}
-      <Modal visible={showFallModal} transparent animationType="fade" onRequestClose={() => {}}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(239, 68, 68, 0.9)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-          <View style={{ width: '100%', maxWidth: 400, borderRadius: 20, borderWidth: 1, borderColor: '#FFFFFF', backgroundColor: '#FFFFFF', padding: 30, alignItems: 'center' }}>
-            <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: '#EF4444', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 40, color: '#FFFFFF' }}>⚠️</Text>
-            </View>
 
-            <Text style={{ fontSize: 24, fontFamily: dsFontFamily['jakarta-extrabold'], color: '#EF4444', textAlign: 'center', marginBottom: 10 }}>
-              QUEDA DETECTADA!
-            </Text>
-
-            <Text style={{ fontSize: 16, fontFamily: dsFontFamily['jakarta-medium'], color: ui.text2, textAlign: 'center', marginBottom: 20 }}>
-              Uma queda foi detectada. Você está bem?
-            </Text>
-
-            <Text style={{ fontSize: 16, fontFamily: dsFontFamily['jakarta-medium'], color: '#EF4444', textAlign: 'center', marginBottom: 10 }}>
-              Ligando para emergência em 3 segundos...
-            </Text>
-
-            <Text style={{ fontSize: 14, fontFamily: dsFontFamily['jakarta-medium'], color: ui.text2, textAlign: 'center', marginBottom: 30 }}>
-              Para {sensors.emergencyContact || 'contato de emergência'}
-            </Text>
-
-            <View style={{ flexDirection: 'row', gap: 15 }}>
-              <Pressable
-                onPress={sensors.cancelFallAlert}
-                style={{ flex: 1, height: 50, borderRadius: 12, backgroundColor: '#10B981', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 16 }}>
-                  Estou Bem
-                </Text>
-              </Pressable>
-
-              <Pressable
-                onPress={sensors.callEmergencyContact}
-                style={{ flex: 1, height: 50, borderRadius: 12, backgroundColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 16 }}>
-                  Ligar Agora
-                </Text>
-              </Pressable>
-            </View>
-
-            <Text style={{ fontSize: 12, fontFamily: dsFontFamily['jakarta-medium'], color: ui.text2, textAlign: 'center', marginTop: 20 }}>
-              Toque "Estou Bem" para cancelar ou aguarde a ligação automática
-            </Text>
-          </View>
-        </View>
-      </Modal>
 
       {/* Emergency Contact Modal */}
       <Modal visible={showEmergencyContactModal} transparent animationType="fade" onRequestClose={() => setShowEmergencyContactModal(false)}>

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState, useRef } from 'react';
 import { Platform, Linking, Alert, Clipboard } from 'react-native';
 import { Pedometer } from 'expo-sensors';
 import { Accelerometer } from 'expo-sensors';
@@ -54,8 +54,12 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
   const [emergencyContact, setEmergencyContact] = useState<string | null>(null);
   const [lastAccelValues, setLastAccelValues] = useState<number[]>([]);
   const [fallDetected, setFallDetected] = useState<boolean>(false);
-
   const [showFallAlert, setShowFallAlert] = useState<boolean>(false);
+
+  // Fall detection internal state
+  const highImpactDetectedRef = useRef<boolean>(false);
+  const stillnessStartTimeRef = useRef<number>(0);
+  const monitoringStartTimeRef = useRef<number>(0);
 
   // Pedometer
   useEffect(() => {
@@ -159,9 +163,6 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
 
     let accelSubscription: any = null;
     let fallDetectionBuffer: number[] = [];
-    let highImpactDetected = false;
-    let stillnessStartTime = 0;
-    let monitoringStartTime = 0;
 
     try {
       Accelerometer.setUpdateInterval(200); // Faster updates for quicker detection
@@ -181,43 +182,43 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
         const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
 
         // Detect high impact (sudden spike) - simplified threshold
-        if (!highImpactDetected && recentAvg > 2.5) {
-          highImpactDetected = true;
-          stillnessStartTime = Date.now();
-          monitoringStartTime = stillnessStartTime + 500; // Start monitoring after 0.5s
-          console.log('🚨 IMPACTO DETECTADO:', recentAvg.toFixed(2));
+        if (!highImpactDetectedRef.current && recentAvg > 2.5) {
+          highImpactDetectedRef.current = true;
+          stillnessStartTimeRef.current = Date.now();
+          monitoringStartTimeRef.current = stillnessStartTimeRef.current + 500; // Start monitoring after 0.5s
+          console.log('🚨 Queda detectada - modal aberto');
         }
 
         // If high impact detected, monitor for stillness
-        if (highImpactDetected) {
+        if (highImpactDetectedRef.current) {
           const currentTime = Date.now();
 
           // Start monitoring after brief delay
-          if (currentTime >= monitoringStartTime && monitoringStartTime > 0) {
-            const monitoringTime = Math.round((currentTime - monitoringStartTime) / 1000);
+          if (currentTime >= monitoringStartTimeRef.current && monitoringStartTimeRef.current > 0) {
+            const monitoringTime = Math.round((currentTime - monitoringStartTimeRef.current) / 1000);
 
             // Check for stillness (magnitude below 2.5 during monitoring)
             if (recentAvg < 2.5) {
               // If still for 2+ seconds, confirm fall
               if (monitoringTime >= 2 && !fallDetected) {
-                console.log('✅ QUEDA CONFIRMADA! Ligando para emergência...');
+                console.log('✅ Ligação de emergência acionada');
                 setFallDetected(true);
                 setShowFallAlert(true);
                 handleFallDetected();
               }
             } else if (recentAvg > 4.0) {
               // Only reset if movement is very high (indicates normal activity)
-              highImpactDetected = false;
-              stillnessStartTime = 0;
-              monitoringStartTime = 0;
+              highImpactDetectedRef.current = false;
+              stillnessStartTimeRef.current = 0;
+              monitoringStartTimeRef.current = 0;
             }
           }
 
           // Reset everything after 8 seconds total
-          if (currentTime - stillnessStartTime > 8000) {
-            highImpactDetected = false;
-            stillnessStartTime = 0;
-            monitoringStartTime = 0;
+          if (currentTime - stillnessStartTimeRef.current > 8000) {
+            highImpactDetectedRef.current = false;
+            stillnessStartTimeRef.current = 0;
+            monitoringStartTimeRef.current = 0;
           }
         }
       });
@@ -230,37 +231,36 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     };
   }, [fallDetectionEnabled, fallDetected, showFallAlert]);
 
-  // Handle fall detection - simplified
+  // Handle fall detection - improved
   const handleFallDetected = () => {
-    console.log('🚨 ALERTA DE QUEDA! Iniciando ligação em 3 segundos...');
+    console.log('🚨 Modal de emergência exibido');
     showToast({
       type: 'error',
       message: 'Queda detectada!',
-      description: 'Ligando para emergência em 3 segundos...',
+      description: 'Modal de emergência aberto',
       position: Platform.OS === 'web' ? 'bottom-right' : 'top',
-      duration: 3000,
+      duration: 5000,
       closable: true,
     });
 
-    // Simple 3-second delay before calling
-    setTimeout(() => {
-      if (emergencyContact && showFallAlert) {
-        console.log('📞 Executando ligação de emergência...');
-        callEmergencyContact();
-      }
-      setShowFallAlert(false);
-      setFallDetected(false);
-    }, 3000);
+    // Remove automatic calling - let user decide via modal
+    // The modal will handle the call after user interaction
   };
 
   // Cancel fall alert
   const cancelFallAlert = () => {
+    console.log('🚫 Alerta de queda cancelado pelo usuário');
     setShowFallAlert(false);
     setFallDetected(false);
+    // Reset all fall detection states
+    highImpactDetectedRef.current = false;
+    stillnessStartTimeRef.current = 0;
+    monitoringStartTimeRef.current = 0;
+
     showToast({
       type: 'success',
       message: 'Alerta cancelado',
-      description: 'A ligação de emergência foi cancelada.',
+      description: 'Tudo está bem - alerta de emergência cancelado.',
       position: Platform.OS === 'web' ? 'bottom-right' : 'top',
       duration: 3000,
       closable: true,
@@ -333,6 +333,17 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
 
   const makeEmergencyCall = async () => {
     try {
+      console.log('📞 Iniciando ligação de emergência...');
+
+      // Fechar modal imediatamente
+      setShowFallAlert(false);
+      setFallDetected(false);
+
+      // Reset all fall detection states
+      highImpactDetectedRef.current = false;
+      stillnessStartTimeRef.current = 0;
+      monitoringStartTimeRef.current = 0;
+
       // Verificar se emergencyContact existe
       if (!emergencyContact) {
         throw new Error('Contato de emergência não configurado');
@@ -347,9 +358,7 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      console.log('Iniciando ligação para:', phoneNumber);
-      console.log('Plataforma:', Platform.OS);
-      console.log('Contato original:', emergencyContact);
+      console.log('📞 Ligando para:', phoneNumber, '- Ambiente:', Constants.appOwnership);
 
       // Mostrar feedback visual antes da ligação
       showToast({
@@ -363,17 +372,15 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
 
       // Criar URL de ligação
       const url = `tel:${phoneNumber}`;
-      console.log('URL:', url);
 
       // Verificar se o dispositivo suporta ligações
       const supported = await Linking.canOpenURL(url);
-      console.log('Suportado:', supported);
+      console.log('📞 Suporte a ligações:', supported);
 
       if (supported) {
-        console.log('Abrindo ligação...');
-
         // Abrir ligação diretamente
         await Linking.openURL(url);
+        console.log('✅ Ligação aberta com sucesso');
 
         // Feedback de sucesso
         setTimeout(() => {
@@ -388,12 +395,20 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
         }, 2000);
 
       } else {
+        console.log('❌ Dispositivo não suporta ligações diretas');
         // Se não suporta ligações, mostrar alternativas
         await showAlternativeContactOptions(phoneNumber);
       }
 
     } catch (error) {
-      console.error('Erro na ligação:', error);
+      console.error('❌ Erro na ligação:', error);
+      // Reset states even on error
+      setShowFallAlert(false);
+      setFallDetected(false);
+      highImpactDetectedRef.current = false;
+      stillnessStartTimeRef.current = 0;
+      monitoringStartTimeRef.current = 0;
+
       await showAlternativeContactOptions(null);
     }
   };
@@ -417,50 +432,32 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
 
   const showAlternativeContactOptions = async (phoneNumber: string | null) => {
     const isExpoGo = Constants.appOwnership === 'expo';
-    const isDevelopment = __DEV__;
 
     let message = '';
     let actions: any[] = [];
 
     if (isExpoGo) {
-      if (isDevelopment) {
-        message = `Ambiente de Desenvolvimento:\n\nPara testar ligações no Expo Go:\n\n1. Copie o número abaixo\n2. Abra o app Telefone do seu dispositivo\n3. Cole o número e ligue manualmente\n\nPara produção: use um build nativo para ligações diretas.`;
+      message = `📱 Expo Go - Limitação de Segurança:\n\nO Expo Go não pode fazer ligações diretas, mas você pode:\n\n1. Copiar o número\n2. Abrir o app Telefone\n3. Colar e ligar manualmente\n\nNúmero: ${phoneNumber || 'não disponível'}`;
 
-        actions = [
-          {
-            text: 'Copiar número',
-            onPress: () => {
-              if (phoneNumber) {
-                copyToClipboard(phoneNumber);
-              }
+      actions = [
+        {
+          text: '📋 Copiar Número',
+          onPress: () => {
+            if (phoneNumber) {
+              copyToClipboard(phoneNumber);
             }
-          },
-          {
-            text: 'Ver instruções',
-            onPress: () => {
-              Alert.alert(
-                'Como testar ligações',
-                `Para testar ligações de emergência:\n\n1. Copie o número: ${phoneNumber}\n2. Abra o app Telefone\n3. Cole e ligue\n\nOu use um build de desenvolvimento fora do Expo Go.`
-              );
-            }
-          },
-          { text: 'Entendi', style: 'cancel' }
-        ];
-      } else {
-        message = `Expo Go não suporta ligações diretas.\n\nPara ligar:\n• Copie o número abaixo\n• Ligue manualmente`;
-
-        actions = [
-          {
-            text: 'Copiar número',
-            onPress: () => {
-              if (phoneNumber) {
-                copyToClipboard(phoneNumber);
-              }
-            }
-          },
-          { text: 'OK', style: 'cancel' }
-        ];
-      }
+          }
+        },
+        {
+          text: '📱 Abrir Telefone',
+          onPress: () => {
+            Linking.openURL('tel:').catch(() => {
+              Alert.alert('Atenção', 'Abra manualmente o app Telefone do seu dispositivo.');
+            });
+          }
+        },
+        { text: 'OK', style: 'cancel' }
+      ];
     } else {
       message = `Este dispositivo não suporta ligações telefônicas diretamente.\n\nPara ligar:\n• Copie o número abaixo\n• Abra o app Telefone\n• Ligue manualmente\n\nNúmero: ${phoneNumber || 'não disponível'}`;
 
