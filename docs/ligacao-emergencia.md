@@ -1,5 +1,13 @@
 # 📞 Sistema de Ligação de Emergência
 
+## Configuração do Banco de Dados
+
+### Migração do Supabase
+
+A migração já foi executada com sucesso! ✅
+
+Foi adicionada a coluna `emergency_contact` à tabela `usuarios` existente no Supabase. Esta coluna armazena o número de telefone para emergências de cada usuário.
+
 ## Como Funciona a Ligação
 
 O sistema de detecção de queda utiliza múltiplas abordagens para fazer ligações telefônicas, garantindo compatibilidade máxima entre plataformas.

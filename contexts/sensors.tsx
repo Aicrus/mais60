@@ -140,14 +140,12 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [batteryLevel, batteryWarned, showToast]);
 
-  // Load fall detection settings
+  // Load fall detection settings (only enabled/disabled state from AsyncStorage)
   useEffect(() => {
     (async () => {
       try {
         const enabled = await AsyncStorage.getItem('@fall_detection_enabled');
-        const contact = await AsyncStorage.getItem('@emergency_contact');
         setFallDetectionEnabled(enabled === 'true');
-        if (contact) setEmergencyContact(contact);
       } catch {}
     })();
   }, []);
@@ -288,7 +286,6 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      await AsyncStorage.setItem('@emergency_contact', contact);
       setEmergencyContact(contact);
 
       showToast({
