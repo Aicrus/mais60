@@ -79,9 +79,7 @@ export default function PerfilScreen() {
   const [profileName, setProfileName] = useState<string>('');
   const [profileEmail, setProfileEmail] = useState<string>('');
   const [profileAvatar, setProfileAvatar] = useState<string>('');
-  const [telefone, setTelefone] = useState<string>('');
-  const [genero, setGenero] = useState<string>('');
-  const [idade, setIdade] = useState<number | null>(null);
+
   const [needsCompletion, setNeedsCompletion] = useState<boolean>(false);
   const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
 
@@ -103,7 +101,7 @@ export default function PerfilScreen() {
         if (userId) {
           const { data, error } = await supabase
             .from('usuarios')
-            .select('nome, email, imagem_url, perfil_concluido, telefone, genero, idade')
+            .select('nome, email, imagem_url, perfil_concluido')
             .eq('id', userId)
             .maybeSingle();
           if (!mounted) return;
@@ -111,9 +109,7 @@ export default function PerfilScreen() {
             setProfileName(data.nome || nameFromAuth || 'Usuário');
             setProfileEmail(data.email || emailFromAuth);
             setProfileAvatar(data.imagem_url || avatarFromAuth || '');
-            setTelefone(data.telefone || '');
-            setGenero(data.genero || '');
-            setIdade(data.idade || null);
+
             const nomeOk = !!(data.nome && data.nome.trim().length >= 3);
             const emailOk = !!(data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
             const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
@@ -154,7 +150,7 @@ export default function PerfilScreen() {
           if (!userId) return;
           const { data, error } = await supabase
             .from('usuarios')
-            .select('nome, email, imagem_url, perfil_concluido, telefone, genero, idade')
+            .select('nome, email, imagem_url, perfil_concluido')
             .eq('id', userId)
             .maybeSingle();
           if (!isActive) return;
@@ -164,9 +160,7 @@ export default function PerfilScreen() {
             const url = data.imagem_url || avatarFromAuth || '';
             // força refresh do cache da imagem
             setProfileAvatar(url ? `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}` : url);
-            setTelefone(data.telefone || '');
-            setGenero(data.genero || '');
-            setIdade(data.idade || null);
+
             const nomeOk = !!(data.nome && data.nome.trim().length >= 3);
             const emailOk = !!(data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
             const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
@@ -228,48 +222,7 @@ export default function PerfilScreen() {
         </Pressable>
       </View>
 
-      {/* Informações adicionais */}
-      <Text
-        accessibilityRole="header"
-        style={{
-          marginTop: 16,
-          marginBottom: 8,
-          paddingHorizontal: 4,
-          color: ui.textSecondary,
-          fontFamily: sectionType.fontFamily,
-          fontSize: sectionType.fontSize.default,
-          lineHeight: sectionType.lineHeight.default,
-        }}
-      >
-        Informações pessoais
-      </Text>
-      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
-        {telefone && (
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: ui.textSecondary }]}>Telefone:</Text>
-            <Text style={[styles.infoValue, { color: ui.textPrimary }]}>{telefone}</Text>
-          </View>
-        )}
-        {genero && telefone && <View style={[styles.separator, { backgroundColor: ui.divider }]} />}
-        {genero && (
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: ui.textSecondary }]}>Gênero:</Text>
-            <Text style={[styles.infoValue, { color: ui.textPrimary }]}>
-              {genero === 'masculino' ? 'Masculino' :
-               genero === 'feminino' ? 'Feminino' :
-               genero === 'outro' ? 'Outro' :
-               genero === 'nao_informar' ? 'Prefiro não informar' : genero}
-            </Text>
-          </View>
-        )}
-        {idade && (telefone || genero) && <View style={[styles.separator, { backgroundColor: ui.divider }]} />}
-        {idade && (
-          <View style={styles.infoRow}>
-            <Text style={[styles.infoLabel, { color: ui.textSecondary }]}>Idade:</Text>
-            <Text style={[styles.infoValue, { color: ui.textPrimary }]}>{idade} anos</Text>
-          </View>
-        )}
-      </View>
+
 
         {/* Removido bloco de Inventário (não faz sentido no PRD) */}
 
@@ -476,26 +429,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
-  },
-  infoLabel: {
-    fontFamily: dsFontFamily['jakarta-medium'],
-    fontSize: getResponsiveValues('body-md').fontSize.default,
-    lineHeight: getResponsiveValues('body-md').lineHeight.default,
-    flex: 1,
-  },
-  infoValue: {
-    fontFamily: dsFontFamily['jakarta-semibold'],
-    fontSize: getResponsiveValues('body-md').fontSize.default,
-    lineHeight: getResponsiveValues('body-md').lineHeight.default,
-    flex: 2,
-    textAlign: 'right',
-  },
+
   editButtonText: {
     color: '#FFFFFF',
     fontFamily: dsFontFamily['jakarta-semibold'],

@@ -22,37 +22,63 @@ export default function PerfilPermissoesScreen() {
   const appBarLabelType = getResponsiveValues('label-md');
 
   const [permissions, setPermissions] = useState({
-    notifications: { granted: null as boolean | null, loading: false },
-    motion: { available: null as boolean | null, loading: false },
+    notifications: { granted: null as boolean | null, loading: true },
+    motion: { available: null as boolean | null, loading: true },
     location: { granted: null as boolean | null, loading: false },
     health: { granted: null as boolean | null, loading: false }
   });
 
   useEffect(() => {
-    checkPermissions();
+    // Pequeno delay para garantir que o componente esteja totalmente montado
+    const timer = setTimeout(() => {
+      checkPermissions();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const checkPermissions = async () => {
-    // Verificar notificações
     try {
-      if (!(Platform.OS === 'android' && isExpoGo)) {
-        const Notifications = await import('expo-notifications');
-        const settings = await Notifications.getPermissionsAsync();
+      // Verificar notificações
+      if (Platform.OS === 'android' && isExpoGo) {
+        // No Expo Go para Android, notificações não são suportadas
         setPermissions(prev => ({
           ...prev,
-          notifications: { granted: settings.status === 'granted', loading: false }
+          notifications: { granted: false, loading: false }
         }));
+      } else {
+        try {
+          const Notifications = await import('expo-notifications');
+          const settings = await Notifications.getPermissionsAsync();
+          setPermissions(prev => ({
+            ...prev,
+            notifications: { granted: settings.status === 'granted', loading: false }
+          }));
+        } catch (error) {
+          console.warn('Erro ao verificar notificações:', error);
+          setPermissions(prev => ({
+            ...prev,
+            notifications: { granted: false, loading: false }
+          }));
+        }
       }
-    } catch {}
+    } catch (error) {
+      console.warn('Erro geral ao verificar permissões:', error);
+      setPermissions(prev => ({
+        ...prev,
+        notifications: { granted: false, loading: false }
+      }));
+    }
 
-    // Verificar sensores de movimento
     try {
+      // Verificar sensores de movimento
       const isAvailable = await Pedometer.isAvailableAsync();
       setPermissions(prev => ({
         ...prev,
         motion: { available: !!isAvailable, loading: false }
       }));
-    } catch {
+    } catch (error) {
+      console.warn('Erro ao verificar sensores de movimento:', error);
       setPermissions(prev => ({
         ...prev,
         motion: { available: false, loading: false }

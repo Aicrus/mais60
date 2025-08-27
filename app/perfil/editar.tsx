@@ -405,7 +405,7 @@ export default function EditarPerfilScreen() {
             <Select
               labelVariant="none"
               value={genero}
-              onValueChange={setGenero}
+              setValue={setGenero}
               placeholder="Selecione seu gênero"
               options={[
                 { label: 'Masculino', value: 'masculino' },
