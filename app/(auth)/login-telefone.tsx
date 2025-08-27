@@ -139,7 +139,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
             style={{ flex: 1 }}
             contentContainerStyle={{
               flexGrow: 1,
-              paddingBottom: responsive({ mobile: 20, tablet: 30, desktop: 40, default: 20 })
+              paddingBottom: responsive({ mobile: 60, tablet: 80, desktop: 100, default: 60 })
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
@@ -301,8 +301,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footer: {
-    marginTop: 12,
-    paddingBottom: 5,
+    marginTop: 24,
+    paddingBottom: 20,
   },
 });
 
