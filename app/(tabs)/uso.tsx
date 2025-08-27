@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform } from 'react-native';
+import React, { useMemo, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Modal, Alert } from 'react-native';
 // Mapa simples do percurso (se disponível)
 let MapView: any = null;
 let Polyline: any = null;
@@ -18,12 +18,103 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 import { PieChart, BarChart } from 'react-native-gifted-charts';
 import { useFocusEffect } from '@react-navigation/native';
+import Constants from 'expo-constants';
+import { Pedometer } from 'expo-sensors';
+import { Activity, Database, BellRing } from 'lucide-react-native';
 
 function formatDuration(totalSeconds: number) {
   if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '0s';
   if (totalSeconds < 60) return `${Math.floor(totalSeconds)}s`;
   return `${Math.floor(totalSeconds / 60)} min`;
 }
+
+// Funções de permissões
+const checkPermissions = async (setPermissions: any) => {
+  try {
+    // Verificar notificações
+    if (Constants.appOwnership !== 'expo') {
+      try {
+        const Notifications = await import('expo-notifications');
+        const settings = await Notifications.getPermissionsAsync();
+        setPermissions((prev: any) => ({
+          ...prev,
+          notifications: { granted: settings.status === 'granted', loading: false }
+        }));
+      } catch (error) {
+        console.warn('Erro ao verificar notificações:', error);
+        setPermissions((prev: any) => ({
+          ...prev,
+          notifications: { granted: false, loading: false }
+        }));
+      }
+    } else {
+      setPermissions((prev: any) => ({
+        ...prev,
+        notifications: { granted: false, loading: false }
+      }));
+    }
+  } catch (error) {
+    console.warn('Erro geral ao verificar permissões:', error);
+    setPermissions((prev: any) => ({
+      ...prev,
+      notifications: { granted: false, loading: false }
+    }));
+  }
+
+  try {
+    // Verificar sensores de movimento
+    const isAvailable = await Pedometer.isAvailableAsync();
+    setPermissions((prev: any) => ({
+      ...prev,
+      motion: { available: !!isAvailable, loading: false }
+    }));
+  } catch (error) {
+    console.warn('Erro ao verificar sensores de movimento:', error);
+    setPermissions((prev: any) => ({
+      ...prev,
+      motion: { available: false, loading: false }
+    }));
+  }
+};
+
+const requestNotifications = async (setPermissions: any, isExpoGo: boolean) => {
+  setPermissions((prev: any) => ({
+    ...prev,
+    notifications: { ...prev.notifications, loading: true }
+  }));
+
+  try {
+    if (isExpoGo) {
+      Alert.alert(
+        'Recurso não disponível',
+        'Notificações push não são suportadas no Expo Go. Use um app compilado para testar essa funcionalidade.',
+        [{ text: 'Entendi' }]
+      );
+      return;
+    }
+
+    const Notifications = await import('expo-notifications');
+    const { status } = await Notifications.requestPermissionsAsync();
+
+    setPermissions((prev: any) => ({
+      ...prev,
+      notifications: { granted: status === 'granted', loading: false }
+    }));
+
+    if (status === 'granted') {
+      Alert.alert(
+        '✅ Permissão concedida!',
+        'Agora você receberá lembretes suaves para suas atividades diárias.',
+        [{ text: 'Ótimo!' }]
+      );
+    }
+  } catch (error) {
+    setPermissions((prev: any) => ({
+      ...prev,
+      notifications: { granted: false, loading: false }
+    }));
+  }
+};
 
 export default function UsoScreen() {
   const { currentTheme, uiColors } = useTheme();
@@ -36,6 +127,14 @@ export default function UsoScreen() {
   const [historyMode, setHistoryMode] = React.useState<'7d' | '4w'>('7d');
   const [showAllRecent, setShowAllRecent] = React.useState(false);
   const [showRoute, setShowRoute] = React.useState(false);
+
+  // Estados para permissões
+  const [showPermModal, setShowPermModal] = useState(false);
+  const [permissions, setPermissions] = useState({
+    notifications: { granted: null as boolean | null, loading: false },
+    motion: { available: null as boolean | null, loading: false }
+  });
+  const isExpoGo = Constants.appOwnership === 'expo';
 
   const titleType = getResponsiveValues('headline-lg');
   const sectionType = getResponsiveValues('title-sm');

@@ -101,7 +101,7 @@ export default function PerfilScreen() {
         if (userId) {
           const { data, error } = await supabase
             .from('usuarios')
-            .select('nome, email, imagem_url, perfil_concluido')
+            .select('nome, email, imagem_url, perfil_concluido, telefone')
             .eq('id', userId)
             .maybeSingle();
           if (!mounted) return;
@@ -150,7 +150,7 @@ export default function PerfilScreen() {
           if (!userId) return;
           const { data, error } = await supabase
             .from('usuarios')
-            .select('nome, email, imagem_url, perfil_concluido')
+            .select('nome, email, imagem_url, perfil_concluido, telefone')
             .eq('id', userId)
             .maybeSingle();
           if (!isActive) return;
