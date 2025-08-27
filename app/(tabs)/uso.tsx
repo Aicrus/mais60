@@ -511,32 +511,12 @@ export default function UsoScreen() {
             </View>
 
             {sensors.emergencyContact && (
-              <View>
-                <Pressable
-                  onPress={sensors.callEmergencyContact}
-                  style={{ marginTop: 12, height: 44, borderRadius: 8, borderWidth: 2, borderColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <Text style={{ color: '#EF4444', fontFamily: dsFontFamily['jakarta-bold'] }}>Ligar para emergência</Text>
-                </Pressable>
-
-                <View style={{ marginTop: 12, backgroundColor: '#FEF2F2', borderColor: '#FECACA', borderWidth: 1, borderRadius: 8, padding: 12 }}>
-                  <Text style={{ color: '#DC2626', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 12, marginBottom: 6 }}>
-                    📞 COMO FUNCIONA A LIGAÇÃO
-                  </Text>
-                  <Text style={{ color: '#991B1B', fontFamily: dsFontFamily['jakarta-medium'], fontSize: 11, lineHeight: 16 }}>
-                    <Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>🚀 Status Atual:</Text>
-                    {'\n'}• Biblioteca Communications: <Text style={{ fontFamily: dsFontFamily['jakarta-bold'], color: '#10B981' }}>INSTALADA</Text>
-                    {'\n'}• Método usado: <Text style={{ fontFamily: dsFontFamily['jakarta-bold'], color: '#2563EB' }}>Comunicação Direta</Text>
-                    {'\n\n'}<Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>Como funciona:</Text>
-                    {'\n'}1. <Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>Communications API</Text> - Ligação direta e rápida
-                    {'\n'}2. <Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>Linking</Text> - Abre app do telefone (fallback)
-                    {'\n\n'}<Text style={{ fontFamily: dsFontFamily['jakarta-bold'] }}>Compatibilidade:</Text>
-                    {'\n'}• ✅ Android: Comunicação direta
-                    {'\n'}• ✅ iOS: Integração nativa
-                    {'\n'}• ✅ Expo Go: Sempre funciona
-                  </Text>
-                </View>
-              </View>
+              <Pressable
+                onPress={sensors.callEmergencyContact}
+                style={{ marginTop: 12, height: 44, borderRadius: 8, borderWidth: 2, borderColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ color: '#EF4444', fontFamily: dsFontFamily['jakarta-bold'] }}>Ligar para emergência</Text>
+              </Pressable>
             )}
           </View>
         </View>
