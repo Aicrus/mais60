@@ -6,7 +6,7 @@ import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { fontFamily as dsFontFamily, getResponsiveValues } from '@/design-system/tokens/typography';
-import { ChevronLeft, Play, Maximize2, X, Heart } from 'lucide-react-native';
+import { ChevronLeft, Play, Maximize2, X, Heart, CheckCircle, RotateCcw } from 'lucide-react-native';
 import { useFavorites } from '@/contexts/favorites';
 import { useUsage } from '@/contexts/usage';
 import { WebView } from 'react-native-webview';
@@ -59,6 +59,28 @@ export default function VideoPlayerScreen() {
   const controlFontSize = (isVeryNarrow || isNarrow) ? 12 : 14;
   const controlHeight = isVeryNarrow ? 36 : isNarrow ? 40 : 44;
   const shouldStackConclude = (width <= 400) || isVeryNarrow || (isNarrow && accessibility?.fontScale !== 'normal') || (isShortScreen && accessibility?.fontScale === 'muito-grande');
+
+  // Função para renderizar conteúdo do botão concluir com ícone e texto
+  const renderConcludeButtonContent = (isCompleted: boolean, fontSize: number, isVeryNarrow: boolean, isNarrow: boolean) => {
+    const iconSize = 16;
+    const IconComponent = isCompleted ? RotateCcw : CheckCircle;
+
+    if (isVeryNarrow) {
+      return <IconComponent size={iconSize} color="#FFFFFF" />;
+    }
+
+    return (
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <IconComponent size={iconSize} color="#FFFFFF" />
+        <Text style={[styles.smallControlText, { fontSize }]}>
+          {isNarrow
+            ? (isCompleted ? 'Desfazer' : 'Concluir')
+            : (isCompleted ? 'Desmarcar concluído' : 'Marcar como concluído')
+          }
+        </Text>
+      </View>
+    );
+  };
 
   // Tempos de espera de rotação, ajustados por plataforma
   const LANDSCAPE_ROTATION_TIMEOUT_MS = Platform.OS === 'ios' ? 500 : 900;
@@ -406,94 +428,112 @@ export default function VideoPlayerScreen() {
           )}
         </View>
 
-        {/* Controles inferiores compactos: -15s, +15s, Expandir, Favoritar, Concluir */}
+        {/* Controles organizados por grupos funcionais */}
         {!showFullscreen && !isLandscapeDevice && (
-        <View style={[styles.controlsCompactRow, { gap: compactGap }]}>
-          <Pressable
-            style={[styles.smallControl, { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
-            accessibilityRole="button"
-            accessibilityLabel="Voltar 15 segundos"
-            onPress={() => sendJS('window.seekBy(-15)')}
-          >
-            <Text style={[styles.smallControlText, { fontSize: controlFontSize }]}>-15s</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.smallControl, { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
-            accessibilityRole="button"
-            accessibilityLabel="Avançar 15 segundos"
-            onPress={() => sendJS('window.seekBy(15)')}
-          >
-            <Text style={[styles.smallControlText, { fontSize: controlFontSize }]}>+15s</Text>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.smallControl,
-              { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: isDark ? colors['secondary-dark'] : colors['secondary-light'] },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="Tela cheia"
-            onPress={() => sendJS('window.getState()')}
-          >
-            <Maximize2 size={20} color="#FFFFFF" />
-          </Pressable>
-          <Pressable
-            style={[
-              styles.smallControl,
-              { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: uiColors.divider },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel={isFavorite(videoId) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-            onPress={() => toggleFavorite({ id: videoId, title: (initTitle as string) || `Vídeo ${videoId}`, subtitle: (initSubtitle as string) || 'YouTube' })}
-          >
-            <Heart size={20} color={isFavorite(videoId) ? '#FFFFFF' : (isDark ? '#FFFFFF' : colors['brand-purple'])} />
-          </Pressable>
-          {!shouldStackConclude && (
-          <Pressable
-            style={[
-              styles.smallControl,
-              { height: controlHeight, paddingHorizontal: concludePadding, backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'], opacity: 1 },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel={isCompleted ? 'Desmarcar concluído' : 'Marcar como concluído'}
-            onPress={async () => {
-              if (isCompleted) {
-                await unmarkCompleted({ videoId });
-                setIsCompleted(false);
-              } else {
-                await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
-                setIsCompleted(true);
-                try { router.back(); } catch {}
-              }
-            }}
-           >
-            <Text style={[styles.smallControlText, { fontSize: concludeFontSize }]}>
-              {isVeryNarrow ? 'OK' : isNarrow ? (isCompleted ? 'Feito' : 'Concluir') : (isCompleted ? 'Concluído' : 'Concluir')}
+        <>
+          {/* Controles de navegação temporal */}
+          <View style={[styles.controlsGroup, { gap: compactGap }]}>
+            <Text style={[styles.groupLabel, { color: uiColors.textSecondary, fontSize: bodyTypeSm.fontSize.default, fontFamily: bodyTypeSm.fontFamily }]}>
+              Navegação
             </Text>
-          </Pressable>
-          )}
-        </View>
+            <View style={[styles.controlsCompactRow, { gap: compactGap }]}>
+              <Pressable
+                style={[styles.smallControl, { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
+                accessibilityRole="button"
+                accessibilityLabel="Voltar 15 segundos"
+                onPress={() => sendJS('window.seekBy(-15)')}
+              >
+                <Text style={[styles.smallControlText, { fontSize: controlFontSize }]}>-15s</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.smallControl, { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: colors['brand-purple'] }]}
+                accessibilityRole="button"
+                accessibilityLabel="Avançar 15 segundos"
+                onPress={() => sendJS('window.seekBy(15)')}
+              >
+                <Text style={[styles.smallControlText, { fontSize: controlFontSize }]}>+15s</Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.smallControl,
+                  { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: isDark ? colors['secondary-dark'] : colors['secondary-light'] },
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel="Tela cheia"
+                onPress={() => sendJS('window.getState()')}
+              >
+                <Maximize2 size={20} color="#FFFFFF" />
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Controles de interação com conteúdo */}
+          <View style={[styles.controlsGroup, { gap: compactGap }]}>
+            <Text style={[styles.groupLabel, { color: uiColors.textSecondary, fontSize: bodyTypeSm.fontSize.default, fontFamily: bodyTypeSm.fontFamily }]}>
+              Ações
+            </Text>
+            <View style={[styles.controlsCompactRow, { gap: compactGap }]}>
+              <Pressable
+                style={[
+                  styles.smallControl,
+                  { height: controlHeight, paddingHorizontal: basePadding, backgroundColor: isFavorite(videoId) ? colors['brand-coral'] : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'), borderWidth: 1, borderColor: uiColors.divider },
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={isFavorite(videoId) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+                onPress={() => toggleFavorite({ id: videoId, title: (initTitle as string) || `Vídeo ${videoId}`, subtitle: (initSubtitle as string) || 'YouTube' })}
+              >
+                <Heart size={20} color={isFavorite(videoId) ? '#FFFFFF' : (isDark ? '#FFFFFF' : colors['brand-purple'])} />
+              </Pressable>
+              {!shouldStackConclude && (
+              <Pressable
+                style={[
+                  styles.smallControl,
+                  { height: controlHeight, paddingHorizontal: concludePadding, backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'], opacity: 1 },
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel={isCompleted ? 'Desmarcar concluído - desfaz a marcação e permite refazer o vídeo' : 'Marcar como concluído - salva o progresso e volta para a lista de vídeos'}
+                onPress={async () => {
+                  if (isCompleted) {
+                    await unmarkCompleted({ videoId });
+                    setIsCompleted(false);
+                  } else {
+                    await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+                    setIsCompleted(true);
+                    try { router.back(); } catch {}
+                  }
+                }}
+               >
+                {renderConcludeButtonContent(isCompleted, concludeFontSize, isVeryNarrow, isNarrow)}
+              </Pressable>
+              )}
+            </View>
+          </View>
+        </>
       )}
       {!showFullscreen && !isLandscapeDevice && shouldStackConclude && (
-        <View style={[styles.controlsCompactRow, { marginTop: 8 }]}> 
-          <Pressable
-            style={[styles.smallControl, { flex: 1, height: controlHeight, paddingHorizontal: concludePadding, backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'] }]}
-            accessibilityRole="button"
-            accessibilityLabel={isCompleted ? 'Desmarcar concluído' : 'Marcar como concluído'}
-              onPress={async () => {
-              if (isCompleted) {
-                await unmarkCompleted({ videoId });
-                setIsCompleted(false);
-              } else {
-                await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
-                setIsCompleted(true);
-                  try { router.back(); } catch {}
-              }
-            }}
-          >
-            <Text style={[styles.smallControlText, { fontSize: concludeFontSize, textAlign: 'center' }]}> 
-              {isVeryNarrow ? 'OK' : isNarrow ? (isCompleted ? 'Feito' : 'Concluir') : (isCompleted ? 'Concluído' : 'Concluir')}
-            </Text>
-          </Pressable>
+        <View style={[styles.controlsGroup, { gap: compactGap }]}>
+          <Text style={[styles.groupLabel, { color: uiColors.textSecondary, fontSize: bodyTypeSm.fontSize.default, fontFamily: bodyTypeSm.fontFamily }]}>
+            Finalizar
+          </Text>
+          <View style={[styles.controlsCompactRow, { marginTop: 8 }]}>
+            <Pressable
+              style={[styles.smallControl, { flex: 1, height: controlHeight, paddingHorizontal: concludePadding, backgroundColor: isCompleted ? '#10B981' : colors['brand-purple'] }]}
+              accessibilityRole="button"
+              accessibilityLabel={isCompleted ? 'Desmarcar concluído - desfaz a marcação e permite refazer o vídeo' : 'Marcar como concluído - salva o progresso e volta para a lista de vídeos'}
+                onPress={async () => {
+                if (isCompleted) {
+                  await unmarkCompleted({ videoId });
+                  setIsCompleted(false);
+                } else {
+                  await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
+                  setIsCompleted(true);
+                    try { router.back(); } catch {}
+                }
+              }}
+            >
+              {renderConcludeButtonContent(isCompleted, concludeFontSize, isVeryNarrow, isNarrow)}
+            </Pressable>
+          </View>
         </View>
       )}
       </ScrollView>
@@ -667,7 +707,9 @@ const styles = StyleSheet.create({
   overlayScrim: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.25)' },
   fullscreenTouchBlocker: { position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 },
   placeholder: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
-  controlsCompactRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  controlsCompactRow: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  controlsGroup: { marginTop: 16 },
+  groupLabel: { marginBottom: 8, textTransform: 'uppercase', fontSize: 12, letterSpacing: 0.5 },
   smallControl: { height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 },
   smallControlText: { color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] },
 });

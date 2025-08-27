@@ -3,6 +3,7 @@ import { Modal, View, Text, Pressable, StyleSheet } from 'react-native';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
+import { X } from 'lucide-react-native';
 
 type ConfirmModalProps = {
   visible: boolean;
@@ -43,7 +44,16 @@ export default function ConfirmModal({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onRequestClose || onCancel}>
       <View style={styles.overlay}>
-        <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}> 
+        <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
+          {/* Botão de fechar */}
+          <Pressable
+            style={[styles.closeButton, { backgroundColor: ui.divider }]}
+            onPress={onRequestClose || onCancel}
+            accessibilityRole="button"
+            accessibilityLabel="Fechar modal"
+          >
+            <X size={20} color={ui.textPrimary} />
+          </Pressable>
           <Text style={{ color: ui.textPrimary, fontFamily: titleType.fontFamily, fontSize: titleType.fontSize.default, lineHeight: titleType.lineHeight.default }}>
             {title}
           </Text>
@@ -69,6 +79,17 @@ export default function ConfirmModal({
 const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: 16 },
   card: { width: '100%', maxWidth: 420, borderRadius: 14, borderWidth: 1, padding: 16 },
+  closeButton: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
   actions: { marginTop: 16, flexDirection: 'row', justifyContent: 'flex-end', gap: 10 },
   btn: { height: 44, paddingHorizontal: 16, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
   btnSecondary: { borderWidth: 1 },

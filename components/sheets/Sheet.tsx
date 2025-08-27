@@ -64,7 +64,7 @@ const Sheet: React.FC<SheetProps> = ({
   width,
   borderRadius = 16,
   closeOnOverlayClick = true,
-  showCloseButton = false,
+  showCloseButton = true,
   animationDuration = 300,
   useSafeArea = true,
   testID,
@@ -320,14 +320,21 @@ const Sheet: React.FC<SheetProps> = ({
           <TouchableOpacity
             style={[
               styles.closeButton,
-              { backgroundColor: themeColors.closeButtonBackground }
+              {
+                backgroundColor: themeColors.closeButtonBackground,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 4,
+                elevation: 5,
+              }
             ]}
             onPress={onClose}
             testID={`${testID}-close-button`}
           >
             <Text style={[
-              styles.closeButtonText, 
-              { 
+              styles.closeButtonText,
+              {
                 color: themeColors.closeButtonText,
                 fontSize: responsive(buttonTypography.fontSize),
                 fontFamily: buttonTypography.fontFamily,
@@ -358,14 +365,21 @@ const Sheet: React.FC<SheetProps> = ({
                     <TouchableOpacity
                       style={[
                         styles.closeButton,
-                        { backgroundColor: themeColors.closeButtonBackground }
+                        {
+                          backgroundColor: themeColors.closeButtonBackground,
+                          shadowColor: '#000',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 4,
+                          elevation: 5,
+                        }
                       ]}
                       onPress={onClose}
                       testID={`${testID}-close-button`}
                     >
                       <Text style={[
-                        styles.closeButtonText, 
-                        { 
+                        styles.closeButtonText,
+                        {
                           color: themeColors.closeButtonText,
                           fontSize: responsive(buttonTypography.fontSize),
                           fontFamily: buttonTypography.fontFamily,
@@ -467,9 +481,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
