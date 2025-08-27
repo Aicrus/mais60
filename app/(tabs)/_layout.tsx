@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View, Text } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { OrientationManager } from '@/lib/orientation';
-import { Home as HomeIcon, Settings as ConfigIcon, Heart as HeartIcon, BarChart3 as StatsIcon } from 'lucide-react-native';
+import { Home as HomeIcon, Settings as ConfigIcon, Heart as HeartIcon, BarChart3 as StatsIcon, User as UserIcon } from 'lucide-react-native';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useResponsive } from '../../hooks/useResponsive';
@@ -152,10 +152,24 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="uso"
           options={{
-            title: 'Uso',
-            tabBarLabel: 'Uso',
+            title: 'Meu progresso',
+            tabBarLabel: 'Progresso',
             tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
               <StatsIcon size={24} color={color} strokeWidth={focused ? 2 : 1.5} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="configuracoes"
+          options={{
+            title: 'Configurações',
+            tabBarLabel: 'Config',
+            tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
+              <ConfigIcon
+                size={24}
+                color={color}
+                strokeWidth={focused ? 2 : 1.5}
+              />
             ),
           }}
         />
@@ -177,9 +191,9 @@ export default function TabsLayout() {
           options={{
             title: 'Perfil',
             headerTitle: 'Perfil',
-            tabBarLabel: 'Config',
+            tabBarLabel: 'Perfil',
             tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
-              <ConfigIcon
+              <UserIcon
                 size={24}
                 color={color}
                 strokeWidth={focused ? 2 : 1.5}

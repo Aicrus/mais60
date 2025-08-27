@@ -7,22 +7,22 @@
 ☑️ **Adicionar botão de fechar** - Incluir um "X" ou botão "Fechar" visível em todos os pop-ups, modais e telas secundárias
 ☑️ **Reorganizar hierarquia dos vídeos** - Mover os botões que estão soltos para uma posição mais lógica, próximos ao conteúdo relacionado
 ☑️ **Clarificar função do botão "Concluir"** - Adicionar texto explicativo ou ícones que mostrem se o botão salva, gera pontos ou apenas fecha
-✅ **Melhorar componente Button** - Adicionar propriedade `largerForElderly` para botões maiores e mais acessíveis
+☑️ **Melhorar componente Button** - Adicionar propriedade `largerForElderly` para botões maiores e mais acessíveis
 
-## **2. PERFIL E CONFIGURAÇÕES** ☐
+## **2. PERFIL E CONFIGURAÇÕES** ☑️
 
 **Tarefa: Separar e reorganizar seções do usuário**
 
-☐ **Dividir perfil e configurações** - Criar dois menus distintos em vez de manter tudo junto
-☐ **Destacar menu "Configurações"** - Colocar um item visível na tela principal para acessibilidade e preferências
-☐ **Expandir dados do perfil** - Adicionar campos para gênero e idade no cadastro do usuário
+☑️ **Dividir perfil e configurações** - Criar dois menus distintos em vez de manter tudo junto
+☑️ **Destacar menu "Configurações"** - Colocar um item visível na tela principal para acessibilidade e preferências
+☑️ **Expandir dados do perfil** - Adicionar campos para gênero e idade no cadastro do usuário
 
-## **3. INTEGRAÇÃO COM SAÚDE E PERMISSÕES** ☐
+## **3. INTEGRAÇÃO COM SAÚDE E PERMISSÕES** ✅
 
-**Tarefa: Simplificar conexão com apps de saúde**
+**Tarefa: Criar experiência intuitiva para concessão de permissões**
 
-☐ **Criar tutorial passo a passo** - Desenvolver um guia visual que ensine idosos a conectar com Apple Health ou Google Fit
-☐ **Simplificar processo de permissões** - Reduzir etapas e usar linguagem mais clara
+✅ **Melhorar fluxo de permissões** - Criar interface similar aos apps famosos como Apple Health para tornar mais intuitivo
+✅ **Simplificar linguagem das permissões** - Usar termos claros e explicar benefícios de cada permissão para o usuário
 
 ## **4. FAVORITOS E CATEGORIZAÇÃO** ☐
 

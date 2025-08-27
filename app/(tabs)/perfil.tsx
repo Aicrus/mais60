@@ -8,7 +8,7 @@ import { colors } from '../../design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '../../design-system/tokens/typography';
 import { useAuth } from '../../contexts/auth';
 import { supabase } from '@/lib/supabase';
-import { Home, ChevronRight, LogOut, Moon, Cog, Shield } from 'lucide-react-native';
+import { Home, ChevronRight, LogOut, Moon, Shield } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -79,6 +79,9 @@ export default function PerfilScreen() {
   const [profileName, setProfileName] = useState<string>('');
   const [profileEmail, setProfileEmail] = useState<string>('');
   const [profileAvatar, setProfileAvatar] = useState<string>('');
+  const [telefone, setTelefone] = useState<string>('');
+  const [genero, setGenero] = useState<string>('');
+  const [idade, setIdade] = useState<number | null>(null);
   const [needsCompletion, setNeedsCompletion] = useState<boolean>(false);
   const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
 
@@ -100,7 +103,7 @@ export default function PerfilScreen() {
         if (userId) {
           const { data, error } = await supabase
             .from('usuarios')
-            .select('nome, email, imagem_url, perfil_concluido, telefone')
+            .select('nome, email, imagem_url, perfil_concluido, telefone, genero, idade')
             .eq('id', userId)
             .maybeSingle();
           if (!mounted) return;
@@ -108,6 +111,9 @@ export default function PerfilScreen() {
             setProfileName(data.nome || nameFromAuth || 'Usuário');
             setProfileEmail(data.email || emailFromAuth);
             setProfileAvatar(data.imagem_url || avatarFromAuth || '');
+            setTelefone(data.telefone || '');
+            setGenero(data.genero || '');
+            setIdade(data.idade || null);
             const nomeOk = !!(data.nome && data.nome.trim().length >= 3);
             const emailOk = !!(data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
             const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
@@ -148,7 +154,7 @@ export default function PerfilScreen() {
           if (!userId) return;
           const { data, error } = await supabase
             .from('usuarios')
-            .select('nome, email, imagem_url, perfil_concluido, telefone')
+            .select('nome, email, imagem_url, perfil_concluido, telefone, genero, idade')
             .eq('id', userId)
             .maybeSingle();
           if (!isActive) return;
@@ -158,6 +164,9 @@ export default function PerfilScreen() {
             const url = data.imagem_url || avatarFromAuth || '';
             // força refresh do cache da imagem
             setProfileAvatar(url ? `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}` : url);
+            setTelefone(data.telefone || '');
+            setGenero(data.genero || '');
+            setIdade(data.idade || null);
             const nomeOk = !!(data.nome && data.nome.trim().length >= 3);
             const emailOk = !!(data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
             const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
@@ -219,12 +228,11 @@ export default function PerfilScreen() {
         </Pressable>
       </View>
 
-        {/* Removido bloco de Inventário (não faz sentido no PRD) */}
-
+      {/* Informações adicionais */}
       <Text
         accessibilityRole="header"
         style={{
-          marginTop: 8,
+          marginTop: 16,
           marginBottom: 8,
           paddingHorizontal: 4,
           color: ui.textSecondary,
@@ -233,40 +241,37 @@ export default function PerfilScreen() {
           lineHeight: sectionType.lineHeight.default,
         }}
       >
-        Preferências
+        Informações pessoais
       </Text>
-
-      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }] }>
-        <Row
-          icon={<Cog size={20} color={ui.textPrimary} />}
-          label="Acessibilidade"
-          right={<ChevronRight size={20} color={ui.textSecondary} />}
-          onPress={() => router.push('/acessibilidade')}
-        />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
-         <Row
-          icon={<Shield size={20} color={ui.textPrimary} />}
-          label="Permissões"
-          right={<ChevronRight size={20} color={ui.textSecondary} />}
-          onPress={() => router.push('/permissoes')}
-        />
-        <View style={[styles.separator, { backgroundColor: ui.divider }]} />
-        <Row
-          icon={<Moon size={20} color={ui.textPrimary} />}
-          label="Modo escuro"
-          right={
-            <Switch
-              value={isDark}
-              onValueChange={(value) => setThemeMode(value ? 'dark' : 'light')}
-              trackColor={{ false: isDark ? '#374151' : '#D1D5DB', true: '#10B981' }}
-              thumbColor={"#FFFFFF"}
-            />
-          }
-        />
-        {/* removido: Sons */}
+      <View style={[styles.card, { backgroundColor: ui.bgSecondary, borderColor: ui.divider }]}>
+        {telefone && (
+          <View style={styles.infoRow}>
+            <Text style={[styles.infoLabel, { color: ui.textSecondary }]}>Telefone:</Text>
+            <Text style={[styles.infoValue, { color: ui.textPrimary }]}>{telefone}</Text>
+          </View>
+        )}
+        {genero && telefone && <View style={[styles.separator, { backgroundColor: ui.divider }]} />}
+        {genero && (
+          <View style={styles.infoRow}>
+            <Text style={[styles.infoLabel, { color: ui.textSecondary }]}>Gênero:</Text>
+            <Text style={[styles.infoValue, { color: ui.textPrimary }]}>
+              {genero === 'masculino' ? 'Masculino' :
+               genero === 'feminino' ? 'Feminino' :
+               genero === 'outro' ? 'Outro' :
+               genero === 'nao_informar' ? 'Prefiro não informar' : genero}
+            </Text>
+          </View>
+        )}
+        {idade && (telefone || genero) && <View style={[styles.separator, { backgroundColor: ui.divider }]} />}
+        {idade && (
+          <View style={styles.infoRow}>
+            <Text style={[styles.infoLabel, { color: ui.textSecondary }]}>Idade:</Text>
+            <Text style={[styles.infoValue, { color: ui.textPrimary }]}>{idade} anos</Text>
+          </View>
+        )}
       </View>
 
-      {/* Removido: seção Notificações */}
+        {/* Removido bloco de Inventário (não faz sentido no PRD) */}
 
       {/* Sobre o App */}
       <Text
@@ -469,6 +474,27 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+  },
+  infoLabel: {
+    fontFamily: dsFontFamily['jakarta-medium'],
+    fontSize: getResponsiveValues('body-md').fontSize.default,
+    lineHeight: getResponsiveValues('body-md').lineHeight.default,
+    flex: 1,
+  },
+  infoValue: {
+    fontFamily: dsFontFamily['jakarta-semibold'],
+    fontSize: getResponsiveValues('body-md').fontSize.default,
+    lineHeight: getResponsiveValues('body-md').lineHeight.default,
+    flex: 2,
+    textAlign: 'right',
   },
   editButtonText: {
     color: '#FFFFFF',

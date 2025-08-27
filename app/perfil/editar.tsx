@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Input } from '@/components/inputs/Input';
 import { Button } from '@/components/buttons/Button';
+import { Select } from '@/components/dropdowns/Select';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
@@ -38,10 +39,13 @@ export default function EditarPerfilScreen() {
   const [email, setEmail] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [telefone, setTelefone] = useState<string>('');
+  const [genero, setGenero] = useState<string>('');
+  const [idade, setIdade] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [nomeError, setNomeError] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [idadeError, setIdadeError] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -58,7 +62,7 @@ export default function EditarPerfilScreen() {
 
         const { data, error } = await supabase
           .from('usuarios')
-          .select('nome, email, imagem_url, telefone')
+          .select('nome, email, imagem_url, telefone, genero, idade')
           .eq('id', userId)
           .maybeSingle();
 
@@ -68,6 +72,8 @@ export default function EditarPerfilScreen() {
           setEmail(data.email || emailFromAuth || '');
           setAvatarUrl(data.imagem_url || avatarFromAuth || '');
           setTelefone(data.telefone || '');
+          setGenero(data.genero || '');
+          setIdade(data.idade ? String(data.idade) : '');
         } else {
           setNome(nameFromAuth || '');
           setEmail(emailFromAuth || '');
@@ -102,6 +108,12 @@ export default function EditarPerfilScreen() {
       } else {
         setEmailError('');
       }
+    }
+    if (idade && (isNaN(Number(idade)) || Number(idade) < 18 || Number(idade) > 120)) {
+      setIdadeError('Idade deve ser um número entre 18 e 120 anos.');
+      ok = false;
+    } else {
+      setIdadeError('');
     }
     return ok;
   };
@@ -220,7 +232,16 @@ export default function EditarPerfilScreen() {
 
       const { error: dbErr } = await supabase
         .from('usuarios')
-        .upsert({ id: userId, nome: nome.trim(), email: email.trim(), imagem_url: avatarUrl || null, telefone: telefone.trim() || null, perfil_concluido: perfilConcluido })
+        .upsert({
+          id: userId,
+          nome: nome.trim(),
+          email: email.trim(),
+          imagem_url: avatarUrl || null,
+          telefone: telefone.trim() || null,
+          genero: genero || null,
+          idade: idade ? Number(idade) : null,
+          perfil_concluido: perfilConcluido
+        })
         .eq('id', userId);
       if (dbErr) {
         console.error('Erro ao salvar no banco:', dbErr);
@@ -368,7 +389,50 @@ export default function EditarPerfilScreen() {
               placeholder="(11) 91234-5678"
               mask="phone"
               keyboardType="phone-pad"
+              returnKeyType="next"
+            />
+          </View>
+          <View style={{ marginTop: 12 }}>
+            <Text style={{
+              color: ui.textPrimary,
+              fontFamily: dsFontFamily['jakarta-semibold'],
+              fontSize: getResponsiveValues('body-lg').fontSize.default,
+              lineHeight: getResponsiveValues('body-lg').lineHeight.default,
+              marginBottom: 6,
+            }}>
+              Gênero
+            </Text>
+            <Select
+              labelVariant="none"
+              value={genero}
+              onValueChange={setGenero}
+              placeholder="Selecione seu gênero"
+              options={[
+                { label: 'Masculino', value: 'masculino' },
+                { label: 'Feminino', value: 'feminino' },
+                { label: 'Outro', value: 'outro' },
+                { label: 'Prefiro não informar', value: 'nao_informar' }
+              ]}
+            />
+          </View>
+          <View style={{ marginTop: 12 }}>
+            <Text style={{
+              color: ui.textPrimary,
+              fontFamily: dsFontFamily['jakarta-semibold'],
+              fontSize: getResponsiveValues('body-lg').fontSize.default,
+              lineHeight: getResponsiveValues('body-lg').lineHeight.default,
+              marginBottom: 6,
+            }}>
+              Idade
+            </Text>
+            <Input
+              labelVariant="none"
+              value={idade}
+              onChangeText={(t) => { setIdade(t); if (idadeError) setIdadeError(''); }}
+              placeholder="Sua idade"
+              keyboardType="numeric"
               returnKeyType="done"
+              error={idadeError}
             />
           </View>
         </View>

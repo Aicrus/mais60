@@ -199,7 +199,7 @@ export default function UsoScreen() {
           fontSize: titleType.fontSize.default,
           lineHeight: titleType.lineHeight.default,
           marginBottom: 8,
-        }}>Uso</Text>
+        }}>Meu progresso</Text>
 
         {/* KPIs de Hoje e Semana */}
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
