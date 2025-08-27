@@ -427,7 +427,9 @@ export default function UsoScreen() {
             </View>
             <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
             <View style={styles.statItem}>
-              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{sensors.accelMagnitude ?? '—'}</Text>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>
+                {sensors.accelMagnitude ?? '—'}
+              </Text>
               <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: statLabelType.fontSize.default, lineHeight: statLabelType.lineHeight.default, marginTop: 2 }}>Movimento</Text>
             </View>
           </View>

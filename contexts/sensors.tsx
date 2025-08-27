@@ -43,6 +43,7 @@ const SensorsContext = createContext<SensorsState>({
 export function SensorsProvider({ children }: { children: React.ReactNode }) {
   const [stepsToday, setStepsToday] = useState<number | null>(null);
   const [accelMagnitude, setAccelMagnitude] = useState<number | null>(null);
+  const [accelHistory, setAccelHistory] = useState<number[]>([]);
   const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null);
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const { showToast } = useToast();
@@ -83,7 +84,16 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
       Accelerometer.setUpdateInterval(2000);
       sub = Accelerometer.addListener((data) => {
         const m = Math.sqrt((data?.x || 0) ** 2 + (data?.y || 0) ** 2 + (data?.z || 0) ** 2);
-        setAccelMagnitude(Number.isFinite(m) ? Number(m.toFixed(2)) : 0);
+
+        // Manter histórico das últimas 5 leituras para média móvel
+        setAccelHistory(prev => {
+          const newHistory = [...prev, m].slice(-5); // Manter apenas as últimas 5
+          const average = newHistory.reduce((a, b) => a + b, 0) / newHistory.length;
+
+          // Atualizar magnitude com média arredondada para 1 casa decimal
+          setAccelMagnitude(Number.isFinite(average) ? Number(average.toFixed(1)) : 0);
+          return newHistory;
+        });
       });
     } catch {}
     return () => { try { sub && sub.remove && sub.remove(); } catch {} };
