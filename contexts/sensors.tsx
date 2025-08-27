@@ -1,21 +1,14 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Platform, Linking, Alert } from 'react-native';
+import { Platform, Linking, Alert, Clipboard } from 'react-native';
 import { Pedometer } from 'expo-sensors';
 import { Accelerometer } from 'expo-sensors';
 import * as Location from 'expo-location';
 import * as Battery from 'expo-battery';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { useToast } from '@/hooks/useToast';
 
-// Telephony APIs for native phone calls
-let Communications: any = null;
-
-// Tentar carregar biblioteca de comunicações (mais comum)
-try {
-  Communications = require('react-native-communications');
-} catch (e) {
-  console.log('react-native-communications not available, using Linking fallback');
-}
+// Função de ligação simplificada usando apenas Linking (mais confiável)
 
 type SensorsState = {
   stepsToday: number | null;
@@ -160,28 +153,40 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     let stillnessStartTime = 0;
 
     try {
-      Accelerometer.setUpdateInterval(50); // Very frequent readings for accurate detection
+      Accelerometer.setUpdateInterval(100); // Moderate frequency for better stability
       accelSubscription = Accelerometer.addListener((data) => {
         const magnitude = Math.sqrt((data?.x || 0) ** 2 + (data?.y || 0) ** 2 + (data?.z || 0) ** 2);
 
-        // Maintain buffer of recent readings
+        // Debug log to monitor movement (only log occasionally to avoid spam)
+        if (Math.random() < 0.01) { // Log ~1% of readings
+          console.log('Accel data:', {
+            x: data?.x?.toFixed(2),
+            y: data?.y?.toFixed(2),
+            z: data?.z?.toFixed(2),
+            magnitude: magnitude.toFixed(2),
+            timestamp: Date.now()
+          });
+        }
+
+        // Maintain buffer of recent readings (increased for stability)
         fallDetectionBuffer.push(magnitude);
-        if (fallDetectionBuffer.length > 20) {
+        if (fallDetectionBuffer.length > 30) {
           fallDetectionBuffer.shift();
         }
 
         // Only process if we have enough data
-        if (fallDetectionBuffer.length < 10) return;
+        if (fallDetectionBuffer.length < 15) return;
 
-        const recent = fallDetectionBuffer.slice(-5);
-        const older = fallDetectionBuffer.slice(-15, -5);
+        const recent = fallDetectionBuffer.slice(-8);
+        const older = fallDetectionBuffer.slice(-20, -8);
         const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
         const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
 
-        // Detect high impact (sudden acceleration spike)
-        if (!highImpactDetected && olderAvg < 2.0 && recentAvg > 3.5) {
+        // Detect high impact (sudden acceleration spike) - more conservative thresholds
+        if (!highImpactDetected && olderAvg < 1.5 && recentAvg > 4.5) {
           highImpactDetected = true;
           stillnessStartTime = Date.now();
+          console.log('High impact detected:', recentAvg, 'at', new Date().toISOString());
         }
 
         // If high impact detected, look for subsequent stillness
@@ -189,13 +194,18 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
           const currentTime = Date.now();
           const timeSinceImpact = currentTime - stillnessStartTime;
 
-          // Check for stillness (low movement for at least 2 seconds)
-          if (recentAvg < 1.2 && timeSinceImpact > 2000 && timeSinceImpact < 8000) {
+          // Check for stillness (low movement for at least 3 seconds) - more conservative
+          if (recentAvg < 1.0 && timeSinceImpact > 3000 && timeSinceImpact < 8000) {
             // Additional check: ensure this isn't just sitting down
             const maxInRecent = Math.max(...recent);
             const minInRecent = Math.min(...recent);
 
-            if (maxInRecent - minInRecent < 1.0 && !fallDetected) {
+            // Additional validation: ensure this is likely a fall (not just device movement)
+            const gravityComponent = Math.abs(data.z); // Z-axis should show gravity effect
+            const isLikelyFall = gravityComponent < 8.0 || gravityComponent > 12.0; // Gravity should be ~9.8
+
+            if (maxInRecent - minInRecent < 0.8 && isLikelyFall && !fallDetected) {
+              console.log('Fall detected! Magnitude variation:', maxInRecent - minInRecent, 'Time since impact:', timeSinceImpact, 'Gravity component:', gravityComponent);
               setFallDetected(true);
               setShowFallAlert(true);
               handleFallDetected();
@@ -203,7 +213,7 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
           }
 
           // Reset if movement resumes or too much time passes
-          if (recentAvg > 2.0 || timeSinceImpact > 10000) {
+          if (recentAvg > 1.8 || timeSinceImpact > 12000) {
             highImpactDetected = false;
             stillnessStartTime = 0;
           }
@@ -222,7 +232,7 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
   const handleFallDetected = () => {
     showToast({
       type: 'error',
-      message: '⚠️ Queda detectada!',
+      message: 'Queda detectada!',
       description: 'Uma queda foi detectada. Você tem 15 segundos para cancelar a ligação.',
       position: Platform.OS === 'web' ? 'bottom-right' : 'top',
       duration: 15000,
@@ -287,15 +297,6 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
       }
 
       setEmergencyContact(contact);
-
-      showToast({
-        type: 'success',
-        message: 'Contato salvo',
-        description: 'Contato de emergência configurado com sucesso.',
-        position: Platform.OS === 'web' ? 'bottom-right' : 'top',
-        duration: 3000,
-        closable: true,
-      });
     } catch {}
   };
 
@@ -305,68 +306,195 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const phoneNumber = emergencyContact.replace(/\D/g, '');
-    const url = `tel:${phoneNumber}`;
+    const isExpoGo = Constants.appOwnership === 'expo';
+    const isDevelopment = __DEV__;
 
+    let message = `Deseja ligar para ${emergencyContact}?`;
+    let confirmButtonText = 'Ligar agora';
+
+    if (isExpoGo) {
+      message = `Expo Go: Copiará o número ${emergencyContact} para você ligar manualmente. Continuar?`;
+      confirmButtonText = 'Copiar número';
+    } else if (!isDevelopment) {
+      message = `Ligação de emergência para ${emergencyContact}. Você será conectado diretamente. Continuar?`;
+    }
+
+    // Primeiro confirmar se o usuário quer ligar
+    Alert.alert(
+      'Confirmar ligação',
+      message,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: confirmButtonText,
+          style: 'destructive',
+          onPress: async () => {
+            await makeEmergencyCall();
+          }
+        }
+      ]
+    );
+  };
+
+  const makeEmergencyCall = async () => {
     try {
+      // Verificar se emergencyContact existe
+      if (!emergencyContact) {
+        throw new Error('Contato de emergência não configurado');
+      }
+
+      // Limpar o número de telefone (remover formatação)
+      const phoneNumber = emergencyContact.replace(/\D/g, '');
+
+      // Validar se é um número válido (10 ou 11 dígitos)
+      if (phoneNumber.length < 10 || phoneNumber.length > 11) {
+        Alert.alert('Número inválido', 'O número deve ter 10 ou 11 dígitos.');
+        return;
+      }
+
+      console.log('Iniciando ligação para:', phoneNumber);
+      console.log('Plataforma:', Platform.OS);
+      console.log('Contato original:', emergencyContact);
+
       // Mostrar feedback visual antes da ligação
       showToast({
         type: 'info',
         message: 'Ligando...',
         description: `Discando para ${phoneNumber}`,
         position: Platform.OS === 'web' ? 'bottom-right' : 'top',
-        duration: 2000,
+        duration: 3000,
         closable: true,
       });
 
-      // Tentar ligação nativa primeiro - múltiplas opções
-      let callSuccessful = false;
+      // Criar URL de ligação
+      const url = `tel:${phoneNumber}`;
+      console.log('URL:', url);
 
-      // 1. Tentar react-native-communications (cross-platform e mais rápida)
-      if (Communications && Communications.phonecall) {
-        try {
-          console.log('📞 Usando Communications API para ligação direta');
-          Communications.phonecall(phoneNumber, false);
-          callSuccessful = true;
-        } catch (commError) {
-          console.log('Communications call failed, trying fallback:', commError);
-        }
+      // Verificar se o dispositivo suporta ligações
+      const supported = await Linking.canOpenURL(url);
+      console.log('Suportado:', supported);
+
+      if (supported) {
+        console.log('Abrindo ligação...');
+
+        // Abrir ligação diretamente
+        await Linking.openURL(url);
+
+        // Feedback de sucesso
+        setTimeout(() => {
+          showToast({
+            type: 'success',
+            message: 'Ligação iniciada!',
+            description: 'Verifique seu telefone',
+            position: Platform.OS === 'web' ? 'bottom-right' : 'top',
+            duration: 5000,
+            closable: true,
+          });
+        }, 2000);
+
+      } else {
+        // Se não suporta ligações, mostrar alternativas
+        await showAlternativeContactOptions(phoneNumber);
       }
 
-      // 2. Se Communications não funcionou ou não está disponível, usar Linking como fallback
-      if (!callSuccessful) {
-        console.log('📞 Usando Linking API como fallback');
-        const supported = await Linking.canOpenURL(url);
-        if (supported) {
-          await Linking.openURL(url);
-          callSuccessful = true;
-        } else {
-          throw new Error('URL not supported - sistema telefônico não disponível');
-        }
-      }
-
-      // Feedback após ligação iniciada
-      setTimeout(() => {
-        showToast({
-          type: 'success',
-          message: 'Ligação iniciada',
-          description: 'Verifique se a chamada foi estabelecida',
-          position: Platform.OS === 'web' ? 'bottom-right' : 'top',
-          duration: 3000,
-          closable: true,
-        });
-      }, 1000);
     } catch (error) {
-      console.error('Call error:', error);
-      Alert.alert(
-        'Erro na ligação',
-        'Não foi possível fazer a ligação. Verifique:\n\n• Permissões de telefone\n• Número válido\n• Conexão de rede',
-        [
-          { text: 'Tentar novamente', onPress: callEmergencyContact },
-          { text: 'Cancelar', style: 'cancel' }
-        ]
-      );
+      console.error('Erro na ligação:', error);
+      await showAlternativeContactOptions(null);
     }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await Clipboard.setString(text);
+      showToast({
+        type: 'success',
+        message: 'Número copiado!',
+        description: `Número ${text} copiado para área de transferência`,
+        position: Platform.OS === 'web' ? 'bottom-right' : 'top',
+        duration: 3000,
+        closable: true,
+      });
+    } catch (error) {
+      console.error('Erro ao copiar:', error);
+      Alert.alert('Erro', 'Não foi possível copiar o número.');
+    }
+  };
+
+  const showAlternativeContactOptions = async (phoneNumber: string | null) => {
+    const isExpoGo = Constants.appOwnership === 'expo';
+    const isDevelopment = __DEV__;
+
+    let message = '';
+    let actions: any[] = [];
+
+    if (isExpoGo) {
+      if (isDevelopment) {
+        message = `Ambiente de Desenvolvimento:\n\nPara testar ligações no Expo Go:\n\n1. Copie o número abaixo\n2. Abra o app Telefone do seu dispositivo\n3. Cole o número e ligue manualmente\n\nPara produção: use um build nativo para ligações diretas.`;
+
+        actions = [
+          {
+            text: 'Copiar número',
+            onPress: () => {
+              if (phoneNumber) {
+                copyToClipboard(phoneNumber);
+              }
+            }
+          },
+          {
+            text: 'Ver instruções',
+            onPress: () => {
+              Alert.alert(
+                'Como testar ligações',
+                `Para testar ligações de emergência:\n\n1. Copie o número: ${phoneNumber}\n2. Abra o app Telefone\n3. Cole e ligue\n\nOu use um build de desenvolvimento fora do Expo Go.`
+              );
+            }
+          },
+          { text: 'Entendi', style: 'cancel' }
+        ];
+      } else {
+        message = `Expo Go não suporta ligações diretas.\n\nPara ligar:\n• Copie o número abaixo\n• Ligue manualmente`;
+
+        actions = [
+          {
+            text: 'Copiar número',
+            onPress: () => {
+              if (phoneNumber) {
+                copyToClipboard(phoneNumber);
+              }
+            }
+          },
+          { text: 'OK', style: 'cancel' }
+        ];
+      }
+    } else {
+      message = `Este dispositivo não suporta ligações telefônicas diretamente.\n\nPara ligar:\n• Copie o número abaixo\n• Abra o app Telefone\n• Ligue manualmente\n\nNúmero: ${phoneNumber || 'não disponível'}`;
+
+      actions = [
+        {
+          text: 'Copiar número',
+          onPress: () => {
+            if (phoneNumber) {
+              copyToClipboard(phoneNumber);
+            }
+          }
+        },
+        {
+          text: 'Abrir Telefone',
+          onPress: () => {
+            Linking.openURL('tel:').catch(() => {
+              Alert.alert('Dica', 'Abra manualmente o app Telefone do seu dispositivo.');
+            });
+          }
+        },
+        { text: 'OK', style: 'cancel' }
+      ];
+    }
+
+    Alert.alert(
+      'Como ligar para emergência',
+      message,
+      actions
+    );
   };
 
   const value = useMemo(() => ({

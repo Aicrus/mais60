@@ -289,10 +289,10 @@ const MenuOptionItem = ({
   };
 
   const handlePress = () => {
-    console.log('🖱️ handlePress chamado para:', option.id, 'Platform:', Platform.OS, 'hasSubmenu:', !!option.hasSubmenu);
+    console.log('handlePress chamado para:', option.id, 'Platform:', Platform.OS, 'hasSubmenu:', !!option.hasSubmenu);
     
     if (option.hasSubmenu && Platform.OS !== 'web') {
-      console.log('📱 Mobile: Abrindo submenu para:', option.id);
+      console.log('Mobile: Abrindo submenu para:', option.id);
       // No mobile, toggle submenu no clique
       if (onSubmenuToggle && itemRef.current) {
         itemRef.current.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
@@ -303,17 +303,17 @@ const MenuOptionItem = ({
         });
       }
     } else if (!option.hasSubmenu && Platform.OS !== 'web') {
-      console.log('📱 Mobile: Fechando submenu e executando ação para:', option.id, 'onSubmenuToggle:', !!onSubmenuToggle);
+      console.log('Mobile: Fechando submenu e executando ação para:', option.id, 'onSubmenuToggle:', !!onSubmenuToggle);
       // No mobile: Se não tem submenu, fechar qualquer submenu aberto E executar a ação
       if (onSubmenuToggle) {
         onSubmenuToggle(option, { x: 0, y: 0 }); // Isso vai fechar submenu E executar ação
       } else {
-        console.log('⚠️ Fallback: executando diretamente para:', option.id);
+        console.log('Fallback: executando diretamente para:', option.id);
         // Fallback: se não tem onSubmenuToggle, executa diretamente
         onSelect(option);
       }
     } else if (!option.hasSubmenu) {
-      console.log('🌐 Web: executando ação para:', option.id);
+      console.log('Web: executando ação para:', option.id);
       // Web: executa ação normal
       onSelect(option);
     }

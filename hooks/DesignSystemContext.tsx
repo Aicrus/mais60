@@ -239,7 +239,7 @@ export function DesignSystemProvider({ children }: { children: React.ReactNode }
 
   // Log para debug
   useEffect(() => {
-    console.log('📱 Estado do tema:', {
+    console.log('Estado do tema:', {
       themeMode,
       currentTheme,
       isDark,

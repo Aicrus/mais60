@@ -80,7 +80,7 @@ const isDark = currentTheme === 'dark';
 </View>
 ```
 
-### 📱 Breakpoints e Responsividade
+### Breakpoints e Responsividade
 ```typescript
 // SEMPRE consulte as definições oficiais de breakpoints:
 // 1. BREAKPOINTS - Veja os valores atualizados em hooks/useResponsive.ts ou constants/Breakpoints.ts
@@ -104,7 +104,7 @@ const responsiveStyle = {
 }
 ```
 
-## 📱 Regras Específicas do Expo
+## Regras Específicas do Expo
 
 1. **Configurações do Expo**
    - NUNCA altere o app.json sem autorização

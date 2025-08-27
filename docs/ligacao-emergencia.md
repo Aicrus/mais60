@@ -1,4 +1,4 @@
-# 📞 Sistema de Ligação de Emergência
+# Sistema de Ligação de Emergência
 
 ## Configuração do Banco de Dados
 

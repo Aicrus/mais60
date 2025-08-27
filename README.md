@@ -6,7 +6,7 @@
 - [🚀 Começando](#-começando)
 - [🔐 Configuração do Supabase](#-configuração-do-supabase)
 - [🚀 Deploy](#-deploy)
-- [📱 Executando o Projeto](#-executando-o-projeto)
+- [Executando o Projeto](#-executando-o-projeto)
 - [🎯 Estrutura de Navegação](#-estrutura-de-navegação)
 - [🎨 Design System](#-design-system)
 - [📦 Componentes Principais](#-componentes-principais)
@@ -23,7 +23,7 @@ Bem-vindo ao Mais 60! Um aplicativo focado em saúde e bem-estar para pessoas co
 ## ✨ Destaques
 
 - 🌓 **Design System Completo** (modo claro e escuro automático)
-- 📱 **Design Responsivo** (funciona em qualquer tela)
+- Design Responsivo (funciona em qualquer tela)
 - 🎯 **Componentes Reutilizáveis** (prontos para usar)
 - 🖌️ **Tailwind + Tokens Unificados** (duas formas de estilizar)
 - 🌐 **Suporte Web e Mobile Nativo** 
@@ -136,7 +136,7 @@ Antes de começar, você precisa ter instalado em sua máquina:
 - 🎯 Deploy Automático
 - 📊 Analytics Incluído
 
-## 📱 Executando o Projeto
+## Executando o Projeto
 
 Para iniciar o projeto em qualquer sistema operacional (Windows, macOS ou Linux), use o comando:
 
@@ -197,7 +197,7 @@ npm run android
    - Padrão: `/(tabs)/home` (nossa tela inicial após login)
    - Para alterar, edite `contexts/auth.tsx`
 
-### 📱 Fluxo de Autenticação
+### Fluxo de Autenticação
 - Login: `/(auth)/login`
 - Cadastro: `/(auth)/signup`
 - Home após login: `/(tabs)/home`
@@ -274,7 +274,7 @@ design-system/
     ├── typography.ts     # 🔤 Fontes e tamanhos
     ├── borders.ts        # 🔲 Border radius
     ├── effects.ts        # ✨ Sombras, opacidade, etc.
-    └── breakpoints.ts    # 📱 Responsividade
+    └── breakpoints.ts    # Responsividade
 ```
 
 ### 🎯 **Como Usar o Design System**
@@ -435,7 +435,7 @@ Esta tela mostra:
 - 📏 Exemplos de espaçamento
 - 🔤 Tipografia completa
 - ✨ Sombras e efeitos
-- 📱 Breakpoints responsivos
+- Breakpoints responsivos
 - 🧩 Componentes do sistema
 
 ### 🔄 **Compatibilidade**
@@ -452,7 +452,7 @@ import { useTheme } from '@/hooks/DesignSystemContext';
 const theme = useTheme(); // Aponta para useDesignSystem
 ```
 
-### 📱 **Responsividade Inteligente**
+### Responsividade Inteligente
 
 O sistema inclui breakpoints inteligentes que se adaptam automaticamente:
 
@@ -573,7 +573,7 @@ import { ThemeSelector } from '@/components/AicrusComponents/theme-selector/Them
 ## 📁 Estrutura do Projeto
 
 ```
-📱 Estrutura Principal
+Estrutura Principal
 /.expo              # Configurações do Expo
 /app                # Páginas e rotas da aplicação
   /(auth)           # Rotas de autenticação
@@ -597,7 +597,7 @@ import { ThemeSelector } from '@/components/AicrusComponents/theme-selector/Them
     /typography.ts  # 🔤 Fontes e tamanhos
     /borders.ts     # 🔲 Border radius
     /effects.ts     # ✨ Sombras, opacidade, etc.
-    /breakpoints.ts # 📱 Responsividade
+    /breakpoints.ts # Responsividade
 
 /components        # Componentes reutilizáveis
   /AicrusComponents/ # Biblioteca de componentes

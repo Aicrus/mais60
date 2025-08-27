@@ -491,12 +491,9 @@ export default function UsoScreen() {
 
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: rowLabelType.fontSize.default, lineHeight: rowLabelType.lineHeight.default, marginBottom: 8 }}>Contato de emergência</Text>
             <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: ui.divider, borderRadius: 8, paddingHorizontal: 12 }}>
-                <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginRight: 8 }}>📞</Text>
-                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
-                  {sensors.emergencyContact || 'Nenhum contato configurado'}
-                </Text>
-              </View>
+              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 16, flex: 1 }}>
+                {sensors.emergencyContact || 'Nenhum contato configurado'}
+              </Text>
               <Pressable
                 onPress={() => {
                   setEmergencyPhoneInput(sensors.emergencyContact || '');
@@ -511,12 +508,45 @@ export default function UsoScreen() {
             </View>
 
             {sensors.emergencyContact && (
-              <Pressable
-                onPress={sensors.callEmergencyContact}
-                style={{ marginTop: 12, height: 44, borderRadius: 8, borderWidth: 2, borderColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Text style={{ color: '#EF4444', fontFamily: dsFontFamily['jakarta-bold'] }}>Ligar para emergência</Text>
-              </Pressable>
+              <View>
+                <Pressable
+                  onPress={() => {
+                    console.log('Botão de emergência pressionado');
+                    console.log('Contato configurado:', sensors.emergencyContact);
+                    sensors.callEmergencyContact();
+                  }}
+                  style={{
+                    marginTop: 12,
+                    height: 44,
+                    borderRadius: 6,
+                    borderWidth: 1,
+                    borderColor: '#E5E7EB',
+                    backgroundColor: '#F9FAFB',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <Text style={{
+                    color: '#374151',
+                    fontFamily: dsFontFamily['jakarta-medium'],
+                    fontSize: 14
+                  }}>
+                    Ligar para emergência
+                  </Text>
+                </Pressable>
+
+                {Constants.appOwnership === 'expo' && (
+                  <Text style={{
+                    marginTop: 8,
+                    fontSize: 12,
+                    color: ui.text2,
+                    fontFamily: dsFontFamily['jakarta-medium'],
+                    textAlign: 'center'
+                  }}>
+                    Expo Go: Copiará o número para você ligar manualmente
+                  </Text>
+                )}
+              </View>
             )}
           </View>
         </View>
@@ -761,7 +791,7 @@ export default function UsoScreen() {
                 Número de telefone
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: ui.divider, borderRadius: 8, paddingHorizontal: 12 }}>
-                <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginRight: 8 }}>📞</Text>
+
                 <TextInput
                   style={{ flex: 1, height: 48, color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 16 }}
                   placeholder="Ex: (11) 99999-9999"
