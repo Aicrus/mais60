@@ -158,15 +158,15 @@ export default function UsoScreen() {
 
       // Pequeno delay antes de mostrar o modal para melhor UX
       setTimeout(() => {
-        // Mostrar modal apenas se alguma permissão não foi concedida
-        if (permissions.notifications.granted === false || permissions.motion.available === false) {
+        // Mostrar modal apenas se notificações não foram concedidas (sensores são automáticos)
+        if (permissions.notifications.granted === false && !isExpoGo) {
           setShowPermModal(true);
         }
       }, 1000);
     };
 
     checkPermsAndShowModal();
-  }, []);
+  }, [isExpoGo]);
 
   const palette = useMemo(() => [
     colors['brand-purple'],
@@ -538,6 +538,78 @@ export default function UsoScreen() {
           require('expo-router').router.push('/perfil/editar');
         }}
       />
+
+      {/* Modal de permissões */}
+      <Modal visible={showPermModal} transparent animationType="fade" onRequestClose={() => setShowPermModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+          <View style={{ width: '100%', maxWidth: 420, borderRadius: 16, borderWidth: 1, borderColor: ui.divider, backgroundColor: ui.card, padding: 16 }}>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: 18, textAlign: 'center', marginBottom: 8 }}>
+              Permissões necessárias
+            </Text>
+
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
+              Essas permissões ajudam o app a funcionar melhor
+            </Text>
+
+            <View style={{ gap: 12, marginBottom: 20 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <BellRing size={18} color={isExpoGo ? ui.text2 : ui.text} />
+                <Text style={{ color: isExpoGo ? ui.text2 : ui.text, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
+                  Notificações (opcional)
+                </Text>
+                {isExpoGo && <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 12 }}>Não disponível no Expo Go</Text>}
+              </View>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Activity size={18} color={ui.text} />
+                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
+                  Sensores de movimento
+                </Text>
+              </View>
+
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Database size={18} color={ui.text} />
+                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
+                  Armazenamento local
+                </Text>
+              </View>
+            </View>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
+              <Pressable
+                onPress={() => setShowPermModal(false)}
+                style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>Agora não</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={async () => {
+                  setShowPermModal(false);
+                  if (!isExpoGo) {
+                    await requestNotifications(setPermissions, isExpoGo);
+                  }
+                }}
+                style={{
+                  height: 44,
+                  paddingHorizontal: 16,
+                  borderRadius: 10,
+                  backgroundColor: isExpoGo ? ui.divider : colors['brand-purple'],
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Text style={{
+                  color: isExpoGo ? ui.text2 : '#FFFFFF',
+                  fontFamily: dsFontFamily['jakarta-bold']
+                }}>
+                  {isExpoGo ? 'Não disponível' : 'Permitir'}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </PageContainer>
   );
 }
