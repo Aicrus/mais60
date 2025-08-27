@@ -17,7 +17,7 @@ type SensorsState = {
   batteryLevel: number | null; // 0..1
   fallDetectionEnabled: boolean;
   emergencyContact: string | null;
-  fallConfirmationCountdown: number | null;
+
   showFallAlert: boolean;
   setFallDetectionEnabled: (enabled: boolean) => void;
   setEmergencyContact: (contact: string) => void;
@@ -32,7 +32,7 @@ const SensorsContext = createContext<SensorsState>({
   batteryLevel: null,
   fallDetectionEnabled: false,
   emergencyContact: null,
-  fallConfirmationCountdown: null,
+
   showFallAlert: false,
   setFallDetectionEnabled: () => {},
   setEmergencyContact: () => {},
@@ -54,7 +54,7 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
   const [emergencyContact, setEmergencyContact] = useState<string | null>(null);
   const [lastAccelValues, setLastAccelValues] = useState<number[]>([]);
   const [fallDetected, setFallDetected] = useState<boolean>(false);
-  const [fallConfirmationCountdown, setFallConfirmationCountdown] = useState<number | null>(null);
+
   const [showFallAlert, setShowFallAlert] = useState<boolean>(false);
 
   // Pedometer
@@ -153,7 +153,7 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     })();
   }, []);
 
-  // Improved fall detection logic
+  // Simplified and more reliable fall detection
   useEffect(() => {
     if (!fallDetectionEnabled || showFallAlert) return;
 
@@ -161,71 +161,63 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     let fallDetectionBuffer: number[] = [];
     let highImpactDetected = false;
     let stillnessStartTime = 0;
+    let monitoringStartTime = 0;
 
     try {
-      Accelerometer.setUpdateInterval(100); // Moderate frequency for better stability
+      Accelerometer.setUpdateInterval(200); // Faster updates for quicker detection
       accelSubscription = Accelerometer.addListener((data) => {
         const magnitude = Math.sqrt((data?.x || 0) ** 2 + (data?.y || 0) ** 2 + (data?.z || 0) ** 2);
 
-        // Debug log to monitor movement (only log occasionally to avoid spam)
-        if (Math.random() < 0.01) { // Log ~1% of readings
-          console.log('Accel data:', {
-            x: data?.x?.toFixed(2),
-            y: data?.y?.toFixed(2),
-            z: data?.z?.toFixed(2),
-            magnitude: magnitude.toFixed(2),
-            timestamp: Date.now()
-          });
-        }
-
-        // Maintain buffer of recent readings (increased for stability)
+        // Maintain buffer of recent readings
         fallDetectionBuffer.push(magnitude);
-        if (fallDetectionBuffer.length > 30) {
+        if (fallDetectionBuffer.length > 20) {
           fallDetectionBuffer.shift();
         }
 
         // Only process if we have enough data
-        if (fallDetectionBuffer.length < 15) return;
+        if (fallDetectionBuffer.length < 10) return;
 
-        const recent = fallDetectionBuffer.slice(-8);
-        const older = fallDetectionBuffer.slice(-20, -8);
+        const recent = fallDetectionBuffer.slice(-5);
         const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
-        const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
 
-        // Detect high impact (sudden acceleration spike) - more conservative thresholds
-        if (!highImpactDetected && olderAvg < 1.5 && recentAvg > 4.5) {
+        // Detect high impact (sudden spike) - simplified threshold
+        if (!highImpactDetected && recentAvg > 2.5) {
           highImpactDetected = true;
           stillnessStartTime = Date.now();
-          console.log('High impact detected:', recentAvg, 'at', new Date().toISOString());
+          monitoringStartTime = stillnessStartTime + 500; // Start monitoring after 0.5s
+          console.log('🚨 IMPACTO DETECTADO:', recentAvg.toFixed(2));
         }
 
-        // If high impact detected, look for subsequent stillness
+        // If high impact detected, monitor for stillness
         if (highImpactDetected) {
           const currentTime = Date.now();
-          const timeSinceImpact = currentTime - stillnessStartTime;
 
-          // Check for stillness (low movement for at least 3 seconds) - more conservative
-          if (recentAvg < 1.0 && timeSinceImpact > 3000 && timeSinceImpact < 8000) {
-            // Additional check: ensure this isn't just sitting down
-            const maxInRecent = Math.max(...recent);
-            const minInRecent = Math.min(...recent);
+          // Start monitoring after brief delay
+          if (currentTime >= monitoringStartTime && monitoringStartTime > 0) {
+            const monitoringTime = Math.round((currentTime - monitoringStartTime) / 1000);
 
-            // Additional validation: ensure this is likely a fall (not just device movement)
-            const gravityComponent = Math.abs(data.z); // Z-axis should show gravity effect
-            const isLikelyFall = gravityComponent < 8.0 || gravityComponent > 12.0; // Gravity should be ~9.8
-
-            if (maxInRecent - minInRecent < 0.8 && isLikelyFall && !fallDetected) {
-              console.log('Fall detected! Magnitude variation:', maxInRecent - minInRecent, 'Time since impact:', timeSinceImpact, 'Gravity component:', gravityComponent);
-              setFallDetected(true);
-              setShowFallAlert(true);
-              handleFallDetected();
+            // Check for stillness (magnitude below 2.5 during monitoring)
+            if (recentAvg < 2.5) {
+              // If still for 2+ seconds, confirm fall
+              if (monitoringTime >= 2 && !fallDetected) {
+                console.log('✅ QUEDA CONFIRMADA! Ligando para emergência...');
+                setFallDetected(true);
+                setShowFallAlert(true);
+                handleFallDetected();
+              }
+            } else if (recentAvg > 4.0) {
+              // Only reset if movement is very high (indicates normal activity)
+              highImpactDetected = false;
+              stillnessStartTime = 0;
+              monitoringStartTime = 0;
             }
           }
 
-          // Reset if movement resumes or too much time passes
-          if (recentAvg > 1.8 || timeSinceImpact > 12000) {
+          // Reset everything after 8 seconds total
+          if (currentTime - stillnessStartTime > 8000) {
             highImpactDetected = false;
             stillnessStartTime = 0;
+            monitoringStartTime = 0;
           }
         }
       });
@@ -238,40 +230,33 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     };
   }, [fallDetectionEnabled, fallDetected, showFallAlert]);
 
-  // Handle fall detection
+  // Handle fall detection - simplified
   const handleFallDetected = () => {
+    console.log('🚨 ALERTA DE QUEDA! Iniciando ligação em 3 segundos...');
     showToast({
       type: 'error',
       message: 'Queda detectada!',
-      description: 'Uma queda foi detectada. Você tem 15 segundos para cancelar a ligação.',
+      description: 'Ligando para emergência em 3 segundos...',
       position: Platform.OS === 'web' ? 'bottom-right' : 'top',
-      duration: 15000,
+      duration: 3000,
       closable: true,
     });
 
-    // Start countdown for emergency call
-    setFallConfirmationCountdown(15);
-    const countdownInterval = setInterval(() => {
-      setFallConfirmationCountdown(prev => {
-        if (prev === null || prev <= 1) {
-          clearInterval(countdownInterval);
-          if (emergencyContact && showFallAlert) {
-            callEmergencyContact();
-          }
-          setShowFallAlert(false);
-          setFallDetected(false);
-          return null;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    // Simple 3-second delay before calling
+    setTimeout(() => {
+      if (emergencyContact && showFallAlert) {
+        console.log('📞 Executando ligação de emergência...');
+        callEmergencyContact();
+      }
+      setShowFallAlert(false);
+      setFallDetected(false);
+    }, 3000);
   };
 
   // Cancel fall alert
   const cancelFallAlert = () => {
     setShowFallAlert(false);
     setFallDetected(false);
-    setFallConfirmationCountdown(null);
     showToast({
       type: 'success',
       message: 'Alerta cancelado',
@@ -514,13 +499,13 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     batteryLevel,
     fallDetectionEnabled,
     emergencyContact,
-    fallConfirmationCountdown,
+
     showFallAlert,
     setFallDetectionEnabled: saveFallDetectionEnabled,
     setEmergencyContact: saveEmergencyContact,
     callEmergencyContact,
     cancelFallAlert
-  }), [stepsToday, accelMagnitude, locationEnabled, batteryLevel, fallDetectionEnabled, emergencyContact, fallConfirmationCountdown, showFallAlert]);
+  }), [stepsToday, accelMagnitude, locationEnabled, batteryLevel, fallDetectionEnabled, emergencyContact, showFallAlert]);
   return (
     <SensorsContext.Provider value={value}>
       {children}

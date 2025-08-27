@@ -537,6 +537,8 @@ export default function UsoScreen() {
                   </Text>
                 </Pressable>
 
+
+
                 {Constants.appOwnership === 'expo' && (
                   <Text style={{
                     marginTop: 8,
@@ -741,8 +743,8 @@ export default function UsoScreen() {
               Uma queda foi detectada. Você está bem?
             </Text>
 
-            <Text style={{ fontSize: 18, fontFamily: dsFontFamily['jakarta-bold'], color: '#EF4444', textAlign: 'center', marginBottom: 10 }}>
-              Ligando em: {sensors.fallConfirmationCountdown}s
+            <Text style={{ fontSize: 16, fontFamily: dsFontFamily['jakarta-medium'], color: '#EF4444', textAlign: 'center', marginBottom: 10 }}>
+              Ligando para emergência em 3 segundos...
             </Text>
 
             <Text style={{ fontSize: 14, fontFamily: dsFontFamily['jakarta-medium'], color: ui.text2, textAlign: 'center', marginBottom: 30 }}>
