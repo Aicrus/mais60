@@ -4,10 +4,11 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
-import { ChevronLeft, Bell, Clock } from 'lucide-react-native';
+import { ChevronLeft, Bell, Clock, Settings, AlertTriangle } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/auth';
+import Constants from 'expo-constants';
 
 type NotificationData = {
   id: string;
@@ -41,11 +42,31 @@ export default function NotificacoesScreen() {
   const [items, setItems] = useState<NotificationData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [clearing, setClearing] = useState<boolean>(false);
+  const [notificationsGranted, setNotificationsGranted] = useState<boolean | null>(null);
+  const [checkingPermissions, setCheckingPermissions] = useState<boolean>(true);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
+        // Verificar permissões de notificações
+        setCheckingPermissions(true);
+        if (Constants.appOwnership !== 'expo') {
+          try {
+            const Notifications = await import('expo-notifications');
+            const settings = await Notifications.getPermissionsAsync();
+            setNotificationsGranted(settings.status === 'granted');
+          } catch (error) {
+            console.warn('Erro ao verificar notificações:', error);
+            setNotificationsGranted(false);
+          }
+        } else {
+          // No Expo Go, notificações não são suportadas
+          setNotificationsGranted(false);
+        }
+        setCheckingPermissions(false);
+
+        // Carregar notificações
         setLoading(true);
         const userId = session?.user?.id;
         const [notifsRes, dismissRes] = await Promise.all([
@@ -71,8 +92,10 @@ export default function NotificacoesScreen() {
         setItems(visible as NotificationData[]);
       } catch {
         setItems([]);
+        setNotificationsGranted(false);
       } finally {
         setLoading(false);
+        setCheckingPermissions(false);
       }
     })();
     return () => {
@@ -178,15 +201,83 @@ export default function NotificacoesScreen() {
         showsVerticalScrollIndicator={false}
         accessibilityRole="scrollbar"
       >
+        {/* Aviso de permissões não concedidas */}
+        {!checkingPermissions && notificationsGranted === false && (
+          <View style={[styles.permissionWarning, { backgroundColor: ui.bgSecondary, borderColor: '#FFF3CD' }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={[styles.warningIcon, { backgroundColor: '#FFF3CD' }]}>
+                <AlertTriangle size={20} color="#856404" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{
+                  color: '#856404',
+                  fontFamily: dsFontFamily['jakarta-semibold'],
+                  fontSize: getResponsiveValues('body-md').fontSize.default,
+                  marginBottom: 4
+                }}>
+                  {Constants.appOwnership === 'expo'
+                    ? 'Notificações não disponíveis no Expo Go'
+                    : 'Permissões de notificações não concedidas'
+                  }
+                </Text>
+                <Text style={{
+                  color: '#856404',
+                  fontFamily: dsFontFamily['jakarta-medium'],
+                  fontSize: getResponsiveValues('body-sm').fontSize.default,
+                  opacity: 0.8
+                }}>
+                  {Constants.appOwnership === 'expo'
+                    ? 'Para testar notificações, use um app compilado.'
+                    : 'Você não receberá lembretes sobre suas atividades.'
+                  }
+                </Text>
+              </View>
+            </View>
+            {Constants.appOwnership !== 'expo' && (
+              <Pressable
+                onPress={() => router.push('/permissoes')}
+                style={[styles.permissionButton, { backgroundColor: colors['brand-purple'] }]}
+              >
+                <Settings size={16} color="#FFFFFF" />
+                <Text style={{
+                  color: '#FFFFFF',
+                  fontFamily: dsFontFamily['jakarta-semibold'],
+                  fontSize: getResponsiveValues('label-sm').fontSize.default,
+                  marginLeft: 6
+                }}>
+                  Configurar permissões
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        )}
+
         {loading && (
           <View style={{ paddingVertical: 24, alignItems: 'center' }}>
             <ActivityIndicator size="large" color={colors['brand-purple']} />
           </View>
         )}
-        {!loading && items.length === 0 && (
-          <Text style={{ textAlign: 'center', color: ui.textSecondary, fontFamily: dsFontFamily['jakarta-medium'] }}>
-            Nenhuma notificação no momento.
-          </Text>
+        {!loading && items.length === 0 && !checkingPermissions && notificationsGranted !== false && (
+          <View style={{ paddingVertical: 32, alignItems: 'center' }}>
+            <Bell size={48} color={ui.textSecondary} style={{ marginBottom: 16, opacity: 0.5 }} />
+            <Text style={{
+              textAlign: 'center',
+              color: ui.textSecondary,
+              fontFamily: dsFontFamily['jakarta-medium'],
+              fontSize: getResponsiveValues('body-lg').fontSize.default,
+              marginBottom: 8
+            }}>
+              Nenhuma notificação no momento
+            </Text>
+            <Text style={{
+              textAlign: 'center',
+              color: ui.textTertiary,
+              fontFamily: dsFontFamily['jakarta-medium'],
+              fontSize: getResponsiveValues('body-sm').fontSize.default,
+            }}>
+              Você será notificado quando houver novidades sobre suas atividades.
+            </Text>
+          </View>
         )}
         {items.map((n) => (
           <View
@@ -293,6 +384,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
+  },
+  permissionWarning: {
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+    marginBottom: 16,
+    ...(Platform.OS === 'web' && { boxShadow: '0 2px 8px rgba(0,0,0,0.04)' as any }),
+  },
+  warningIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  permissionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginTop: 12,
   },
 });
 
