@@ -9,6 +9,9 @@ export type FavoriteItem = {
   subtitle?: string;
   type?: 'video';
   thumbnailUrl?: string;
+  pilarId?: string; // módulo/pilar do vídeo
+  categoriaId?: string; // categoria dentro do módulo
+  categoriaNome?: string; // nome da categoria para exibição
 };
 
 type FavoritesContextData = {
@@ -51,7 +54,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         if (userId) {
           const { data, error } = await supabase
             .from('favoritos')
-            .select('video_id, videos(youtube_id,titulo,descricao)')
+            .select('video_id, videos(youtube_id,titulo,descricao,pilar_id,categoria_id,categorias(titulo))')
             .eq('usuario_id', userId);
           if (!mounted) return;
           if (!error && data) {
@@ -64,7 +67,10 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
                   title: v.titulo || `Vídeo ${v.youtube_id}`,
                   subtitle: v.descricao || 'YouTube',
                   type: 'video' as const,
-                  thumbnailUrl: `https://i.ytimg.com/vi/${v.youtube_id}/hqdefault.jpg`
+                  thumbnailUrl: `https://i.ytimg.com/vi/${v.youtube_id}/hqdefault.jpg`,
+                  pilarId: v.pilar_id,
+                  categoriaId: v.categoria_id,
+                  categoriaNome: v.categorias?.titulo || 'Outros'
                 };
               })
               .filter(Boolean) as FavoriteItem[];
@@ -112,12 +118,37 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
   const toggleFavorite = useCallback(async (item: FavoriteItem) => {
     const sanitizedId = String(item.id || '').trim();
+
+    // Se não temos informações de categoria/pilar, buscar do banco
+    let pilarId = item.pilarId;
+    let categoriaId = item.categoriaId;
+    let categoriaNome = item.categoriaNome;
+
+    if (!pilarId || !categoriaId) {
+      try {
+        const { data: videoData } = await supabase
+          .from('videos')
+          .select('pilar_id, categoria_id, categorias(titulo)')
+          .eq('youtube_id', sanitizedId)
+          .maybeSingle();
+
+        if (videoData) {
+          pilarId = videoData.pilar_id;
+          categoriaId = videoData.categoria_id;
+          categoriaNome = videoData.categorias?.titulo || 'Outros';
+        }
+      } catch {}
+    }
+
     const safeItem: FavoriteItem = {
       id: sanitizedId,
       title: item.title,
       subtitle: item.subtitle,
       type: item.type || 'video',
       thumbnailUrl: item.thumbnailUrl,
+      pilarId,
+      categoriaId,
+      categoriaNome,
     };
     // Atualiza otimista local
     const next = isFavorite(sanitizedId)

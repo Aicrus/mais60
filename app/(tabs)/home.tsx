@@ -79,10 +79,13 @@ export default function Home() {
 
   // Logo central superior
   const logoRoxo = require('@/assets/images/Logo Mais 60 Roxo.png');
-  const logoAmarelo = require('@/assets/images/Logo Mais 60 Amarelo (1).png');
-  // Imagem do idoso usada nos cards
+  const logoBranco = require('@/assets/images/Logo Mais 60 Branco.png');
+  // Imagens específicas para cada módulo
   const idosoImage = require('@/assets/images/Imagem idoso feliz 8 ago 2025.png');
-  const idosoImageAlt = require('@/assets/images/Imagem idoso feliz 8 ago 2025 (1).png');
+  const mulherSeniorFigos = require('@/assets/images/Mulher Sênior com Figos (1).jpg');
+  const homemIdosoHidratando = require('@/assets/images/Homem Idoso Hidratando-se.jpg');
+  const peopleAlbum = require('@/assets/images/People Looking Over Album.jpg');
+  const idosoFelizAlt = require('@/assets/images/Imagem idoso feliz 8 ago 2025 (1).png');
   // Removidos assets remotos de módulos
   const [userName, setUserName] = useState<string>('você');
   const [avatarUrl, setAvatarUrl] = useState<string>('');
@@ -264,12 +267,14 @@ export default function Home() {
         )}
       </View>
       <View style={styles.topCenter}>
-        <Image source={isDark ? logoAmarelo : logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />
+        <Image source={isDark ? logoBranco : logoRoxo} style={styles.logoImage} resizeMode="contain" accessibilityLabel="Logo Mais60" />
       </View>
       <View style={styles.topSide}>
         <Pressable accessibilityLabel="Notificações" accessibilityRole="button" onPress={() => router.push('/notificacoes')}>
-          <View style={[styles.bellWrap, { backgroundColor: isDark ? '#1F2937' : '#F3F4F6' }]}>
-            <Bell size={18} color={ui.textPrimary} />
+          <View style={[styles.bellWrap, { backgroundColor: isDark ? '#374151' : '#E5E7EB' }]}>
+            <Bell size={20} color={ui.textPrimary} />
+            {/* Indicador visual para melhorar visibilidade */}
+            <View style={[styles.notificationIndicator, { backgroundColor: '#EF4444' }]} />
           </View>
         </Pressable>
       </View>
@@ -388,6 +393,7 @@ export default function Home() {
           badgeColor="#430593"
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/atividade-fisica')}
+          imageSource={homemIdosoHidratando}
         />
         <ModuleCard
           icon={<Utensils size={22} color="#FFFFFF" />}
@@ -396,7 +402,7 @@ export default function Home() {
           badgeColor="#430593"
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/habitos-alimentares')}
-          imageSource={idosoImageAlt}
+          imageSource={mulherSeniorFigos}
         />
         <ModuleCard
           icon={<Shield size={22} color="#FFFFFF" />}
@@ -405,6 +411,7 @@ export default function Home() {
           badgeColor="#430593"
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/seguranca-domiciliar')}
+          imageSource={idosoImage}
         />
         <ModuleCard
           icon={<Brain size={22} color="#FFFFFF" />}
@@ -413,6 +420,7 @@ export default function Home() {
           badgeColor="#430593"
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/estimulacao-cognitiva')}
+          imageSource={peopleAlbum}
         />
         <ModuleCard
           icon={<Heart size={22} color="#FFFFFF" />}
@@ -421,6 +429,7 @@ export default function Home() {
           badgeColor="#430593"
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/saude-mental')}
+          imageSource={idosoFelizAlt}
         />
       </View>
 
@@ -470,8 +479,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logoImage: {
-    width: 110,
-    height: 22,
+    width: 120,
+    height: 24,
   },
   welcomeWrap: {
     paddingHorizontal: 2,
@@ -495,11 +504,22 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   bellWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  notificationIndicator: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
   },
   avatarOuter: {
     width: 92,

@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, Linking, Alert } from 'react-native';
 import { Pedometer } from 'expo-sensors';
 import { Accelerometer } from 'expo-sensors';
 import * as Location from 'expo-location';
 import * as Battery from 'expo-battery';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useToast } from '@/hooks/useToast';
 
 type SensorsState = {
@@ -11,9 +12,24 @@ type SensorsState = {
   accelMagnitude: number | null;
   locationEnabled: boolean | null;
   batteryLevel: number | null; // 0..1
+  fallDetectionEnabled: boolean;
+  emergencyContact: string | null;
+  setFallDetectionEnabled: (enabled: boolean) => void;
+  setEmergencyContact: (contact: string) => void;
+  callEmergencyContact: () => void;
 };
 
-const SensorsContext = createContext<SensorsState>({ stepsToday: null, accelMagnitude: null, locationEnabled: null, batteryLevel: null });
+const SensorsContext = createContext<SensorsState>({
+  stepsToday: null,
+  accelMagnitude: null,
+  locationEnabled: null,
+  batteryLevel: null,
+  fallDetectionEnabled: false,
+  emergencyContact: null,
+  setFallDetectionEnabled: () => {},
+  setEmergencyContact: () => {},
+  callEmergencyContact: () => {}
+});
 
 export function SensorsProvider({ children }: { children: React.ReactNode }) {
   const [stepsToday, setStepsToday] = useState<number | null>(null);
@@ -22,6 +38,12 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
   const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
   const { showToast } = useToast();
   const [batteryWarned, setBatteryWarned] = useState<boolean>(false);
+
+  // Fall detection states
+  const [fallDetectionEnabled, setFallDetectionEnabled] = useState<boolean>(false);
+  const [emergencyContact, setEmergencyContact] = useState<string | null>(null);
+  const [lastAccelValues, setLastAccelValues] = useState<number[]>([]);
+  const [fallDetected, setFallDetected] = useState<boolean>(false);
 
   // Pedometer
   useEffect(() => {
@@ -100,7 +122,122 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [batteryLevel, batteryWarned, showToast]);
 
-  const value = useMemo(() => ({ stepsToday, accelMagnitude, locationEnabled, batteryLevel }), [stepsToday, accelMagnitude, locationEnabled, batteryLevel]);
+  // Load fall detection settings
+  useEffect(() => {
+    (async () => {
+      try {
+        const enabled = await AsyncStorage.getItem('@fall_detection_enabled');
+        const contact = await AsyncStorage.getItem('@emergency_contact');
+        setFallDetectionEnabled(enabled === 'true');
+        if (contact) setEmergencyContact(contact);
+      } catch {}
+    })();
+  }, []);
+
+  // Fall detection logic
+  useEffect(() => {
+    if (!fallDetectionEnabled) return;
+
+    let accelSubscription: any = null;
+
+    try {
+      Accelerometer.setUpdateInterval(100); // More frequent readings for fall detection
+      accelSubscription = Accelerometer.addListener((data) => {
+        const magnitude = Math.sqrt((data?.x || 0) ** 2 + (data?.y || 0) ** 2 + (data?.z || 0) ** 2);
+
+        setLastAccelValues(prev => {
+          const newValues = [...prev, magnitude].slice(-10); // Keep last 10 values
+
+          // Detect fall: sudden drop in acceleration followed by stillness
+          if (newValues.length >= 5) {
+            const recent = newValues.slice(-3);
+            const older = newValues.slice(-8, -3);
+            const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
+            const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
+
+            // Fall pattern: high acceleration followed by low acceleration (sudden stop)
+            if (olderAvg > 1.5 && recentAvg < 0.8 && !fallDetected) {
+              setFallDetected(true);
+              handleFallDetected();
+            }
+          }
+
+          return newValues;
+        });
+      });
+    } catch {}
+
+    return () => {
+      try {
+        if (accelSubscription?.remove) accelSubscription.remove();
+      } catch {}
+    };
+  }, [fallDetectionEnabled, fallDetected]);
+
+  // Handle fall detection
+  const handleFallDetected = () => {
+    showToast({
+      type: 'error',
+      message: 'Queda detectada!',
+      description: 'Uma queda foi detectada. Ligue para emergência se precisar de ajuda.',
+      position: Platform.OS === 'web' ? 'bottom-right' : 'top',
+      duration: 10000,
+      closable: true,
+    });
+
+    // Call emergency contact after 10 seconds if no response
+    setTimeout(() => {
+      if (emergencyContact && !fallDetected) {
+        callEmergencyContact();
+      }
+      setFallDetected(false);
+    }, 10000);
+  };
+
+  // Emergency contact functions
+  const saveFallDetectionEnabled = async (enabled: boolean) => {
+    try {
+      await AsyncStorage.setItem('@fall_detection_enabled', enabled.toString());
+      setFallDetectionEnabled(enabled);
+    } catch {}
+  };
+
+  const saveEmergencyContact = async (contact: string) => {
+    try {
+      await AsyncStorage.setItem('@emergency_contact', contact);
+      setEmergencyContact(contact);
+    } catch {}
+  };
+
+  const callEmergencyContact = () => {
+    if (!emergencyContact) {
+      Alert.alert('Erro', 'Nenhum contato de emergência configurado.');
+      return;
+    }
+
+    const phoneNumber = emergencyContact.replace(/\D/g, '');
+    const url = `tel:${phoneNumber}`;
+
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
+      } else {
+        Alert.alert('Erro', 'Não foi possível fazer a ligação.');
+      }
+    });
+  };
+
+  const value = useMemo(() => ({
+    stepsToday,
+    accelMagnitude,
+    locationEnabled,
+    batteryLevel,
+    fallDetectionEnabled,
+    emergencyContact,
+    setFallDetectionEnabled: saveFallDetectionEnabled,
+    setEmergencyContact: saveEmergencyContact,
+    callEmergencyContact
+  }), [stepsToday, accelMagnitude, locationEnabled, batteryLevel, fallDetectionEnabled, emergencyContact]);
   return (
     <SensorsContext.Provider value={value}>
       {children}

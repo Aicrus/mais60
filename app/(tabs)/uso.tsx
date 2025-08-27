@@ -123,6 +123,7 @@ export default function UsoScreen() {
   const sensors = useSensors();
   const locationTrack = useLocationTrack();
   const { session } = useAuth();
+  const [emergencyContactInput, setEmergencyContactInput] = React.useState(sensors.emergencyContact || '');
   const [showCompleteModal, setShowCompleteModal] = React.useState(false);
   const [historyMode, setHistoryMode] = React.useState<'7d' | '4w'>('7d');
   const [showAllRecent, setShowAllRecent] = React.useState(false);
@@ -338,9 +339,9 @@ export default function UsoScreen() {
           </View>
         </View>
 
-        {/* Sensores */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Sensores</Text>
-        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}> 
+        {/* Movimento do corpo */}
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Movimento do corpo</Text>
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
           <View style={[styles.statsRow, { paddingVertical: 6 }]}>
             <View style={styles.statItem}>
               <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{sensors.stepsToday ?? '—'}</Text>
@@ -351,13 +352,100 @@ export default function UsoScreen() {
               <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{sensors.accelMagnitude ?? '—'}</Text>
               <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: statLabelType.fontSize.default, lineHeight: statLabelType.lineHeight.default, marginTop: 2 }}>Movimento</Text>
             </View>
-            <View style={[styles.statDivider, { backgroundColor: ui.divider }]} />
+          </View>
+        </View>
+
+        {/* Estado do aparelho */}
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Estado do aparelho</Text>
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
+          <View style={[styles.statsRow, { paddingVertical: 6 }]}>
             <View style={styles.statItem}>
               <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: statValueType.fontSize.default, lineHeight: statValueType.lineHeight.default }}>{sensors.batteryLevel != null ? `${Math.round((sensors.batteryLevel || 0) * 100)}%` : '—'}</Text>
               <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: statLabelType.fontSize.default, lineHeight: statLabelType.lineHeight.default, marginTop: 2 }}>Bateria</Text>
             </View>
           </View>
         </View>
+
+        {/* Segurança */}
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Segurança</Text>
+        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
+          <View style={{ marginBottom: 16 }}>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 8 }}>Detecção de queda</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
+                Ativar detecção automática de quedas
+              </Text>
+              <Pressable
+                onPress={() => sensors.setFallDetectionEnabled(!sensors.fallDetectionEnabled)}
+                style={{
+                  width: 50,
+                  height: 28,
+                  borderRadius: 14,
+                  backgroundColor: sensors.fallDetectionEnabled ? colors['brand-purple'] : ui.divider,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <View style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 10,
+                  backgroundColor: '#FFFFFF',
+                  transform: [{ translateX: sensors.fallDetectionEnabled ? 11 : -11 }]
+                }} />
+              </Pressable>
+            </View>
+
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: rowLabelType.fontSize.default, lineHeight: rowLabelType.lineHeight.default, marginBottom: 8 }}>Contato de emergência</Text>
+            <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: ui.divider, borderRadius: 8, paddingHorizontal: 12 }}>
+                <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], marginRight: 8 }}>📞</Text>
+                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
+                  {sensors.emergencyContact || 'Nenhum contato configurado'}
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => {
+                  Alert.prompt(
+                    'Contato de emergência',
+                    'Digite o número de telefone para emergências:',
+                    [
+                      { text: 'Cancelar', style: 'cancel' },
+                      {
+                        text: 'Salvar',
+                        onPress: (phone) => {
+                          if (phone) {
+                            sensors.setEmergencyContact(phone);
+                            setEmergencyContactInput(phone);
+                          }
+                        }
+                      }
+                    ],
+                    'plain-text',
+                    emergencyContactInput
+                  );
+                }}
+                style={{ height: 44, paddingHorizontal: 16, borderRadius: 8, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>
+                  {sensors.emergencyContact ? 'Editar' : 'Configurar'}
+                </Text>
+              </Pressable>
+            </View>
+
+            {sensors.emergencyContact && (
+              <Pressable
+                onPress={sensors.callEmergencyContact}
+                style={{ marginTop: 12, height: 44, borderRadius: 8, borderWidth: 2, borderColor: '#EF4444', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ color: '#EF4444', fontFamily: dsFontFamily['jakarta-bold'] }}>Ligar para emergência</Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+
+        {/* Atividade física */}
+        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Atividade física</Text>
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default }}>Caminhada</Text>

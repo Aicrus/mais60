@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Image, Pressable, ScrollView } from 'react-native';
 import { PageContainer } from '@/components/layout/PageContainer';
 import { useTheme } from '@/hooks/DesignSystemContext';
@@ -13,6 +13,35 @@ export default function FavoritosScreen() {
   const isDark = currentTheme === 'dark';
   const { favorites, removeFavorite, clearFavorites } = useFavorites();
   const router = useRouter();
+  const [selectedPilar, setSelectedPilar] = useState<string>('__todos__');
+
+  // Mapeamento dos pilares para nomes legíveis (igual aos módulos)
+  const pilaresMap: Record<string, string> = {
+    'atividade-fisica': 'Movimente-se',
+    'habitos-alimentares': 'Alimente-se',
+    'seguranca-domiciliar': 'Segurança em casa',
+    'estimulacao-cognitiva': 'Mente ativa',
+    'saude-mental': 'Bem-estar',
+  };
+
+  // Filtrar favoritos baseado no pilar selecionado
+  const filteredFavorites = useMemo(() => {
+    if (selectedPilar === '__todos__') {
+      return favorites;
+    }
+    return favorites.filter(fav => fav.pilarId === selectedPilar);
+  }, [favorites, selectedPilar]);
+
+  // Obter pilares únicos dos favoritos para mostrar apenas os que têm conteúdo
+  const availablePilares = useMemo(() => {
+    const uniquePilares = new Set<string>();
+    favorites.forEach(fav => {
+      if (fav.pilarId) {
+        uniquePilares.add(fav.pilarId);
+      }
+    });
+    return Array.from(uniquePilares);
+  }, [favorites]);
 
   const titleType = getResponsiveValues('headline-lg');
   const listTitleType = getResponsiveValues('title-sm');
@@ -40,6 +69,39 @@ export default function FavoritosScreen() {
           marginBottom: 8,
         }}>Favoritos</Text>
 
+        {/* Filtros por categoria/pilar */}
+        {availablePilares.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 8 }}>
+            {[{ id: '__todos__', titulo: 'Todos' } as { id: string; titulo: string }, ...availablePilares.map(pilar => ({ id: pilar, titulo: pilaresMap[pilar] || pilar }))].map((opt) => (
+              <Pressable
+                key={opt.id}
+                onPress={() => setSelectedPilar(opt.id)}
+                accessibilityRole="button"
+                accessibilityLabel={opt.titulo}
+                style={[
+                  styles.chip,
+                  {
+                    backgroundColor:
+                      selectedPilar === opt.id
+                        ? (isDark ? colors['primary-dark'] : colors['primary-light'])
+                        : (isDark ? colors['bg-secondary-dark'] : '#FFFFFF'),
+                     borderColor: ui.divider,
+                  },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: selectedPilar === opt.id ? '#FFFFFF' : (isDark ? colors['text-primary-dark'] : colors['text-primary-light']),
+                    fontFamily: dsFontFamily['jakarta-semibold'],
+                  }}
+                >
+                  {opt.titulo}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
+
         {favorites.length === 0 ? (
           <View style={[styles.emptyCard, { borderColor: ui.divider, backgroundColor: ui.card }] }>
             <View style={{ marginBottom: 12 }}>
@@ -47,6 +109,18 @@ export default function FavoritosScreen() {
             </View>
             <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: emptyTitleType.fontSize.default, lineHeight: emptyTitleType.lineHeight.default, textAlign: 'center' }}>Nenhum favorito ainda</Text>
             <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: emptyDescType.fontSize.default, lineHeight: emptyDescType.lineHeight.default, textAlign: 'center', marginTop: 6 }}>Toque no coração ao assistir um vídeo para salvar aqui.</Text>
+          </View>
+        ) : filteredFavorites.length === 0 && selectedPilar !== '__todos__' ? (
+          <View style={[styles.emptyCard, { borderColor: ui.divider, backgroundColor: ui.card }]}>
+            <View style={{ marginBottom: 12 }}>
+              <Heart size={64} color={ui.tint} />
+            </View>
+            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-bold'], fontSize: emptyTitleType.fontSize.default, lineHeight: emptyTitleType.lineHeight.default, textAlign: 'center' }}>
+              Nenhum favorito nesta categoria
+            </Text>
+            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: emptyDescType.fontSize.default, lineHeight: emptyDescType.lineHeight.default, textAlign: 'center', marginTop: 6 }}>
+              Você tem {favorites.length} favorito{favorites.length !== 1 ? 's' : ''} em outras categorias.
+            </Text>
           </View>
         ) : (
           <>
@@ -61,7 +135,7 @@ export default function FavoritosScreen() {
               </Pressable>
             </View>
             <View style={{ gap: 12 }}>
-              {favorites.map((item) => (
+              {filteredFavorites.map((item) => (
                 <Pressable
                   key={item.id}
                   style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}
@@ -127,6 +201,7 @@ const styles = StyleSheet.create({
   thumb: { width: 56, height: 56, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
   thumbIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' },
   removeBtn: { width: 44, height: 44, borderRadius: 12, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  chip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1 },
 });
 
 
