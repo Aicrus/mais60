@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { useResponsive } from '@/hooks/useResponsive';
 import { Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useKeyboardOffset } from '@/hooks/useKeyboardOffset';
+
 
 function normalizePhone(raw: string) {
   const digits = (raw || '').replace(/\D/g, '');
@@ -53,7 +53,6 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
   const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState<number>(0);
   const [timerId, setTimerId] = useState<any>(null);
-  const { footerTranslateStyle } = useKeyboardOffset();
   const scrollViewRef = useRef<ScrollView>(null);
 
   const sendCode = async () => {
@@ -140,7 +139,7 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
             style={{ flex: 1 }}
             contentContainerStyle={{
               flexGrow: 1,
-              paddingBottom: responsive({ mobile: 60, tablet: 80, desktop: 100, default: 60 })
+              paddingBottom: responsive({ mobile: 140, tablet: 160, desktop: 180, default: 140 })
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
@@ -233,28 +232,29 @@ export default function LoginTelefone({ mode = 'login' }: LoginTelefoneProps) {
                 </View>
               </View>
             </View>
-          </ScrollView>
-          {/* Rodapé fixo: no Android, desloca para baixo quando teclado aparece */}
-          <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: Math.max(insets.bottom, 10), ...(footerTranslateStyle || {}) }}>
-            <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
-              <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
-                Para conhecer os{' '}
-                <Link href="/sobre/termos-de-uso" asChild>
-                  <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>termos de uso</Text>
-                </Link>
-                {' '}e a{' '}
-                <Link href="/sobre/politica-de-privacidade" asChild>
-                  <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>política de privacidade</Text>
-                </Link>
-                {' '}do app Mais 60.
-              </Text>
+
+            {/* Rodapé dentro do ScrollView para evitar sobreposição */}
+            <View style={styles.footer}>
+              <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
+                <Text style={{ textAlign: 'center', color: ui.text2, fontFamily: dsFontFamily['jakarta-regular'] }}>
+                  Para conhecer os{' '}
+                  <Link href="/sobre/termos-de-uso" asChild>
+                    <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>termos de uso</Text>
+                  </Link>
+                  {' '}e a{' '}
+                  <Link href="/sobre/politica-de-privacidade" asChild>
+                    <Text style={{ color: colors['brand-purple'], fontFamily: dsFontFamily['jakarta-semibold'] }}>política de privacidade</Text>
+                  </Link>
+                  {' '}do app Mais 60.
+                </Text>
+              </View>
+              <View style={{ height: 6, backgroundColor: '#430593' }} />
+              <View style={{ height: 2 }} />
+              <View style={{ height: 6, backgroundColor: '#27CC95' }} />
+              <View style={{ height: 2 }} />
+              <View style={{ height: 6, backgroundColor: '#FB5C3D' }} />
             </View>
-            <View style={{ height: 6, backgroundColor: '#430593' }} />
-            <View style={{ height: 2 }} />
-            <View style={{ height: 6, backgroundColor: '#27CC95' }} />
-            <View style={{ height: 2 }} />
-            <View style={{ height: 6, backgroundColor: '#FB5C3D' }} />
-          </View>
+          </ScrollView>
         </View>
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
@@ -299,6 +299,10 @@ const styles = StyleSheet.create({
   },
   codeContainer: {
     alignItems: 'center',
+  },
+  footer: {
+    marginTop: 40,
+    paddingBottom: Math.max(10, 10), // espaço seguro para telas pequenas
   },
 });
 
