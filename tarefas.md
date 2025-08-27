@@ -7,6 +7,7 @@
 ☑️ **Adicionar botão de fechar** - Incluir um "X" ou botão "Fechar" visível em todos os pop-ups, modais e telas secundárias
 ☑️ **Reorganizar hierarquia dos vídeos** - Mover os botões que estão soltos para uma posição mais lógica, próximos ao conteúdo relacionado
 ☑️ **Clarificar função do botão "Concluir"** - Adicionar texto explicativo ou ícones que mostrem se o botão salva, gera pontos ou apenas fecha
+✅ **Melhorar componente Button** - Adicionar propriedade `largerForElderly` para botões maiores e mais acessíveis
 
 ## **2. PERFIL E CONFIGURAÇÕES** ☐
 
