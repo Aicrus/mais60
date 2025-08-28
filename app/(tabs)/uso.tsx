@@ -215,14 +215,31 @@ export default function UsoScreen() {
   return (
     <PageContainer>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
-        <Text style={{
-          color: ui.text,
-          fontFamily: dsFontFamily['jakarta-extrabold'],
-          fontSize: titleType.fontSize.default,
-          lineHeight: titleType.lineHeight.default,
-          marginBottom: 8,
-        }}>Meu Desempenho</Text>
+        <View style={styles.header}>
+          <Text
+            style={{
+              color: ui.text,
+              fontFamily: dsFontFamily['jakarta-bold'],
+              fontSize: getResponsiveValues('headline-lg').fontSize.default,
+              lineHeight: getResponsiveValues('headline-lg').lineHeight.default,
+            }}
+          >
+            Uso do App
+          </Text>
+          <Text
+            style={{
+              color: ui.text2,
+              fontFamily: dsFontFamily['jakarta-medium'],
+              fontSize: getResponsiveValues('body-md').fontSize.default,
+              lineHeight: getResponsiveValues('body-md').lineHeight.default,
+              marginTop: 4,
+              textAlign: 'center',
+              paddingHorizontal: 20
+            }}
+          >
+            Acompanhe seu desempenho e atividade
+          </Text>
+        </View>
 
         {/* KPIs de Hoje e Semana */}
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
@@ -469,6 +486,11 @@ export default function UsoScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 90, paddingTop: 4 },
+  header: {
+    alignItems: 'center',
+    paddingTop: 12,
+    paddingBottom: 24,
+  },
   card: { borderRadius: 16, borderWidth: 1, overflow: 'hidden', marginBottom: 12, paddingVertical: 12, paddingHorizontal: 12 },
   statsRow: { flexDirection: 'row', alignItems: 'stretch', justifyContent: 'space-between', gap: 0 },
   statItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 6 },

@@ -61,13 +61,31 @@ export default function FavoritosScreen() {
   return (
     <PageContainer>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={{
-          color: ui.text,
-          fontFamily: dsFontFamily['jakarta-extrabold'],
-          fontSize: titleType.fontSize.default,
-          lineHeight: titleType.lineHeight.default,
-          marginBottom: 8,
-        }}>Favoritos</Text>
+        <View style={styles.header}>
+          <Text
+            style={{
+              color: ui.text,
+              fontFamily: dsFontFamily['jakarta-bold'],
+              fontSize: getResponsiveValues('headline-lg').fontSize.default,
+              lineHeight: getResponsiveValues('headline-lg').lineHeight.default,
+            }}
+          >
+            Favoritos
+          </Text>
+          <Text
+            style={{
+              color: ui.text2,
+              fontFamily: dsFontFamily['jakarta-medium'],
+              fontSize: getResponsiveValues('body-md').fontSize.default,
+              lineHeight: getResponsiveValues('body-md').lineHeight.default,
+              marginTop: 4,
+              textAlign: 'center',
+              paddingHorizontal: 20
+            }}
+          >
+            Seus vídeos salvos para assistir depois
+          </Text>
+        </View>
 
         {/* Filtros por categoria/pilar */}
         {availablePilares.length > 0 && (
@@ -194,6 +212,11 @@ export default function FavoritosScreen() {
 
 const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 90, paddingTop: 4 },
+  header: {
+    alignItems: 'center',
+    paddingTop: 12,
+    paddingBottom: 24,
+  },
   emptyCard: { borderWidth: 1, borderRadius: 16, paddingVertical: 24, paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center' },
   actionsRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 8 },
   clearBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 999, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 10 },
