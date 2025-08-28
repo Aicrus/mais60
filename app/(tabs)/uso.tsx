@@ -20,6 +20,7 @@ import { PieChart, BarChart } from 'react-native-gifted-charts';
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { Pedometer } from 'expo-sensors';
+import * as Permissions from 'expo-permissions';
 
 function formatDuration(totalSeconds: number): string {
   if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '0s';
@@ -99,12 +100,61 @@ export default function UsoScreen() {
       setShowEmergencyContactModal(false);
       setEmergencyPhoneInput('');
 
+      // Solicitar automaticamente permissão de movimento após salvar contato
+      await requestMotionPermission();
+
       Alert.alert('Sucesso', 'Contato de emergência salvo com sucesso!');
     } catch (error) {
       console.error('Erro ao salvar contato:', error);
       Alert.alert('Erro', 'Não foi possível salvar o contato. Tente novamente.');
     } finally {
       setIsLoadingEmergencyContact(false);
+    }
+  };
+
+  const requestMotionPermission = async () => {
+    try {
+      // Verificar se já temos permissão
+      const isAvailable = await Pedometer.isAvailableAsync();
+      if (!isAvailable) {
+        Alert.alert(
+          'Sensores não disponíveis',
+          'Os sensores de movimento não estão disponíveis neste dispositivo.',
+          [{ text: 'Entendi' }]
+        );
+        return;
+      }
+
+      // Solicitar permissão se necessário
+      const { status } = await Pedometer.requestPermissionsAsync();
+
+      if (status === 'granted') {
+        Alert.alert(
+          '✅ Permissão concedida!',
+          'Agora podemos detectar quedas e monitorar sua atividade física.',
+          [{ text: 'Ótimo!' }]
+        );
+      } else {
+        Alert.alert(
+          'Permissão necessária',
+          'Para detectar quedas automaticamente, precisamos da permissão de movimento. Você pode concedê-la nas configurações do dispositivo.',
+          [
+            { text: 'Depois' },
+            {
+              text: 'Ir para configurações',
+              onPress: () => {
+                if (Platform.OS === 'ios') {
+                  require('expo-linking').openURL('app-settings:');
+                } else {
+                  require('expo-linking').openSettings();
+                }
+              }
+            }
+          ]
+        );
+      }
+    } catch (error) {
+      console.warn('Erro ao solicitar permissão de movimento:', error);
     }
   };
 

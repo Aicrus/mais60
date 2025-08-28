@@ -24,8 +24,7 @@ export default function PerfilPermissoesScreen() {
   const [permissions, setPermissions] = useState({
     notifications: { granted: null as boolean | null, loading: true },
     motion: { available: null as boolean | null, loading: true },
-    location: { granted: null as boolean | null, loading: false },
-    health: { granted: null as boolean | null, loading: false }
+    location: { granted: null as boolean | null, loading: false }
   });
 
   useEffect(() => {
@@ -277,6 +276,17 @@ export default function PerfilPermissoesScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Header */}
         <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 24 }}>
+          <View style={{
+            width: 64,
+            height: 64,
+            borderRadius: 32,
+            backgroundColor: '#43059320',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16
+          }}>
+            <Heart size={32} color="#430593" />
+          </View>
           <Text style={{
             color: uiColors.textPrimary,
             fontFamily: dsFontFamily['jakarta-bold'],
@@ -285,7 +295,7 @@ export default function PerfilPermissoesScreen() {
             textAlign: 'center',
             marginBottom: 8
           }}>
-            Permissões do App
+            Personalizar sua Segurança
           </Text>
           <Text style={{
             color: uiColors.textSecondary,
@@ -295,7 +305,7 @@ export default function PerfilPermissoesScreen() {
             textAlign: 'center',
             paddingHorizontal: 20
           }}>
-            Essas permissões ajudam o app a funcionar melhor e personalizar sua experiência
+            Configure as permissões para tornar seu app mais inteligente e seguro. Cada recurso foi projetado pensando na sua saúde e bem-estar.
           </Text>
         </View>
 
@@ -339,9 +349,9 @@ export default function PerfilPermissoesScreen() {
         {/* Permissions Cards */}
         <PermissionCard
           icon={<BellRing size={24} color="#430593" />}
-          title="Notificações"
-          description="Receba lembretes suaves sobre suas atividades diárias e metas de saúde."
-          benefit="Ajuda você a manter hábitos saudáveis com lembretes no momento certo"
+          title="Lembretes Inteligentes"
+          description="Receba notificações personalizadas sobre seus exercícios e hábitos diários."
+          benefit="💡 Mantém você motivado com lembretes suaves no momento ideal"
           granted={permissions.notifications.granted}
           loading={permissions.notifications.loading}
           onRequest={requestNotifications}
@@ -350,9 +360,9 @@ export default function PerfilPermissoesScreen() {
 
         <PermissionCard
           icon={<Activity size={24} color="#430593" />}
-          title="Sensores de Movimento"
-          description="Acesse dados de passos e movimento do seu dispositivo."
-          benefit="Permite acompanhar sua atividade física e progresso diário"
+          title="Detecção de Movimento"
+          description="Monitora seus movimentos para detectar quedas e acompanhar atividade física."
+          benefit="🛡️ Protege você com detecção automática de emergências"
           granted={permissions.motion.available}
           available={permissions.motion.available}
           loading={permissions.motion.loading}
@@ -360,32 +370,40 @@ export default function PerfilPermissoesScreen() {
           disabled={true}
         />
 
-        <PermissionCard
-          icon={<Heart size={24} color="#430593" />}
-          title="Dados de Saúde"
-          description="Integre com apps de saúde para dados mais precisos."
-          benefit="Combina informações para um acompanhamento mais completo da sua saúde"
-          granted={permissions.health.granted}
-          loading={permissions.health.loading}
-          onRequest={() => Alert.alert('Em breve', 'Integração com apps de saúde estará disponível em breve!')}
-          disabled={true}
-        />
+
 
         {/* Footer */}
         <View style={{
           paddingTop: 20,
           alignItems: 'center'
         }}>
-          <Text style={{
-            color: uiColors.textSecondary,
-            fontFamily: dsFontFamily['jakarta-medium'],
-            fontSize: bodyType.fontSize.default - 2,
-            lineHeight: bodyType.lineHeight.default,
-            textAlign: 'center',
-            paddingHorizontal: 20
+          <View style={{
+            backgroundColor: uiColors.bgSecondary,
+            borderRadius: 16,
+            padding: 20,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: uiColors.divider
           }}>
-            🔒 Suas permissões são armazenadas apenas no seu dispositivo e podem ser alteradas a qualquer momento nas configurações do sistema.
-          </Text>
+            <Text style={{
+              color: uiColors.textPrimary,
+              fontFamily: dsFontFamily['jakarta-bold'],
+              fontSize: bodyType.fontSize.default,
+              textAlign: 'center',
+              marginBottom: 8
+            }}>
+              🛡️ Sua Privacidade em Primeiro Lugar
+            </Text>
+            <Text style={{
+              color: uiColors.textSecondary,
+              fontFamily: dsFontFamily['jakarta-medium'],
+              fontSize: bodyType.fontSize.default - 2,
+              lineHeight: bodyType.lineHeight.default,
+              textAlign: 'center'
+            }}>
+              Todas as permissões são opcionais e ficam armazenadas apenas no seu dispositivo. Você pode alterá-las a qualquer momento nas configurações do sistema.
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </PageContainer>
