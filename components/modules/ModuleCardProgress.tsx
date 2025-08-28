@@ -3,36 +3,32 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { colors } from '@/design-system/tokens/colors';
 import { useModuleProgress } from '@/hooks/useModuleProgress';
-import { useAuth } from '@/contexts/auth';
+import { supabase } from '@/lib/supabase';
+import { useEffect, useState } from 'react';
+import { CircularProgressBase } from 'react-native-circular-progress-indicator';
 
 interface ModuleCardProgressProps {
   moduleKey: string;
   style?: any;
   compact?: boolean;
-  userId?: string;
 }
 
-export function ModuleCardProgress({ moduleKey, style, compact = false, userId: propUserId }: ModuleCardProgressProps) {
+export function ModuleCardProgress({ moduleKey, style, compact = false }: ModuleCardProgressProps) {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
-  const { session } = useAuth();
 
-  // Usar userId da prop ou do contexto de auth
-  const userId = propUserId || session?.user?.id;
-
+  const [userId, setUserId] = useState<string | undefined>();
   const stats = useModuleProgress(moduleKey, userId);
 
-  // Mostrar indicador de carregamento se estiver carregando
-  if (stats.isLoading) {
-    return (
-      <View style={[styles.loadingContainer, style]}>
-        <View style={styles.loadingCircle} />
-      </View>
-    );
-  }
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      setUserId(auth.user?.id);
+    };
+    getUser();
+  }, []);
 
-  // Não mostrar nada se não houver vídeos ou usuário não logado
-  if (stats.totalVideos === 0 || !userId) {
+  if (stats.isLoading || stats.totalVideos === 0) {
     return null;
   }
 
@@ -202,18 +198,5 @@ const styles = StyleSheet.create({
     fontSize: 11,
     textAlign: 'center',
     lineHeight: 14,
-  },
-  loadingContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingCircle: {
-    width: compact ? 22 : 40,
-    height: compact ? 22 : 40,
-    borderRadius: compact ? 11 : 20,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderTopColor: '#F59E0B',
-    opacity: 0.7,
   },
 });
