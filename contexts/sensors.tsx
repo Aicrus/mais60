@@ -22,6 +22,7 @@ type SensorsState = {
   setFallDetectionEnabled: (enabled: boolean) => void;
   setEmergencyContact: (contact: string) => void;
   callEmergencyContact: () => void;
+  callEmergencyContactDirect: () => void;
   cancelFallAlert: () => void;
 };
 
@@ -37,6 +38,7 @@ const SensorsContext = createContext<SensorsState>({
   setFallDetectionEnabled: () => {},
   setEmergencyContact: () => {},
   callEmergencyContact: () => {},
+  callEmergencyContactDirect: () => {},
   cancelFallAlert: () => {}
 });
 
@@ -323,6 +325,16 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  const callEmergencyContactDirect = async () => {
+    if (!emergencyContact) {
+      console.error('Nenhum contato de emergência configurado');
+      return;
+    }
+
+    // Ligação direta sem confirmação - para emergências automáticas
+    await makeEmergencyCall();
+  };
+
   const makeEmergencyCall = async () => {
     try {
       console.log('📞 Iniciando ligação de emergência...');
@@ -486,6 +498,7 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     setFallDetectionEnabled: saveFallDetectionEnabled,
     setEmergencyContact: saveEmergencyContact,
     callEmergencyContact,
+    callEmergencyContactDirect,
     cancelFallAlert
   }), [stepsToday, accelMagnitude, locationEnabled, batteryLevel, fallDetectionEnabled, emergencyContact, showFallAlert]);
   return (

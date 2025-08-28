@@ -403,7 +403,7 @@ export default function SegurancaScreen() {
                   style={{
                     flex: 1,
                     height: 48,
-                    color: uiColors.text,
+                    color: uiColors.textPrimary,
                     fontFamily: dsFontFamily['jakarta-medium'],
                     fontSize: 16
                   }}
@@ -448,7 +448,7 @@ export default function SegurancaScreen() {
                 disabled={isLoadingEmergencyContact}
               >
                 <Text style={{
-                  color: uiColors.text,
+                  color: uiColors.textPrimary,
                   fontFamily: dsFontFamily['jakarta-semibold'],
                   fontSize: 16
                 }}>

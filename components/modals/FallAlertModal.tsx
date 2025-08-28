@@ -16,7 +16,7 @@ const FallAlertModal = memo(function FallAlertModal() {
   };
 
   const handleCallNow = () => {
-    sensors.callEmergencyContact();
+    sensors.callEmergencyContactDirect();
   };
 
   return (
@@ -85,51 +85,17 @@ const FallAlertModal = memo(function FallAlertModal() {
             Você está bem?
           </Text>
 
-          {/* Instrução específica por ambiente */}
+          {/* Instrução clara */}
           <Text style={{
             fontSize: 16,
             fontFamily: 'Jakarta-Medium',
             color: '#EF4444',
             textAlign: 'center',
-            marginBottom: 15,
+            marginBottom: 20,
             fontWeight: '500'
           }}>
-            Toque "Ligar Agora" para emergência
+            EMERGÊNCIA - Ligue imediatamente!
           </Text>
-
-          {/* Caixa explicativa para Expo Go */}
-          {Constants.appOwnership === 'expo' && (
-            <View style={{
-              backgroundColor: '#FEF3C7',
-              borderRadius: 12,
-              padding: 16,
-              marginBottom: 20,
-              borderWidth: 1,
-              borderColor: '#F59E0B',
-              width: '100%'
-            }}>
-              <Text style={{
-                fontSize: 14,
-                fontFamily: 'Jakarta-SemiBold',
-                color: '#92400E',
-                textAlign: 'center',
-                marginBottom: 8
-              }}>
-                O que acontecerá:
-              </Text>
-              <Text style={{
-                fontSize: 13,
-                fontFamily: 'Jakarta-Medium',
-                color: '#92400E',
-                textAlign: 'center',
-                lineHeight: 18
-              }}>
-                • O app Telefone será aberto{'\n'}
-                • Ligue manualmente para o contato{'\n'}
-                • O número já estará pronto
-              </Text>
-            </View>
-          )}
 
           {/* Contato de emergência */}
           <Text style={{
@@ -206,7 +172,7 @@ const FallAlertModal = memo(function FallAlertModal() {
             textAlign: 'center',
             marginTop: 20
           }}>
-            Ligue imediatamente ou toque "Estou Bem" se estiver tudo bem
+            EMERGÊNCIA: Ligue AGORA ou confirme se está bem
           </Text>
         </View>
       </View>
