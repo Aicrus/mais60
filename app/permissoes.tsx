@@ -274,41 +274,41 @@ export default function PerfilPermissoesScreen() {
   return (
     <PageContainer>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Navigation Bar */}
-        <View style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 4,
-          paddingBottom: 16,
-          marginBottom: 8
-        }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8, paddingHorizontal: 2, paddingBottom: 8 }}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Voltar"
             onPress={() => router.back()}
             style={{
               height: 44,
-              paddingHorizontal: 12,
+              paddingHorizontal: 10,
               borderRadius: 22,
               alignItems: 'center',
               justifyContent: 'center',
               flexDirection: 'row',
-              gap: 8,
+              gap: 6,
               borderWidth: 1,
+              shadowColor: '#000',
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 2,
               backgroundColor: uiColors.bgSecondary,
               borderColor: uiColors.divider,
             }}
           >
-            <ChevronLeft size={20} color={uiColors.textPrimary} />
-            <Text style={{
-              color: uiColors.textPrimary,
-              fontFamily: dsFontFamily['jakarta-medium'],
+            <ChevronLeft size={22} color={isDark ? colors['text-primary-dark'] : colors['brand-purple']} />
+          </Pressable>
+          <Text
+            style={{
+              color: isDark ? colors['text-primary-dark'] : colors['text-primary-light'],
+              fontFamily: appBarLabelType.fontFamily,
               fontSize: appBarLabelType.fontSize.default,
               lineHeight: appBarLabelType.lineHeight.default,
-            }}>
-              Voltar
-            </Text>
-          </Pressable>
+            }}
+          >
+            Voltar
+          </Text>
         </View>
 
         {/* Header */}
