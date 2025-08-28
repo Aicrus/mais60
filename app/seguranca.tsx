@@ -288,27 +288,23 @@ export default function SegurancaScreen() {
             </Pressable>
           </View>
 
-          <View style={{
-            backgroundColor: sensors.fallDetectionEnabled ? '#E0F2FE' : '#F5F5F5',
-            borderRadius: 12,
-            padding: 14,
-            marginTop: 12,
-            borderWidth: 1,
-            borderColor: sensors.fallDetectionEnabled ? '#90CAF9' : '#E0E0E0'
-          }}>
-            <Text style={{
-              color: sensors.fallDetectionEnabled ? '#0277BD' : uiColors.textSecondary,
-              fontFamily: dsFontFamily['jakarta-medium'],
-              fontSize: bodyType.fontSize.default - 1,
-              textAlign: 'center',
-              lineHeight: bodyType.lineHeight.default
+          {sensors.fallDetectionEnabled && (
+            <View style={{
+              backgroundColor: '#E0F2FE',
+              borderRadius: 12,
+              padding: 12,
+              marginTop: 8
             }}>
-              {sensors.fallDetectionEnabled
-                ? 'Detecta quedas e liga automaticamente para o contato de emergência'
-                : 'Configure um contato de emergência para ativar a detecção automática'
-              }
-            </Text>
-          </View>
+              <Text style={{
+                color: '#0277BD',
+                fontFamily: dsFontFamily['jakarta-medium'],
+                fontSize: bodyType.fontSize.default - 2,
+                textAlign: 'center'
+              }}>
+                Detecta quedas e liga automaticamente para emergência
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Contato de emergência */}
