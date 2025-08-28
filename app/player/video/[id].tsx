@@ -80,11 +80,7 @@ export default function VideoPlayerScreen() {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { aggregates, logWatch, markCompleted, unmarkCompleted } = useUsage();
   const { showToast } = useToast();
-  const initialCompleted = useMemo(() => {
-    const list = aggregates?.recentVideos || [];
-    return list.some(v => v.videoId === videoId && v.completed === true);
-  }, [aggregates, videoId]);
-  const [isCompleted, setIsCompleted] = useState<boolean>(initialCompleted);
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [fsStartAt, setFsStartAt] = useState<number>(0);
   const [fsAutoPlay, setFsAutoPlay] = useState<boolean>(true);
@@ -148,7 +144,7 @@ export default function VideoPlayerScreen() {
   // Oculta o WebView durante qualquer transição/fallback de modo
   useEffect(() => {
     setPlayerVisible(false);
-  }, [embedMode, videoId]);
+  }, [embedMode, youtubeVideoId]);
 
   const html = useMemo(() => {
     const id = youtubeVideoId;
@@ -219,7 +215,7 @@ export default function VideoPlayerScreen() {
     </script>
   </body>
 </html>`;
-  }, [videoId, embedMode]);
+  }, [youtubeVideoId, embedMode]);
 
   const sendJS = useCallback((js: string) => {
     webviewRef.current?.injectJavaScript(js + '; true;');
@@ -330,13 +326,54 @@ export default function VideoPlayerScreen() {
   useFocusEffect(
     React.useCallback(() => {
       const checkCompletionStatus = async () => {
-        const list = aggregates?.recentVideos || [];
-        const completed = list.some(v => v.videoId === videoId && v.completed === true);
-        setIsCompleted(completed);
+        try {
+          // Buscar status diretamente do Supabase para consistência
+          const { data: auth } = await supabase.auth.getUser();
+          if (!auth.user?.id) {
+            setIsCompleted(false);
+            return;
+          }
+
+          let videoUuid: string | undefined;
+
+          // Verificar se videoId é um UUID ou youtube_id
+          const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(videoId);
+
+          if (isUuid) {
+            videoUuid = videoId;
+          } else {
+            // Buscar UUID correspondente ao youtube_id
+            const { data: videoData } = await supabase
+              .from('videos')
+              .select('id')
+              .eq('youtube_id', videoId)
+              .limit(1)
+              .maybeSingle();
+            videoUuid = videoData?.id;
+          }
+
+          if (videoUuid) {
+            // Buscar status de conclusão no Supabase
+            const { data: progressData } = await supabase
+              .from('progresso_videos')
+              .select('concluido')
+              .eq('usuario_id', auth.user.id)
+              .eq('video_id', videoUuid)
+              .limit(1)
+              .maybeSingle();
+
+            setIsCompleted(progressData?.concluido === true);
+          } else {
+            setIsCompleted(false);
+          }
+        } catch (error) {
+          console.error('Erro ao verificar status de conclusão:', error);
+          setIsCompleted(false);
+        }
       };
 
       checkCompletionStatus();
-    }, [aggregates, videoId])
+    }, [videoId])
   );
 
   // Registro de uso: acumula a cada 5s enquanto reproduzindo

@@ -94,5 +94,7 @@ export function useModuleProgress(moduleKey: string, userId?: string): ModulePro
     fetchProgressStats();
   }, [moduleKey, userId]);
 
+
+
   return stats;
 }
