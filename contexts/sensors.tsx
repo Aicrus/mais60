@@ -302,26 +302,18 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     }
 
     const isExpoGo = Constants.appOwnership === 'expo';
-    const isDevelopment = __DEV__;
 
-    let message = `Deseja ligar para ${emergencyContact}?`;
-    let confirmButtonText = 'Ligar agora';
+    // Sempre tentar ligar diretamente primeiro
+    // Mesmo no Expo Go, vamos tentar abrir o app de telefone
+    const message = `Ligar para ${emergencyContact}?`;
 
-    if (isExpoGo) {
-      message = `Expo Go: Copiará o número ${emergencyContact} para você ligar manualmente. Continuar?`;
-      confirmButtonText = 'Copiar número';
-    } else if (!isDevelopment) {
-      message = `Ligação de emergência para ${emergencyContact}. Você será conectado diretamente. Continuar?`;
-    }
-
-    // Primeiro confirmar se o usuário quer ligar
     Alert.alert(
-      'Confirmar ligação',
+      'Confirmação de emergência',
       message,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
-          text: confirmButtonText,
+          text: 'Ligar agora',
           style: 'destructive',
           onPress: async () => {
             await makeEmergencyCall();
@@ -373,35 +365,26 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
       // Criar URL de ligação
       const url = `tel:${phoneNumber}`;
 
-      // Verificar se o dispositivo suporta ligações
-      const supported = await Linking.canOpenURL(url);
-      console.log('📞 Suporte a ligações:', supported);
+      // Sempre tentar abrir o app de telefone diretamente
+      // Mesmo no Expo Go, isso vai abrir o app de telefone nativo
+      await Linking.openURL(url);
+      console.log('✅ Tentativa de ligação realizada');
 
-      if (supported) {
-        // Abrir ligação diretamente
-        await Linking.openURL(url);
-        console.log('✅ Ligação aberta com sucesso');
-
-        // Feedback de sucesso
-        setTimeout(() => {
-          showToast({
-            type: 'success',
-            message: 'Ligação iniciada!',
-            description: 'Verifique seu telefone',
-            position: Platform.OS === 'web' ? 'bottom-right' : 'top',
-            duration: 5000,
-            closable: true,
-          });
-        }, 2000);
-
-      } else {
-        console.log('❌ Dispositivo não suporta ligações diretas');
-        // Se não suporta ligações, mostrar alternativas
-        await showAlternativeContactOptions(phoneNumber);
-      }
+      // Feedback de sucesso
+      setTimeout(() => {
+        showToast({
+          type: 'success',
+          message: 'Ligação iniciada!',
+          description: 'Verifique seu telefone',
+          position: Platform.OS === 'web' ? 'bottom-right' : 'top',
+          duration: 5000,
+          closable: true,
+        });
+      }, 1500);
 
     } catch (error) {
       console.error('❌ Erro na ligação:', error);
+
       // Reset states even on error
       setShowFallAlert(false);
       setFallDetected(false);
@@ -409,7 +392,9 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
       stillnessStartTimeRef.current = 0;
       monitoringStartTimeRef.current = 0;
 
-      await showAlternativeContactOptions(null);
+      // Em caso de erro, oferecer alternativas
+      const phoneNumber = emergencyContact?.replace(/\D/g, '');
+      await showAlternativeContactOptions(phoneNumber);
     }
   };
 
@@ -437,11 +422,11 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
     let actions: any[] = [];
 
     if (isExpoGo) {
-      message = `📱 Expo Go - Limitação de Segurança:\n\nO Expo Go não pode fazer ligações diretas, mas você pode:\n\n1. Copiar o número\n2. Abrir o app Telefone\n3. Colar e ligar manualmente\n\nNúmero: ${phoneNumber || 'não disponível'}`;
+      message = `🚨 Número de emergência: ${phoneNumber || 'não disponível'}\n\nCopie este número e ligue manualmente através do seu app de telefone.`;
 
       actions = [
         {
-          text: '📋 Copiar Número',
+          text: '📋 Copiar número',
           onPress: () => {
             if (phoneNumber) {
               copyToClipboard(phoneNumber);
@@ -449,21 +434,21 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
           }
         },
         {
-          text: '📱 Abrir Telefone',
+          text: '📱 Abrir app Telefone',
           onPress: () => {
             Linking.openURL('tel:').catch(() => {
               Alert.alert('Atenção', 'Abra manualmente o app Telefone do seu dispositivo.');
             });
           }
         },
-        { text: 'OK', style: 'cancel' }
+        { text: 'Fechar', style: 'cancel' }
       ];
     } else {
-      message = `Este dispositivo não suporta ligações telefônicas diretamente.\n\nPara ligar:\n• Copie o número abaixo\n• Abra o app Telefone\n• Ligue manualmente\n\nNúmero: ${phoneNumber || 'não disponível'}`;
+      message = `🚨 Erro na ligação automática.\n\nNúmero de emergência: ${phoneNumber || 'não disponível'}\n\nCopie o número e ligue manualmente.`;
 
       actions = [
         {
-          text: 'Copiar número',
+          text: '📋 Copiar número',
           onPress: () => {
             if (phoneNumber) {
               copyToClipboard(phoneNumber);
@@ -471,19 +456,19 @@ export function SensorsProvider({ children }: { children: React.ReactNode }) {
           }
         },
         {
-          text: 'Abrir Telefone',
+          text: '📱 Abrir app Telefone',
           onPress: () => {
             Linking.openURL('tel:').catch(() => {
               Alert.alert('Dica', 'Abra manualmente o app Telefone do seu dispositivo.');
             });
           }
         },
-        { text: 'OK', style: 'cancel' }
+        { text: 'Fechar', style: 'cancel' }
       ];
     }
 
     Alert.alert(
-      'Como ligar para emergência',
+      'Opções de emergência',
       message,
       actions
     );

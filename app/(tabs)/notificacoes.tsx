@@ -202,7 +202,7 @@ export default function NotificacoesScreen() {
         accessibilityRole="scrollbar"
       >
         {/* Aviso de permissões não concedidas */}
-        {!checkingPermissions && notificationsGranted === false && (
+        {!checkingPermissions && notificationsGranted === false && Constants.appOwnership !== 'expo' && (
           <View style={[styles.permissionWarning, { backgroundColor: ui.bgSecondary, borderColor: '#FFF3CD' }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={[styles.warningIcon, { backgroundColor: '#FFF3CD' }]}>
@@ -215,10 +215,7 @@ export default function NotificacoesScreen() {
                   fontSize: getResponsiveValues('body-md').fontSize.default,
                   marginBottom: 4
                 }}>
-                  {Constants.appOwnership === 'expo'
-                    ? 'Notificações não disponíveis no Expo Go'
-                    : 'Permissões de notificações não concedidas'
-                  }
+                  Permissões de notificações não concedidas
                 </Text>
                 <Text style={{
                   color: '#856404',
@@ -226,29 +223,24 @@ export default function NotificacoesScreen() {
                   fontSize: getResponsiveValues('body-sm').fontSize.default,
                   opacity: 0.8
                 }}>
-                  {Constants.appOwnership === 'expo'
-                    ? 'Para testar notificações, use um app compilado.'
-                    : 'Você não receberá lembretes sobre suas atividades.'
-                  }
+                  Você não receberá lembretes sobre suas atividades.
                 </Text>
               </View>
             </View>
-            {Constants.appOwnership !== 'expo' && (
-              <Pressable
-                onPress={() => router.push('/permissoes')}
-                style={[styles.permissionButton, { backgroundColor: colors['brand-purple'] }]}
-              >
-                <Settings size={16} color="#FFFFFF" />
-                <Text style={{
-                  color: '#FFFFFF',
-                  fontFamily: dsFontFamily['jakarta-semibold'],
-                  fontSize: getResponsiveValues('label-sm').fontSize.default,
-                  marginLeft: 6
-                }}>
-                  Configurar permissões
-                </Text>
-              </Pressable>
-            )}
+            <Pressable
+              onPress={() => router.push('/permissoes')}
+              style={[styles.permissionButton, { backgroundColor: colors['brand-purple'] }]}
+            >
+              <Settings size={16} color="#FFFFFF" />
+              <Text style={{
+                color: '#FFFFFF',
+                fontFamily: dsFontFamily['jakarta-semibold'],
+                fontSize: getResponsiveValues('label-sm').fontSize.default,
+                marginLeft: 6
+              }}>
+                Configurar permissões
+              </Text>
+            </Pressable>
           </View>
         )}
 

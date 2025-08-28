@@ -58,7 +58,7 @@ export default function TabsLayout() {
     }
   }, []);
 
-  return (
+    return (
     <ProtectedRoute>
       <Tabs
         screenOptions={{
@@ -127,10 +127,10 @@ export default function TabsLayout() {
           options={{
             title: 'Home',
             tabBarIcon: ({ color, focused }: { color: string, focused: boolean }) => (
-              <HomeIcon 
-                size={24} 
-                color={color} 
-                strokeWidth={focused ? 2 : 1.5} 
+              <HomeIcon
+                size={24}
+                color={color}
+                strokeWidth={focused ? 2 : 1.5}
               />
             ),
           }}
