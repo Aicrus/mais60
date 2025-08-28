@@ -12,7 +12,7 @@ export default function NotFoundScreen() {
       <Stack.Screen options={{ title: 'Página não encontrada' }} />
       <View className={`flex-1 items-center justify-center p-5 ${isDark ? 'bg-bg-primary-dark' : 'bg-bg-primary-light'}`}>
         <Text className="text-display-lg font-jakarta-bold mb-6">
-          🗺️
+          404
         </Text>
         
         <Text className={`text-headline-sm font-jakarta-bold mt-6 mb-2 ${isDark ? 'text-text-primary-dark' : 'text-text-primary-light'}`}>

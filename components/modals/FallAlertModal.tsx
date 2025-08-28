@@ -58,7 +58,7 @@ const FallAlertModal = memo(function FallAlertModal() {
             justifyContent: 'center',
             marginBottom: 20
           }}>
-            <Text style={{ fontSize: 40, color: '#FFFFFF' }}>⚠️</Text>
+            <Text style={{ fontSize: 40, color: '#FFFFFF' }}>!</Text>
           </View>
 
           {/* Título */}

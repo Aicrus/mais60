@@ -111,7 +111,7 @@ export default function PerfilPermissoesScreen() {
 
       if (status === 'granted') {
         Alert.alert(
-          '✅ Permissão concedida!',
+          'Permissão concedida!',
           'Agora você receberá lembretes suaves para suas atividades diárias.',
           [{ text: 'Ótimo!' }]
         );
@@ -194,7 +194,7 @@ export default function PerfilPermissoesScreen() {
             fontSize: bodyType.fontSize.default - 2,
             lineHeight: bodyType.lineHeight.default,
           }}>
-            💡 {benefit}
+            {benefit}
           </Text>
         </View>
       </View>
@@ -274,41 +274,6 @@ export default function PerfilPermissoesScreen() {
   return (
     <PageContainer>
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        {/* Header */}
-        <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 24 }}>
-          <View style={{
-            width: 64,
-            height: 64,
-            borderRadius: 32,
-            backgroundColor: '#43059320',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 16
-          }}>
-            <Heart size={32} color="#430593" />
-          </View>
-          <Text style={{
-            color: uiColors.textPrimary,
-            fontFamily: dsFontFamily['jakarta-bold'],
-            fontSize: titleType.fontSize.default,
-            lineHeight: titleType.lineHeight.default,
-            textAlign: 'center',
-            marginBottom: 8
-          }}>
-            Personalizar sua Segurança
-          </Text>
-          <Text style={{
-            color: uiColors.textSecondary,
-            fontFamily: dsFontFamily['jakarta-medium'],
-            fontSize: bodyType.fontSize.default,
-            lineHeight: bodyType.lineHeight.default,
-            textAlign: 'center',
-            paddingHorizontal: 20
-          }}>
-            Configure as permissões para tornar seu app mais inteligente e seguro. Cada recurso foi projetado pensando na sua saúde e bem-estar.
-          </Text>
-        </View>
-
         {/* Navigation Bar */}
         <View style={{
           flexDirection: 'row',
@@ -346,12 +311,47 @@ export default function PerfilPermissoesScreen() {
           </Pressable>
         </View>
 
+        {/* Header */}
+        <View style={{ alignItems: 'center', paddingBottom: 24 }}>
+          <View style={{
+            width: 64,
+            height: 64,
+            borderRadius: 32,
+            backgroundColor: '#43059320',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16
+          }}>
+            <Heart size={32} color="#430593" />
+          </View>
+          <Text style={{
+            color: uiColors.textPrimary,
+            fontFamily: dsFontFamily['jakarta-bold'],
+            fontSize: titleType.fontSize.default,
+            lineHeight: titleType.lineHeight.default,
+            textAlign: 'center',
+            marginBottom: 8
+          }}>
+            Personalizar sua Segurança
+          </Text>
+          <Text style={{
+            color: uiColors.textSecondary,
+            fontFamily: dsFontFamily['jakarta-medium'],
+            fontSize: bodyType.fontSize.default,
+            lineHeight: bodyType.lineHeight.default,
+            textAlign: 'center',
+            paddingHorizontal: 20
+          }}>
+            Configure as permissões para tornar seu app mais inteligente e seguro. Cada recurso foi projetado pensando na sua saúde e bem-estar.
+          </Text>
+        </View>
+
         {/* Permissions Cards */}
         <PermissionCard
           icon={<BellRing size={24} color="#430593" />}
           title="Lembretes Inteligentes"
           description="Receba notificações personalizadas sobre seus exercícios e hábitos diários."
-          benefit="💡 Mantém você motivado com lembretes suaves no momento ideal"
+          benefit="Mantém você motivado com lembretes suaves no momento ideal"
           granted={permissions.notifications.granted}
           loading={permissions.notifications.loading}
           onRequest={requestNotifications}
@@ -362,7 +362,7 @@ export default function PerfilPermissoesScreen() {
           icon={<Activity size={24} color="#430593" />}
           title="Detecção de Movimento"
           description="Monitora seus movimentos para detectar quedas e acompanhar atividade física."
-          benefit="🛡️ Protege você com detecção automática de emergências"
+          benefit="Protege você com detecção automática de emergências"
           granted={permissions.motion.available}
           available={permissions.motion.available}
           loading={permissions.motion.loading}
@@ -392,7 +392,7 @@ export default function PerfilPermissoesScreen() {
               textAlign: 'center',
               marginBottom: 8
             }}>
-              🛡️ Sua Privacidade em Primeiro Lugar
+              Sua Privacidade em Primeiro Lugar
             </Text>
             <Text style={{
               color: uiColors.textSecondary,

@@ -19,8 +19,7 @@ import ConfirmModal from '@/components/modals/ConfirmModal';
 import { PieChart, BarChart } from 'react-native-gifted-charts';
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
-import { Pedometer } from 'expo-sensors';
-import * as Permissions from 'expo-permissions';
+
 
 function formatDuration(totalSeconds: number): string {
   if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '0s';
@@ -37,131 +36,13 @@ export default function UsoScreen() {
   const sensors = useSensors();
   const locationTrack = useLocationTrack();
   const { session } = useAuth();
-  const [emergencyContactInput, setEmergencyContactInput] = React.useState(sensors.emergencyContact || '');
   const [showCompleteModal, setShowCompleteModal] = React.useState(false);
   const [historyMode, setHistoryMode] = React.useState<'7d' | '4w'>('7d');
   const [showAllRecent, setShowAllRecent] = React.useState(false);
   const [showRoute, setShowRoute] = React.useState(false);
 
-  const [showEmergencyContactModal, setShowEmergencyContactModal] = React.useState(false);
-  const [emergencyPhoneInput, setEmergencyPhoneInput] = React.useState('');
-  const [isLoadingEmergencyContact, setIsLoadingEmergencyContact] = React.useState(false);
 
 
-
-  // Funções para contato de emergência
-  const loadEmergencyContact = async () => {
-    if (!session?.user?.id) return;
-
-    try {
-      setIsLoadingEmergencyContact(true);
-      const { data } = await supabase
-        .from('usuarios')
-        .select('emergency_contact')
-        .eq('id', session.user.id)
-        .single();
-
-      if (data?.emergency_contact) {
-        sensors.setEmergencyContact(data.emergency_contact);
-        setEmergencyContactInput(data.emergency_contact);
-      }
-    } catch (error) {
-      console.log('Erro ao carregar contato de emergência:', error);
-    } finally {
-      setIsLoadingEmergencyContact(false);
-    }
-  };
-
-  const saveEmergencyContact = async () => {
-    if (!session?.user?.id || !emergencyPhoneInput.trim()) return;
-
-    try {
-      setIsLoadingEmergencyContact(true);
-
-      // Validar número de telefone (formato brasileiro)
-      const cleanNumber = emergencyPhoneInput.replace(/\D/g, '');
-      if (cleanNumber.length < 10 || cleanNumber.length > 11) {
-        Alert.alert('Número inválido', 'Digite um número válido com DDD (10 ou 11 dígitos).');
-        return;
-      }
-
-      // Salvar no Supabase
-      const { error } = await supabase
-        .from('usuarios')
-        .update({
-          emergency_contact: emergencyPhoneInput.trim()
-        })
-        .eq('id', session.user.id);
-
-      if (error) throw error;
-
-      // Atualizar estado local
-      sensors.setEmergencyContact(emergencyPhoneInput.trim());
-      setShowEmergencyContactModal(false);
-      setEmergencyPhoneInput('');
-
-      // Solicitar automaticamente permissão de movimento após salvar contato
-      await requestMotionPermission();
-
-      Alert.alert('Sucesso', 'Contato de emergência salvo com sucesso!');
-    } catch (error) {
-      console.error('Erro ao salvar contato:', error);
-      Alert.alert('Erro', 'Não foi possível salvar o contato. Tente novamente.');
-    } finally {
-      setIsLoadingEmergencyContact(false);
-    }
-  };
-
-  const requestMotionPermission = async () => {
-    try {
-      // Verificar se já temos permissão
-      const isAvailable = await Pedometer.isAvailableAsync();
-      if (!isAvailable) {
-        Alert.alert(
-          'Sensores não disponíveis',
-          'Os sensores de movimento não estão disponíveis neste dispositivo.',
-          [{ text: 'Entendi' }]
-        );
-        return;
-      }
-
-      // Solicitar permissão se necessário
-      const { status } = await Pedometer.requestPermissionsAsync();
-
-      if (status === 'granted') {
-        Alert.alert(
-          '✅ Permissão concedida!',
-          'Agora podemos detectar quedas e monitorar sua atividade física.',
-          [{ text: 'Ótimo!' }]
-        );
-      } else {
-        Alert.alert(
-          'Permissão necessária',
-          'Para detectar quedas automaticamente, precisamos da permissão de movimento. Você pode concedê-la nas configurações do dispositivo.',
-          [
-            { text: 'Depois' },
-            {
-              text: 'Ir para configurações',
-              onPress: () => {
-                if (Platform.OS === 'ios') {
-                  require('expo-linking').openURL('app-settings:');
-                } else {
-                  require('expo-linking').openSettings();
-                }
-              }
-            }
-          ]
-        );
-      }
-    } catch (error) {
-      console.warn('Erro ao solicitar permissão de movimento:', error);
-    }
-  };
-
-  // Carregar contato ao abrir a tela
-  React.useEffect(() => {
-    loadEmergencyContact();
-  }, [session?.user?.id]);
 
   const isExpoGo = Constants.appOwnership === 'expo';
 
@@ -341,7 +222,7 @@ export default function UsoScreen() {
           fontSize: titleType.fontSize.default,
           lineHeight: titleType.lineHeight.default,
           marginBottom: 8,
-        }}>Meu progresso</Text>
+        }}>Meu Desempenho</Text>
 
         {/* KPIs de Hoje e Semana */}
         <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
@@ -387,114 +268,7 @@ export default function UsoScreen() {
           </View>
         </View>
 
-        {/* Segurança */}
-        <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Segurança</Text>
-        <View style={[styles.card, { borderColor: ui.divider, backgroundColor: ui.card }]}>
-          <View style={{ marginBottom: 16 }}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 8 }}>Detecção de queda</Text>
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
-                Ativar detecção automática de quedas
-              </Text>
-              <Pressable
-                onPress={() => sensors.setFallDetectionEnabled(!sensors.fallDetectionEnabled)}
-                style={{
-                  width: 50,
-                  height: 28,
-                  borderRadius: 14,
-                  backgroundColor: sensors.fallDetectionEnabled ? colors['brand-purple'] : ui.divider,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <View style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 10,
-                  backgroundColor: '#FFFFFF',
-                  transform: [{ translateX: sensors.fallDetectionEnabled ? 11 : -11 }]
-                }} />
-              </Pressable>
-            </View>
-
-            {sensors.fallDetectionEnabled && (
-              <View style={{ backgroundColor: '#F0F9FF', borderColor: '#3B82F6', borderWidth: 1, borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
-                  <Text style={{ color: '#1E40AF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: 14 }}>
-                    Detecção ativa
-                  </Text>
-                </View>
-                <Text style={{ color: '#1E40AF', fontFamily: dsFontFamily['jakarta-medium'], fontSize: 12, lineHeight: 16 }}>
-                  O app está monitorando movimentos bruscos. Em caso de queda detectada, você terá 15 segundos para cancelar antes da ligação automática.
-                </Text>
-              </View>
-            )}
-
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: rowLabelType.fontSize.default, lineHeight: rowLabelType.lineHeight.default, marginBottom: 8 }}>Contato de emergência</Text>
-            <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-              <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 16, flex: 1 }}>
-                {sensors.emergencyContact || 'Nenhum contato configurado'}
-              </Text>
-              <Pressable
-                onPress={() => {
-                  setEmergencyPhoneInput(sensors.emergencyContact || '');
-                  setShowEmergencyContactModal(true);
-                }}
-                style={{ height: 44, paddingHorizontal: 16, borderRadius: 8, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>
-                  {sensors.emergencyContact ? 'Editar' : 'Configurar'}
-                </Text>
-              </Pressable>
-            </View>
-
-            {sensors.emergencyContact && (
-              <View>
-                <Pressable
-                  onPress={() => {
-                    console.log('Botão de emergência pressionado');
-                    console.log('Contato configurado:', sensors.emergencyContact);
-                    sensors.callEmergencyContact();
-                  }}
-                  style={{
-                    marginTop: 12,
-                    height: 44,
-                    borderRadius: 6,
-                    borderWidth: 1,
-                    borderColor: '#E5E7EB',
-                    backgroundColor: '#F9FAFB',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <Text style={{
-                    color: '#374151',
-                    fontFamily: dsFontFamily['jakarta-medium'],
-                    fontSize: 14
-                  }}>
-                    Ligar para emergência
-                  </Text>
-                </Pressable>
-
-
-
-                {Constants.appOwnership === 'expo' && (
-                  <Text style={{
-                    marginTop: 8,
-                    fontSize: 12,
-                    color: ui.text2,
-                    fontFamily: dsFontFamily['jakarta-medium'],
-                    textAlign: 'center'
-                  }}>
-                    Expo Go: Copiará o número para você ligar manualmente
-                  </Text>
-                )}
-              </View>
-            )}
-          </View>
-        </View>
 
         {/* Atividade física */}
         <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: sectionType.fontSize.default, lineHeight: sectionType.lineHeight.default, marginBottom: 6, marginTop: 8 }}>Atividade física</Text>
@@ -670,82 +444,6 @@ export default function UsoScreen() {
 
 
 
-      {/* Emergency Contact Modal */}
-      <Modal visible={showEmergencyContactModal} transparent animationType="fade" onRequestClose={() => setShowEmergencyContactModal(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
-          <View style={{ width: '100%', maxWidth: 400, borderRadius: 16, borderWidth: 1, borderColor: ui.divider, backgroundColor: ui.card, padding: 24 }}>
-            <Text style={{ fontSize: 20, fontFamily: dsFontFamily['jakarta-extrabold'], color: ui.text, textAlign: 'center', marginBottom: 8 }}>
-              Contato de Emergência
-            </Text>
-
-            <Text style={{ fontSize: 14, fontFamily: dsFontFamily['jakarta-medium'], color: ui.text2, textAlign: 'center', marginBottom: 24 }}>
-              Digite o número de telefone para emergências (com DDD)
-            </Text>
-
-            <View style={{ marginBottom: 24 }}>
-              <Text style={{ fontSize: 14, fontFamily: dsFontFamily['jakarta-semibold'], color: ui.text, marginBottom: 8 }}>
-                Número de telefone
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: ui.divider, borderRadius: 8, paddingHorizontal: 12 }}>
-
-                <TextInput
-                  style={{ flex: 1, height: 48, color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 16 }}
-                  placeholder="Ex: (11) 99999-9999"
-                  placeholderTextColor={ui.text2}
-                  value={emergencyPhoneInput}
-                  onChangeText={(text) => {
-                    // Formatar telefone enquanto digita
-                    let formatted = text.replace(/\D/g, '');
-                    if (formatted.length <= 11) {
-                      if (formatted.length <= 2) {
-                        formatted = formatted;
-                      } else if (formatted.length <= 6) {
-                        formatted = `(${formatted.slice(0, 2)}) ${formatted.slice(2)}`;
-                      } else if (formatted.length <= 10) {
-                        formatted = `(${formatted.slice(0, 2)}) ${formatted.slice(2, 6)}-${formatted.slice(6)}`;
-                      } else {
-                        formatted = `(${formatted.slice(0, 2)}) ${formatted.slice(2, 7)}-${formatted.slice(7)}`;
-                      }
-                      setEmergencyPhoneInput(formatted);
-                    }
-                  }}
-                  keyboardType="phone-pad"
-                  maxLength={15}
-                  autoFocus
-                />
-              </View>
-            </View>
-
-            <View style={{ flexDirection: 'row', gap: 12 }}>
-              <Pressable
-                onPress={() => setShowEmergencyContactModal(false)}
-                style={{ flex: 1, height: 48, borderRadius: 8, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center' }}
-                disabled={isLoadingEmergencyContact}
-              >
-                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 16 }}>
-                  Cancelar
-                </Text>
-              </Pressable>
-
-              <Pressable
-                onPress={saveEmergencyContact}
-                style={{ flex: 1, height: 48, borderRadius: 8, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' }}
-                disabled={isLoadingEmergencyContact || !emergencyPhoneInput.trim()}
-              >
-                {isLoadingEmergencyContact ? (
-                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 16 }}>
-                    Salvando...
-                  </Text>
-                ) : (
-                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-semibold'], fontSize: 16 }}>
-                    Salvar
-                  </Text>
-                )}
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
 
       <ConfirmModal
         visible={showCompleteModal}

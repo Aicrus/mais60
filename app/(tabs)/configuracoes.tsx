@@ -4,7 +4,7 @@ import { PageContainer } from '../../components/layout/PageContainer';
 import { useTheme } from '../../hooks/DesignSystemContext';
 import { colors } from '../../design-system/tokens/colors';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '../../design-system/tokens/typography';
-import { ChevronRight, Cog, Shield, Moon } from 'lucide-react-native';
+import { ChevronRight, Cog, Shield, Moon, Heart } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 export default function ConfiguracoesScreen() {
@@ -134,6 +134,13 @@ export default function ConfiguracoesScreen() {
             right={<ChevronRight size={20} color={ui.textSecondary} />}
             onPress={() => router.push('/permissoes')}
           />
+          <View style={[styles.divider, { backgroundColor: ui.divider }]} />
+          <Row
+            icon={<Heart size={20} color={ui.textPrimary} />}
+            label="Segurança e emergências"
+            right={<ChevronRight size={20} color={ui.textSecondary} />}
+            onPress={() => router.push('/seguranca')}
+          />
         </View>
 
         <Text
@@ -199,5 +206,9 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  divider: {
+    height: 1,
+    marginHorizontal: 14,
   },
 });
