@@ -195,7 +195,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   compactStatsText: {
-    fontSize: 9,
+    fontSize: 11,
     textAlign: 'center',
+    lineHeight: 14,
   },
 });
