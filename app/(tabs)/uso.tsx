@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Modal, Alert, TextInput } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Alert, TextInput } from 'react-native';
 // Mapa simples do percurso (se disponível)
 let MapView: any = null;
 let Polyline: any = null;
@@ -20,7 +20,6 @@ import { PieChart, BarChart } from 'react-native-gifted-charts';
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { Pedometer } from 'expo-sensors';
-import { Activity, Database, BellRing } from 'lucide-react-native';
 
 function formatDuration(totalSeconds: number) {
   if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '0s';
@@ -28,93 +27,7 @@ function formatDuration(totalSeconds: number) {
   return `${Math.floor(totalSeconds / 60)} min`;
 }
 
-// Funções de permissões
-const checkPermissions = async (setPermissions: any) => {
-  try {
-    // Verificar notificações
-    if (Constants.appOwnership !== 'expo') {
-      try {
-        const Notifications = await import('expo-notifications');
-        const settings = await Notifications.getPermissionsAsync();
-        setPermissions((prev: any) => ({
-          ...prev,
-          notifications: { granted: settings.status === 'granted', loading: false }
-        }));
-      } catch (error) {
-        console.warn('Erro ao verificar notificações:', error);
-        setPermissions((prev: any) => ({
-          ...prev,
-          notifications: { granted: false, loading: false }
-        }));
-      }
-    } else {
-      setPermissions((prev: any) => ({
-        ...prev,
-        notifications: { granted: false, loading: false }
-      }));
-    }
-  } catch (error) {
-    console.warn('Erro geral ao verificar permissões:', error);
-    setPermissions((prev: any) => ({
-      ...prev,
-      notifications: { granted: false, loading: false }
-    }));
-  }
 
-  try {
-    // Verificar sensores de movimento
-    const isAvailable = await Pedometer.isAvailableAsync();
-    setPermissions((prev: any) => ({
-      ...prev,
-      motion: { available: !!isAvailable, loading: false }
-    }));
-  } catch (error) {
-    console.warn('Erro ao verificar sensores de movimento:', error);
-    setPermissions((prev: any) => ({
-      ...prev,
-      motion: { available: false, loading: false }
-    }));
-  }
-};
-
-const requestNotifications = async (setPermissions: any, isExpoGo: boolean) => {
-  setPermissions((prev: any) => ({
-    ...prev,
-    notifications: { ...prev.notifications, loading: true }
-  }));
-
-  try {
-    if (isExpoGo) {
-      Alert.alert(
-        'Recurso não disponível',
-        'Notificações push não são suportadas no Expo Go. Use um app compilado para testar essa funcionalidade.',
-        [{ text: 'Entendi' }]
-      );
-      return;
-    }
-
-    const Notifications = await import('expo-notifications');
-    const { status } = await Notifications.requestPermissionsAsync();
-
-    setPermissions((prev: any) => ({
-      ...prev,
-      notifications: { granted: status === 'granted', loading: false }
-    }));
-
-    if (status === 'granted') {
-      Alert.alert(
-        '✅ Permissão concedida!',
-        'Agora você receberá lembretes suaves para suas atividades diárias.',
-        [{ text: 'Ótimo!' }]
-      );
-    }
-  } catch (error) {
-    setPermissions((prev: any) => ({
-      ...prev,
-      notifications: { granted: false, loading: false }
-    }));
-  }
-};
 
 export default function UsoScreen() {
   const { currentTheme, uiColors } = useTheme();
@@ -200,12 +113,6 @@ export default function UsoScreen() {
     loadEmergencyContact();
   }, [session?.user?.id]);
 
-  // Estados para permissões
-  const [showPermModal, setShowPermModal] = useState(false);
-  const [permissions, setPermissions] = useState({
-    notifications: { granted: null as boolean | null, loading: false },
-    motion: { available: null as boolean | null, loading: false }
-  });
   const isExpoGo = Constants.appOwnership === 'expo';
 
   const titleType = getResponsiveValues('headline-lg');
@@ -223,28 +130,7 @@ export default function UsoScreen() {
     tint: colors['brand-purple'],
   }), [uiColors]);
 
-  // Verificar permissões ao abrir a tela
-  useEffect(() => {
-    const checkPermsAndShowModal = async () => {
-      await checkPermissions(setPermissions);
 
-      // Pequeno delay antes de mostrar o modal para melhor UX
-      setTimeout(() => {
-        // Lógica corrigida para Expo Go
-        if (isExpoGo) {
-          // No Expo Go, sempre mostra o modal explicativo
-          setShowPermModal(true);
-        } else {
-          // Fora do Expo Go, mostra apenas se notificações não foram concedidas
-          if (permissions.notifications.granted === false) {
-            setShowPermModal(true);
-          }
-        }
-      }, 1000);
-    };
-
-    checkPermsAndShowModal();
-  }, [isExpoGo]);
 
   const palette = useMemo(() => [
     colors['brand-purple'],
@@ -816,108 +702,7 @@ export default function UsoScreen() {
         }}
       />
 
-      {/* Modal de permissões */}
-      <Modal visible={showPermModal} transparent animationType="fade" onRequestClose={() => setShowPermModal(false)}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', alignItems: 'center', padding: 16 }}>
-          <View style={{ width: '100%', maxWidth: 420, borderRadius: 16, borderWidth: 1, borderColor: ui.divider, backgroundColor: ui.card, padding: 16 }}>
-            <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-extrabold'], fontSize: 18, textAlign: 'center', marginBottom: 8 }}>
-              {isExpoGo ? 'Informações sobre Permissões' : 'Permissões necessárias'}
-            </Text>
 
-            <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 14, textAlign: 'center', marginBottom: 16 }}>
-              {isExpoGo
-                ? 'Veja quais recursos estão disponíveis no Expo Go'
-                : 'Essas permissões ajudam o app a funcionar melhor'
-              }
-            </Text>
-
-            <View style={{ gap: 12, marginBottom: 20 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <BellRing size={18} color={isExpoGo ? ui.text2 : ui.text} />
-                <Text style={{ color: isExpoGo ? ui.text2 : ui.text, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
-                  Notificações (opcional)
-                </Text>
-                {isExpoGo && (
-                  <View style={{ backgroundColor: '#FFF3CD', borderColor: '#FFEAA7', borderWidth: 1, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 4 }}>
-                    <Text style={{ color: '#856404', fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>
-                      Expo Go
-                    </Text>
-                  </View>
-                )}
-              </View>
-
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Activity size={18} color={ui.text} />
-                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
-                  Sensores de movimento
-                </Text>
-                <View style={{ backgroundColor: '#D4EDDA', borderColor: '#C3E6CB', borderWidth: 1, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 4 }}>
-                  <Text style={{ color: '#155724', fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>
-                    Ativo
-                  </Text>
-                </View>
-              </View>
-
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Database size={18} color={ui.text} />
-                <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'], flex: 1 }}>
-                  Armazenamento local
-                </Text>
-                <View style={{ backgroundColor: '#D4EDDA', borderColor: '#C3E6CB', borderWidth: 1, borderRadius: 12, paddingHorizontal: 8, paddingVertical: 4 }}>
-                  <Text style={{ color: '#155724', fontFamily: dsFontFamily['jakarta-medium'], fontSize: 10 }}>
-                    Ativo
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {isExpoGo ? (
-              <View style={{ alignItems: 'center' }}>
-                <Text style={{ color: ui.text2, fontFamily: dsFontFamily['jakarta-medium'], fontSize: 12, textAlign: 'center', marginBottom: 16 }}>
-                  💡 Para testar notificações, use um app compilado ou o Expo Application Services (EAS)
-                </Text>
-                <Pressable
-                  onPress={() => setShowPermModal(false)}
-                  style={{ height: 44, paddingHorizontal: 24, borderRadius: 10, backgroundColor: colors['brand-purple'], alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'] }}>Entendi</Text>
-                </Pressable>
-              </View>
-            ) : (
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10 }}>
-                <Pressable
-                  onPress={() => setShowPermModal(false)}
-                  style={{ height: 44, paddingHorizontal: 16, borderRadius: 10, borderWidth: 1, borderColor: ui.divider, alignItems: 'center', justifyContent: 'center' }}
-                >
-                  <Text style={{ color: ui.text, fontFamily: dsFontFamily['jakarta-medium'] }}>Agora não</Text>
-                </Pressable>
-
-                <Pressable
-                  onPress={async () => {
-                    setShowPermModal(false);
-                    await requestNotifications(setPermissions, isExpoGo);
-                  }}
-                  style={{
-                    height: 44,
-                    paddingHorizontal: 16,
-                    borderRadius: 10,
-                    backgroundColor: colors['brand-purple'],
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <Text style={{
-                    color: '#FFFFFF',
-                    fontFamily: dsFontFamily['jakarta-bold']
-                  }}>
-                    Permitir
-                  </Text>
-                </Pressable>
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
     </PageContainer>
   );
 }

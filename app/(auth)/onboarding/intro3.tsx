@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, Image, Pressable, ScrollView, PanResponder, ImageBackground } from 'react-native';
+import { View, Text, Image, Pressable, ScrollView, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@/hooks/DesignSystemContext';
 import { getResponsiveValues, fontFamily as dsFontFamily } from '@/design-system/tokens/typography';
 import { colors } from '@/design-system/tokens/colors';
 import { useResponsive } from '@/hooks/useResponsive';
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation';
 
 export default function OnboardingIntro3() {
   const router = useRouter();
@@ -26,6 +27,13 @@ export default function OnboardingIntro3() {
   const [ctaContainerHeight, setCtaContainerHeight] = React.useState(0);
   const ctaBottomOffset = 48;
   const contentBottomPadding = Math.max(160, ctaContainerHeight + ctaBottomOffset + 24);
+
+  // Hook para navegação por swipe
+  const { panHandlers } = useSwipeNavigation({
+    onSwipeRight: () => router.replace('/(auth)/onboarding/intro2'),
+    swipeThreshold: 30,
+    velocityThreshold: 0.1,
+  });
 
   const ProgressDots = () => (
     <View style={{ gap: 10, alignItems: 'center', justifyContent: 'center' }}>
@@ -53,22 +61,6 @@ export default function OnboardingIntro3() {
       style={{ flex: 1 }}
       resizeMode="cover"
       accessibilityIgnoresInvertColors
-      {...React.useRef(
-        PanResponder.create({
-          onMoveShouldSetPanResponder: (_evt, gestureState) => {
-            const { dx, dy } = gestureState;
-            return Math.abs(dx) > 16 && Math.abs(dx) > Math.abs(dy);
-          },
-          onPanResponderRelease: (_evt, gestureState) => {
-            const { dx, vx } = gestureState;
-            const distanceThreshold = 40;
-            const velocityThreshold = 0.3;
-             if (dx > distanceThreshold || vx > velocityThreshold) {
-               router.replace('/(auth)/onboarding/intro2');
-             }
-          },
-        })
-      ).current.panHandlers}
     >
       <LinearGradient
         pointerEvents="none"
@@ -87,6 +79,8 @@ export default function OnboardingIntro3() {
         style={{ flex: 1 }}
         contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: topPadding, paddingBottom: contentBottomPadding, justifyContent: 'flex-start' }}
         bounces={false}
+        scrollEnabled={false}
+        {...panHandlers}
       >
         <View style={{ alignItems: 'center', marginTop: 8 }}>
           <Image source={require('@/assets/images/Logo Mais 60 Branco.png')} style={{ width: 128, height: 38 }} resizeMode="contain" accessibilityIgnoresInvertColors />
@@ -108,6 +102,11 @@ export default function OnboardingIntro3() {
           <Pressable onPress={() => router.replace('/(auth)/login')} style={{ height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors['brand-orange'], shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} accessibilityRole="button" accessibilityLabel="Começar">
             <Text style={{ color: '#FFFFFF', fontFamily: dsFontFamily['jakarta-bold'], fontSize: buttonType.fontSize.default, lineHeight: buttonType.lineHeight.default }}>Começar</Text>
           </Pressable>
+          <View style={{ alignItems: 'center', marginTop: 8 }}>
+            <Text style={{ color: 'rgba(255,255,255,0.6)', fontFamily: dsFontFamily['jakarta-medium'], fontSize: 12, textAlign: 'center' }}>
+              👉 Arraste para a direita para voltar
+            </Text>
+          </View>
         </View>
       </View>
     </ImageBackground>
