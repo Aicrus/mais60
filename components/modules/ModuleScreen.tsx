@@ -155,32 +155,50 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
   }, [selected, carregarVideos]);
   const [isChecklistOpen, setChecklistOpen] = useState<boolean>(false);
   const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
+  const [profileChecked, setProfileChecked] = React.useState(false);
+
+  // Função para verificar se perfil está concluído
+  const checkProfileCompletion = async () => {
+    try {
+      const { data: auth } = await supabase.auth.getUser();
+      const userId = auth.user?.id;
+      if (!userId) return false;
+
+      const { data } = await supabase
+        .from('usuarios')
+        .select('perfil_concluido, nome, email, telefone')
+        .eq('id', userId)
+        .maybeSingle();
+
+      const nomeOk = !!(data?.nome && data.nome.trim().length >= 3);
+      const emailOk = !!(data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
+      const telOk = !!(data?.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
+      const concluded = (data as any)?.perfil_concluido ?? (nomeOk && emailOk && telOk);
+
+      return concluded;
+    } catch (error) {
+      console.log('Erro ao verificar perfil:', error);
+      return false;
+    }
+  };
 
   useEffect(() => {
     (async () => {
-      try {
-        const { data: auth } = await supabase.auth.getUser();
-        const userId = auth.user?.id;
-        if (!userId) return;
-        const { data } = await supabase
-          .from('usuarios')
-          .select('perfil_concluido, nome, email, telefone')
-          .eq('id', userId)
-          .maybeSingle();
-        const nomeOk = !!(data?.nome && data.nome.trim().length >= 3);
-        const emailOk = !!(data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
-        const telOk = !!(data?.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
-        const concluded = (data as any)?.perfil_concluido ?? (nomeOk && emailOk && telOk);
-        if (!concluded) {
-          try {
-            const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
-            const next = nextStr ? parseInt(nextStr, 10) : 0;
-            if (!next || Date.now() >= next) setShowCompleteModal(true);
-          } catch {
+      // Primeiro verifica se perfil já está concluído
+      const isCompleted = await checkProfileCompletion();
+      setProfileChecked(true);
+
+      if (!isCompleted) {
+        try {
+          const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
+          const next = nextStr ? parseInt(nextStr, 10) : 0;
+          if (!next || Date.now() >= next) {
             setShowCompleteModal(true);
           }
+        } catch {
+          setShowCompleteModal(true);
         }
-      } catch {}
+      }
     })();
   }, []);
 
@@ -189,35 +207,26 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
     useCallback(() => {
       let isActive = true;
       (async () => {
-        try {
-          const { data: auth } = await supabase.auth.getUser();
-          const userId = auth.user?.id;
-          if (!userId) return;
-          const { data } = await supabase
-            .from('usuarios')
-            .select('perfil_concluido, nome, email, telefone')
-            .eq('id', userId)
-            .maybeSingle();
-          const nomeOk = !!(data?.nome && data.nome.trim().length >= 3);
-          const emailOk = !!(data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
-          const telOk = !!(data?.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
-          const concluded = (data as any)?.perfil_concluido ?? (nomeOk && emailOk && telOk);
-          if (!isActive) return;
-          if (concluded) {
-            setShowCompleteModal(false);
-          } else {
-            try {
-              const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
-              const next = nextStr ? parseInt(nextStr, 10) : 0;
-              if (!next || Date.now() >= next) setShowCompleteModal(true);
-            } catch {
-              setShowCompleteModal(true);
-            }
+        // Só executa se já fez a verificação inicial
+        if (!profileChecked) return;
+
+        const isCompleted = await checkProfileCompletion();
+        if (!isActive) return;
+
+        if (isCompleted) {
+          setShowCompleteModal(false);
+        } else {
+          try {
+            const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
+            const next = nextStr ? parseInt(nextStr, 10) : 0;
+            if (!next || Date.now() >= next) setShowCompleteModal(true);
+          } catch {
+            setShowCompleteModal(true);
           }
-        } catch {}
+        }
       })();
       return () => { isActive = false; };
-    }, [])
+    }, [profileChecked])
   );
 
   return (

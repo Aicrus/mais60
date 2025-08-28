@@ -82,12 +82,37 @@ export default function PerfilScreen() {
 
   const [needsCompletion, setNeedsCompletion] = useState<boolean>(false);
   const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
+  const [profileChecked, setProfileChecked] = React.useState(false);
 
   const getInitials = (name?: string) => {
     const parts = (name || '').trim().split(/\s+/).filter(Boolean);
     const first = parts[0]?.[0] || 'U';
     const second = parts[1]?.[0] || '';
     return (first + second).toUpperCase();
+  };
+
+  // Função para verificar se perfil está concluído
+  const checkProfileCompletion = async () => {
+    try {
+      const userId = session?.user?.id;
+      if (!userId) return false;
+
+      const { data } = await supabase
+        .from('usuarios')
+        .select('nome, email, telefone, perfil_concluido')
+        .eq('id', userId)
+        .maybeSingle();
+
+      const nomeOk = !!(data?.nome && data.nome.trim().length >= 3);
+      const emailOk = !!(data?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
+      const telOk = !!(data?.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
+      const concluded = data?.perfil_concluido ?? (nomeOk && emailOk && telOk);
+
+      return concluded;
+    } catch (error) {
+      console.log('Erro ao verificar perfil:', error);
+      return false;
+    }
   };
 
   useEffect(() => {
@@ -98,28 +123,33 @@ export default function PerfilScreen() {
         const emailFromAuth = session?.user?.email || '';
         const nameFromAuth = ((session?.user?.user_metadata as any)?.name as string) || '';
         const avatarFromAuth = ((session?.user?.user_metadata as any)?.avatar_url as string) || '';
+
         if (userId) {
           const { data, error } = await supabase
             .from('usuarios')
             .select('nome, email, imagem_url, perfil_concluido, telefone')
             .eq('id', userId)
             .maybeSingle();
+
           if (!mounted) return;
+
           if (!error && data) {
             setProfileName(data.nome || nameFromAuth || 'Usuário');
             setProfileEmail(data.email || emailFromAuth);
             setProfileAvatar(data.imagem_url || avatarFromAuth || '');
 
-            const nomeOk = !!(data.nome && data.nome.trim().length >= 3);
-            const emailOk = !!(data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
-            const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
-            const concluded = data.perfil_concluido ?? (nomeOk && emailOk && telOk);
-            setNeedsCompletion(!concluded);
-            if (!concluded) {
+            // Primeiro verifica se perfil já está concluído
+            const isCompleted = await checkProfileCompletion();
+            setProfileChecked(true);
+            setNeedsCompletion(!isCompleted);
+
+            if (!isCompleted) {
               try {
                 const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
                 const next = nextStr ? parseInt(nextStr, 10) : 0;
-                if (!next || Date.now() >= next) setShowCompleteModal(true);
+                if (!next || Date.now() >= next) {
+                  setShowCompleteModal(true);
+                }
               } catch {}
             }
           } else {
@@ -127,6 +157,7 @@ export default function PerfilScreen() {
             setProfileEmail(emailFromAuth);
             setProfileAvatar(avatarFromAuth || '');
             setNeedsCompletion(true);
+            setProfileChecked(true);
             setShowCompleteModal(true);
           }
         }
@@ -142,18 +173,24 @@ export default function PerfilScreen() {
     React.useCallback(() => {
       let isActive = true;
       (async () => {
+        // Só executa se já fez a verificação inicial
+        if (!profileChecked) return;
+
         try {
           const userId = session?.user?.id;
           const emailFromAuth = session?.user?.email || '';
           const nameFromAuth = ((session?.user?.user_metadata as any)?.name as string) || '';
           const avatarFromAuth = ((session?.user?.user_metadata as any)?.avatar_url as string) || '';
           if (!userId) return;
+
           const { data, error } = await supabase
             .from('usuarios')
             .select('nome, email, imagem_url, perfil_concluido, telefone')
             .eq('id', userId)
             .maybeSingle();
+
           if (!isActive) return;
+
           if (!error && data) {
             setProfileName(data.nome || nameFromAuth || 'Usuário');
             setProfileEmail(data.email || emailFromAuth);
@@ -161,16 +198,24 @@ export default function PerfilScreen() {
             // força refresh do cache da imagem
             setProfileAvatar(url ? `${url}${url.includes('?') ? '&' : '?'}v=${Date.now()}` : url);
 
-            const nomeOk = !!(data.nome && data.nome.trim().length >= 3);
-            const emailOk = !!(data.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email));
-            const telOk = !!(data.telefone && String(data.telefone).replace(/\D/g,'').length >= 10);
-            const concluded = data.perfil_concluido ?? (nomeOk && emailOk && telOk);
-            setNeedsCompletion(!concluded);
+            // Verifica se perfil está concluído e fecha modal se necessário
+            const isCompleted = await checkProfileCompletion();
+            setNeedsCompletion(!isCompleted);
+
+            if (isCompleted) {
+              setShowCompleteModal(false);
+            } else {
+              try {
+                const nextStr = await AsyncStorage.getItem('@profile_prompt_next');
+                const next = nextStr ? parseInt(nextStr, 10) : 0;
+                if (!next || Date.now() >= next) setShowCompleteModal(true);
+              } catch {}
+            }
           }
         } catch {}
       })();
       return () => { isActive = false; };
-    }, [session])
+    }, [session, profileChecked])
   );
 
   return (
