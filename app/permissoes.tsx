@@ -124,6 +124,88 @@ export default function PerfilPermissoesScreen() {
     }
   };
 
+  const revokeNotifications = async () => {
+    setPermissions(prev => ({
+      ...prev,
+      notifications: { ...prev.notifications, loading: true }
+    }));
+
+    try {
+      if (Platform.OS === 'android' && isExpoGo) {
+        Alert.alert(
+          'Recurso não disponível',
+          'Notificações push não são suportadas no Expo Go.',
+          [{ text: 'Entendi' }]
+        );
+        setPermissions(prev => ({
+          ...prev,
+          notifications: { granted: false, loading: false }
+        }));
+        return;
+      }
+
+      const Notifications = await import('expo-notifications');
+      // Para revogar permissões, podemos tentar solicitar novamente ou apenas atualizar o estado local
+      // Como não há uma API direta para revogar, vamos atualizar o estado para false
+      setPermissions(prev => ({
+        ...prev,
+        notifications: { granted: false, loading: false }
+      }));
+
+      Alert.alert(
+        'Permissão revogada',
+        'As notificações foram desativadas. Você pode reativar a qualquer momento.',
+        [{ text: 'Entendi' }]
+      );
+    } catch (error) {
+      setPermissions(prev => ({
+        ...prev,
+        notifications: { granted: false, loading: false }
+      }));
+    }
+  };
+
+  const toggleNotifications = async () => {
+    if (permissions.notifications.granted) {
+      await revokeNotifications();
+    } else {
+      await requestNotifications();
+    }
+  };
+
+  const toggleMotion = async () => {
+    if (permissions.motion.available) {
+      Alert.alert(
+        'Permissão de Movimento',
+        'Para revogar a permissão de movimento, você precisa ir nas configurações do dispositivo e desativar manualmente.',
+        [
+          { text: 'Depois' },
+          {
+            text: 'Configurações',
+            onPress: () => {
+              if (Platform.OS === 'ios') {
+                require('expo-linking').openURL('app-settings:');
+              } else {
+                require('expo-linking').openSettings();
+              }
+            }
+          }
+        ]
+      );
+    } else {
+      // Tentar verificar novamente
+      try {
+        const isAvailable = await Pedometer.isAvailableAsync();
+        setPermissions(prev => ({
+          ...prev,
+          motion: { available: !!isAvailable, loading: false }
+        }));
+      } catch (error) {
+        console.warn('Erro ao verificar sensores de movimento:', error);
+      }
+    }
+  };
+
   const PermissionCard = ({
     icon,
     title,
@@ -146,12 +228,11 @@ export default function PerfilPermissoesScreen() {
     disabled?: boolean;
   }) => (
     <View style={{
-      borderRadius: 16,
-      padding: 20,
+      borderRadius: 14,
+      padding: 12,
       backgroundColor: uiColors.bgSecondary,
       borderWidth: 1,
-      borderColor: uiColors.divider,
-      marginBottom: 16
+      borderColor: uiColors.divider
     }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 12 }}>
         <View style={{
@@ -201,16 +282,21 @@ export default function PerfilPermissoesScreen() {
 
       <View style={{ alignItems: 'flex-start' }}>
         {granted ? (
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: '#10B98120',
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: '#10B981'
-          }}>
+          <Pressable
+            onPress={onRequest}
+            disabled={disabled || loading}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: '#10B98120',
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: '#10B981',
+              opacity: (disabled || loading) ? 0.6 : 1
+            }}
+          >
             <Check size={16} color="#10B981" />
             <Text style={{
               color: '#10B981',
@@ -219,9 +305,9 @@ export default function PerfilPermissoesScreen() {
               lineHeight: buttonType.lineHeight.default,
               marginLeft: 6
             }}>
-              Permitido
+              {loading ? 'Processando...' : 'Permitido'}
             </Text>
-          </View>
+          </Pressable>
         ) : available === false ? (
           <View style={{
             flexDirection: 'row',
@@ -311,42 +397,7 @@ export default function PerfilPermissoesScreen() {
           </Text>
         </View>
 
-        {/* Header */}
-        <View style={{ alignItems: 'center', paddingBottom: 24 }}>
-          <View style={{
-            width: 64,
-            height: 64,
-            borderRadius: 32,
-            backgroundColor: '#43059320',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 16
-          }}>
-            <Heart size={32} color="#430593" />
-          </View>
-          <Text style={{
-            color: uiColors.textPrimary,
-            fontFamily: dsFontFamily['jakarta-bold'],
-            fontSize: titleType.fontSize.default,
-            lineHeight: titleType.lineHeight.default,
-            textAlign: 'center',
-            marginBottom: 8
-          }}>
-            Personalizar sua Segurança
-          </Text>
-          <Text style={{
-            color: uiColors.textSecondary,
-            fontFamily: dsFontFamily['jakarta-medium'],
-            fontSize: bodyType.fontSize.default,
-            lineHeight: bodyType.lineHeight.default,
-            textAlign: 'center',
-            paddingHorizontal: 20
-          }}>
-            Configure as permissões para tornar seu app mais inteligente e seguro. Cada recurso foi projetado pensando na sua saúde e bem-estar.
-          </Text>
-        </View>
-
-        {/* Permissions Cards */}
+        <View style={{ gap: 16 }}>
         <PermissionCard
           icon={<BellRing size={24} color="#430593" />}
           title="Lembretes Inteligentes"
@@ -354,7 +405,7 @@ export default function PerfilPermissoesScreen() {
           benefit="Mantém você motivado com lembretes suaves no momento ideal"
           granted={permissions.notifications.granted}
           loading={permissions.notifications.loading}
-          onRequest={requestNotifications}
+          onRequest={toggleNotifications}
           disabled={Platform.OS === 'android' && isExpoGo}
         />
 
@@ -366,45 +417,10 @@ export default function PerfilPermissoesScreen() {
           granted={permissions.motion.available}
           available={permissions.motion.available}
           loading={permissions.motion.loading}
-          onRequest={() => {}}
-          disabled={true}
+          onRequest={toggleMotion}
+          disabled={false}
         />
-
-
-
-        {/* Footer */}
-        <View style={{
-          paddingTop: 20,
-          alignItems: 'center'
-        }}>
-          <View style={{
-            backgroundColor: uiColors.bgSecondary,
-            borderRadius: 16,
-            padding: 20,
-            marginBottom: 16,
-            borderWidth: 1,
-            borderColor: uiColors.divider
-          }}>
-            <Text style={{
-              color: uiColors.textPrimary,
-              fontFamily: dsFontFamily['jakarta-bold'],
-              fontSize: bodyType.fontSize.default,
-              textAlign: 'center',
-              marginBottom: 8
-            }}>
-              Sua Privacidade em Primeiro Lugar
-            </Text>
-            <Text style={{
-              color: uiColors.textSecondary,
-              fontFamily: dsFontFamily['jakarta-medium'],
-              fontSize: bodyType.fontSize.default - 2,
-              lineHeight: bodyType.lineHeight.default,
-              textAlign: 'center'
-            }}>
-              Todas as permissões são opcionais e ficam armazenadas apenas no seu dispositivo. Você pode alterá-las a qualquer momento nas configurações do sistema.
-            </Text>
-          </View>
-        </View>
+      </View>
       </ScrollView>
     </PageContainer>
   );

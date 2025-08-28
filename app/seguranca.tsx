@@ -184,38 +184,13 @@ export default function SegurancaScreen() {
           </Text>
         </View>
 
-        <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 24 }}>
-          <View style={{
-            width: 64,
-            height: 64,
-            borderRadius: 32,
-            backgroundColor: '#43059320',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 16
-          }}>
-            <Heart size={32} color="#430593" />
-          </View>
-          <Text style={{
-            color: uiColors.textPrimary,
-            fontFamily: dsFontFamily['jakarta-bold'],
-            fontSize: titleType.fontSize.default,
-            lineHeight: titleType.lineHeight.default,
-            textAlign: 'center',
-            marginBottom: 8
-          }}>
-            Segurança
-          </Text>
-        </View>
-
-        {/* Detecção de queda */}
+        <View style={{ gap: 16 }}>
         <View style={{
-          borderRadius: 16,
-          padding: 20,
+          borderRadius: 14,
+          padding: 12,
           backgroundColor: uiColors.bgSecondary,
           borderWidth: 1,
-          borderColor: uiColors.divider,
-          marginBottom: 20
+          borderColor: uiColors.divider
         }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
             <View style={{
@@ -309,8 +284,8 @@ export default function SegurancaScreen() {
 
         {/* Contato de emergência */}
         <View style={{
-          borderRadius: 16,
-          padding: 20,
+          borderRadius: 14,
+          padding: 12,
           backgroundColor: uiColors.bgSecondary,
           borderWidth: 1,
           borderColor: uiColors.divider
@@ -398,8 +373,7 @@ export default function SegurancaScreen() {
             )}
           </View>
         </View>
-
-
+      </View>
       </ScrollView>
 
       {/* Emergency Contact Modal */}
