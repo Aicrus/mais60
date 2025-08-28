@@ -3,7 +3,7 @@
     "owner": "aicrustech",
     "name": "Mais 60",
     "slug": "mais60",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "orientation": "default",
     "icon": "./assets/images/logo-mais60.png",
     "scheme": "mais60",
@@ -117,7 +117,7 @@
       }
     },
     "fonts": [],
-    "runtimeVersion": "1.0.1",
+    "runtimeVersion": "2.0.0",
     "updates": {
       "url": "https://u.expo.dev/5e50025f-fa27-4cbf-b237-c531b3c14c1e"
     }
