@@ -5,10 +5,12 @@ import { colors } from '@/design-system/tokens/colors';
 import { Check, Clock, Play } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
+import { useUsage } from '@/contexts/usage';
 
 interface VideoProgressIndicatorProps {
   videoId: string;
   style?: any;
+  refreshKey?: string | number;
 }
 
 interface VideoProgress {
@@ -17,9 +19,10 @@ interface VideoProgress {
   isLoading: boolean;
 }
 
-export function VideoProgressIndicator({ videoId, style }: VideoProgressIndicatorProps) {
+export function VideoProgressIndicator({ videoId, style, refreshKey }: VideoProgressIndicatorProps) {
   const { currentTheme } = useTheme();
   const isDark = currentTheme === 'dark';
+  const { aggregates } = useUsage();
 
   const [progress, setProgress] = useState<VideoProgress>({
     segundosTotal: 0,
@@ -35,14 +38,30 @@ export function VideoProgressIndicator({ videoId, style }: VideoProgressIndicato
       }
 
       try {
+        console.log(`🎯 VideoProgressIndicator - Buscando progresso para vídeo: ${videoId}`);
+
+        // Primeiro, verificar dados locais do contexto de uso (mais rápidos)
+        const localVideoData = aggregates?.recentVideos?.find(v => v.videoId === videoId);
+        let localProgress = null;
+
+        if (localVideoData) {
+          localProgress = {
+            segundosTotal: localVideoData.seconds || 0,
+            concluido: localVideoData.completed || false,
+            isLoading: false,
+          };
+          console.log(`🎯 VideoProgressIndicator - Dados locais encontrados: concluido=${localProgress.concluido}, segundos=${localProgress.segundosTotal}`);
+        }
+
         const { data: auth } = await supabase.auth.getUser();
         const userId = auth.user?.id;
 
         if (!userId) {
-          setProgress(prev => ({ ...prev, isLoading: false }));
+          setProgress(localProgress || { segundosTotal: 0, concluido: false, isLoading: false });
           return;
         }
 
+        // Buscar o progresso diretamente usando o video_id (que já é o id correto da tabela videos)
         const { data, error } = await supabase
           .from('progresso_videos')
           .select('segundos_total, concluido')
@@ -52,19 +71,25 @@ export function VideoProgressIndicator({ videoId, style }: VideoProgressIndicato
 
         if (error) throw error;
 
+        let finalProgress;
         if (data) {
-          setProgress({
+          console.log(`🎯 VideoProgressIndicator - Dados Supabase: concluido=${data.concluido}, segundos=${data.segundos_total}`);
+          finalProgress = {
             segundosTotal: data.segundos_total || 0,
             concluido: data.concluido || false,
             isLoading: false,
-          });
+          };
         } else {
-          setProgress({
+          // Usar dados locais se não houver no Supabase
+          finalProgress = localProgress || {
             segundosTotal: 0,
             concluido: false,
             isLoading: false,
-          });
+          };
+          console.log(`🎯 VideoProgressIndicator - Usando dados locais (Supabase vazio): concluido=${finalProgress.concluido}`);
         }
+
+        setProgress(finalProgress);
       } catch (error) {
         console.error('Erro ao buscar progresso do vídeo:', error);
         setProgress(prev => ({ ...prev, isLoading: false }));
@@ -72,7 +97,7 @@ export function VideoProgressIndicator({ videoId, style }: VideoProgressIndicato
     };
 
     fetchVideoProgress();
-  }, [videoId]);
+  }, [videoId, refreshKey]);
 
   if (progress.isLoading) {
     return (

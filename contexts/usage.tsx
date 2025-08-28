@@ -154,6 +154,8 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
   }, [usage, persist]);
 
   const markCompleted = useCallback(async ({ videoId, title, module }: { videoId: string; title?: string; module?: ModuleKey | string }) => {
+    console.log(`🎯 UsageContext - markCompleted chamado: videoId=${videoId}, title=${title}, module=${module}`);
+
     const dayKey = formatDate(new Date());
     const next: UsageStorage = { days: { ...usage.days }, updatedAt: Date.now() };
     const day = next.days[dayKey] ?? { totalSeconds: 0, videos: {}, modules: {} };
@@ -165,21 +167,47 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
     next.days[dayKey] = day;
     await persist(next);
 
+    console.log(`✅ UsageContext - Dados salvos localmente para vídeo: ${videoId}`);
+
     try {
       if (!userId) return;
-      const { data: v } = await supabase
-        .from('videos')
-        .select('id')
-        .eq('youtube_id', videoId)
-        .limit(1)
-        .maybeSingle();
-      const videoUuid = v?.id as string | undefined;
+
+      let videoUuid: string | undefined;
+
+      // Verificar se videoId é um UUID (id da tabela videos) ou youtube_id
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(videoId);
+
+      console.log(`🔍 UsageContext - Verificando tipo do videoId: ${videoId}, isUuid: ${isUuid}`);
+
+      if (isUuid) {
+        // videoId já é o UUID correto da tabela videos
+        videoUuid = videoId;
+        console.log(`✅ UsageContext - videoId já é UUID correto: ${videoUuid}`);
+      } else {
+        // videoId é youtube_id, precisa buscar o UUID correspondente
+        console.log(`🔍 UsageContext - Buscando UUID para youtube_id: ${videoId}`);
+        const { data: v } = await supabase
+          .from('videos')
+          .select('id')
+          .eq('youtube_id', videoId)
+          .limit(1)
+          .maybeSingle();
+        videoUuid = v?.id as string | undefined;
+        console.log(`✅ UsageContext - UUID encontrado: ${videoUuid}`);
+      }
+
       if (videoUuid) {
+        console.log(`💾 UsageContext - Salvando progresso no Supabase: usuario_id=${userId}, video_id=${videoUuid}`);
         await supabase
           .from('progresso_videos')
           .upsert({ usuario_id: userId, video_id: videoUuid, concluido: true }, { onConflict: 'usuario_id,video_id' });
+        console.log(`✅ UsageContext - Progresso salvo no Supabase com sucesso!`);
+      } else {
+        console.error(`❌ UsageContext - Não foi possível encontrar UUID para videoId: ${videoId}`);
       }
-    } catch {}
+    } catch (error) {
+      console.error('Erro ao salvar progresso no Supabase:', error);
+    }
   }, [usage, persist]);
 
   const unmarkCompleted = useCallback(async ({ videoId }: { videoId: string }) => {
@@ -196,13 +224,26 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
 
     try {
       if (!userId) return;
-      const { data: v } = await supabase
-        .from('videos')
-        .select('id')
-        .eq('youtube_id', videoId)
-        .limit(1)
-        .maybeSingle();
-      const videoUuid = v?.id as string | undefined;
+
+      let videoUuid: string | undefined;
+
+      // Verificar se videoId é um UUID (id da tabela videos) ou youtube_id
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(videoId);
+
+      if (isUuid) {
+        // videoId já é o UUID correto da tabela videos
+        videoUuid = videoId;
+      } else {
+        // videoId é youtube_id, precisa buscar o UUID correspondente
+        const { data: v } = await supabase
+          .from('videos')
+          .select('id')
+          .eq('youtube_id', videoId)
+          .limit(1)
+          .maybeSingle();
+        videoUuid = v?.id as string | undefined;
+      }
+
       if (videoUuid) {
         await supabase
           .from('progresso_videos')
@@ -210,7 +251,9 @@ export function UsageProvider({ children }: { children: React.ReactNode }) {
           .eq('usuario_id', userId)
           .eq('video_id', videoUuid);
       }
-    } catch {}
+    } catch (error) {
+      console.error('Erro ao remover progresso no Supabase:', error);
+    }
   }, [usage, persist]);
 
   const aggregates: Aggregates = useMemo(() => {

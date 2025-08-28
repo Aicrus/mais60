@@ -838,8 +838,8 @@ const styles = StyleSheet.create({
   },
   moduleProgressContainer: {
     position: 'absolute',
-    bottom: 16,
-    right: 16,
+    bottom: 24,
+    right: 26,
     zIndex: 10,
   },
 });

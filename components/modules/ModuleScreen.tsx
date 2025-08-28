@@ -108,6 +108,8 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
   const [loadingVideos, setLoadingVideos] = useState<boolean>(true);
 
   const [selected, setSelected] = useState<string>('__todos__');
+  const [refreshKey, setRefreshKey] = useState<number>(0);
+
   // Categoria válida para o Checklist de Segurança (fallback para 'banheiro')
   const safetyCategory: 'banheiro' | 'cozinha' | 'quarto' = (
     ['banheiro', 'cozinha', 'quarto'] as const
@@ -154,6 +156,27 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
     if (!selected) return;
     carregarVideos(selected);
   }, [selected, carregarVideos]);
+
+  // Atualizar dados quando voltar para a tela
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('🎯 ModuleScreen - useFocusEffect triggered, refreshKey atual:', refreshKey);
+
+      // Pequeno delay para garantir que os dados do Supabase foram sincronizados
+      const refreshWithDelay = async () => {
+        await new Promise(resolve => setTimeout(resolve, 500)); // 500ms de delay
+        carregarVideos(selected);
+        // Forçar atualização dos indicadores de progresso
+        setRefreshKey(prev => {
+          const newKey = prev + 1;
+          console.log('🎯 ModuleScreen - Novo refreshKey:', newKey);
+          return newKey;
+        });
+      };
+
+      refreshWithDelay();
+    }, [carregarVideos, selected])
+  );
   const [isChecklistOpen, setChecklistOpen] = useState<boolean>(false);
   const [showCompleteModal, setShowCompleteModal] = useState<boolean>(false);
   const [profileChecked, setProfileChecked] = React.useState(false);
@@ -378,7 +401,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
               accessibilityLabel={`${i.titulo}. ${i.descricao || 'Vídeo do YouTube'}`}
               onPress={() => {
                 logModuleAccess(moduleKey);
-                router.push({ pathname: '/player/video/[id]', params: { id: i.youtube_id, title: i.titulo, subtitle: i.descricao || 'YouTube', module: moduleKey } });
+                router.push({ pathname: '/player/video/[id]', params: { id: i.id, title: i.titulo, subtitle: i.descricao || 'YouTube', module: moduleKey } });
               }}
             >
               <View style={[styles.listIconCircle, { backgroundColor: colors['brand-purple'] }]}>
@@ -408,7 +431,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                   {i.descricao || 'YouTube'}
                 </Text>
               </View>
-              <VideoProgressIndicator videoId={i.id} />
+              <VideoProgressIndicator videoId={i.id} refreshKey={refreshKey} />
             </Pressable>
           ))}
         </View>

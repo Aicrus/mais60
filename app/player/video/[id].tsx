@@ -9,6 +9,9 @@ import { fontFamily as dsFontFamily, getResponsiveValues } from '@/design-system
 import { ChevronLeft, Play, Maximize2, X, Heart, CheckCircle, RotateCcw } from 'lucide-react-native';
 import { useFavorites } from '@/contexts/favorites';
 import { useUsage } from '@/contexts/usage';
+import { useFocusEffect } from '@react-navigation/native';
+import { useToast } from '@/hooks/useToast';
+import { supabase } from '@/lib/supabase';
 import { WebView } from 'react-native-webview';
 import * as ScreenOrientation from 'expo-screen-orientation';
 
@@ -25,17 +28,58 @@ export default function VideoPlayerScreen() {
   const bodyTypeSm = getResponsiveValues('body-md');
   const appBarLabelType = getResponsiveValues('label-md');
 
+  const [youtubeVideoId, setYoutubeVideoId] = useState<string>('dQw4w9WgXcQ');
+  const [videoData, setVideoData] = useState<any>(null);
+
   const videoId = useMemo(() => {
     const raw = (id || '').toString();
-    // Se o id parece um ID válido do YouTube, usa; senão, fallback
-    return /^[a-zA-Z0-9_-]{6,}$/.test(raw) ? raw : 'dQw4w9WgXcQ';
+    // Se o id parece um UUID válido (id da tabela videos), usa diretamente
+    // Senão, assume que é youtube_id e usa como fallback
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw);
+    return isUuid ? raw : (raw || 'dQw4w9WgXcQ');
   }, [id]);
+
+  // Buscar dados do vídeo quando o componente monta
+  useEffect(() => {
+    const fetchVideoData = async () => {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(videoId);
+
+      if (isUuid) {
+        // Buscar vídeo por UUID e obter youtube_id
+        const { data, error } = await supabase
+          .from('videos')
+          .select('*')
+          .eq('id', videoId)
+          .single();
+
+        if (!error && data) {
+          setVideoData(data);
+          setYoutubeVideoId(data.youtube_id);
+        }
+      } else {
+        // videoId já é youtube_id, buscar dados do vídeo
+        const { data, error } = await supabase
+          .from('videos')
+          .select('*')
+          .eq('youtube_id', videoId)
+          .single();
+
+        if (!error && data) {
+          setVideoData(data);
+          setYoutubeVideoId(videoId);
+        }
+      }
+    };
+
+    fetchVideoData();
+  }, [videoId]);
 
   const webviewRef = useRef<WebView>(null);
   const fsWebviewRef = useRef<WebView>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { aggregates, logWatch, markCompleted, unmarkCompleted } = useUsage();
+  const { showToast } = useToast();
   const initialCompleted = useMemo(() => {
     const list = aggregates?.recentVideos || [];
     return list.some(v => v.videoId === videoId && v.completed === true);
@@ -107,7 +151,7 @@ export default function VideoPlayerScreen() {
   }, [embedMode, videoId]);
 
   const html = useMemo(() => {
-    const id = videoId;
+    const id = youtubeVideoId;
     const host = embedMode === 'privacy' ? 'https://www.youtube-nocookie.com' : 'https://www.youtube.com';
     const controlsValue = 0;
     return `<!DOCTYPE html>
@@ -282,6 +326,19 @@ export default function VideoPlayerScreen() {
     setShowFullscreen(true);
   }, []);
 
+  // Atualizar estado quando voltar para a tela
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkCompletionStatus = async () => {
+        const list = aggregates?.recentVideos || [];
+        const completed = list.some(v => v.videoId === videoId && v.completed === true);
+        setIsCompleted(completed);
+      };
+
+      checkCompletionStatus();
+    }, [aggregates, videoId])
+  );
+
   // Registro de uso: acumula a cada 5s enquanto reproduzindo
   useEffect(() => {
     if (!isPlaying) return;
@@ -408,7 +465,7 @@ export default function VideoPlayerScreen() {
         {!playerVisible && (
           <View style={styles.placeholder} pointerEvents="none">
             <Image
-              source={{ uri: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` }}
+              source={{ uri: `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg` }}
               resizeMode="cover"
               style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
               blurRadius={1}
@@ -496,10 +553,24 @@ export default function VideoPlayerScreen() {
                   if (isCompleted) {
                     await unmarkCompleted({ videoId });
                     setIsCompleted(false);
+                    showToast({
+                      type: 'info',
+                      message: 'Vídeo desmarcado',
+                      description: 'O vídeo foi removido dos concluídos'
+                    });
                   } else {
+                    console.log(`🎯 Marcando vídeo como concluído: ${videoId}`);
                     await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
                     setIsCompleted(true);
-                    try { router.back(); } catch {}
+                    showToast({
+                      type: 'success',
+                      message: 'Vídeo concluído! 🎉',
+                      description: 'Parabéns! Você completou este vídeo'
+                    });
+                    // Pequeno delay para mostrar o toast antes de voltar
+                    setTimeout(() => {
+                      try { router.back(); } catch {}
+                    }, 1500);
                   }
                 }}
                >
@@ -524,10 +595,23 @@ export default function VideoPlayerScreen() {
                 if (isCompleted) {
                   await unmarkCompleted({ videoId });
                   setIsCompleted(false);
+                  showToast({
+                    type: 'info',
+                    message: 'Vídeo desmarcado',
+                    description: 'O vídeo foi removido dos concluídos'
+                  });
                 } else {
                   await markCompleted({ videoId, title: (initTitle as string) || `Vídeo ${videoId}`, module: (initModule as string) });
                   setIsCompleted(true);
+                  showToast({
+                    type: 'success',
+                    message: 'Vídeo concluído! 🎉',
+                    description: 'Parabéns! Você completou este vídeo'
+                  });
+                  // Pequeno delay para mostrar o toast antes de voltar
+                  setTimeout(() => {
                     try { router.back(); } catch {}
+                  }, 1500);
                 }
               }}
             >
@@ -572,7 +656,7 @@ export default function VideoPlayerScreen() {
       var player;function post(msg){ if(window.ReactNativeWebView){ window.ReactNativeWebView.postMessage(JSON.stringify(msg)); } }
       function onYouTubeIframeAPIReady(){
         player=new YT.Player('player',{
-          height:'100%',width:'100%',videoId:'${videoId}',
+          height:'100%',width:'100%',videoId:'${youtubeVideoId}',
           playerVars:{
             playsinline:1,
                 controls:0,

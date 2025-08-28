@@ -28,65 +28,63 @@ export function useModuleProgress(moduleKey: string, userId?: string): ModulePro
       }
 
       try {
-        const { data, error } = await supabase
+        // Primeiro, buscar todos os vídeos publicados do módulo
+        const { data: allVideos, error: videosError } = await supabase
           .from('videos')
-          .select(`
-            id,
-            progresso_videos!inner(
-              segundos_total,
-              concluido
-            )
-          `)
+          .select('id')
           .eq('pilar_id', moduleKey)
-          .eq('publicado', true)
-          .eq('progresso_videos.usuario_id', userId);
+          .eq('publicado', true);
 
-        if (error) throw error;
+        if (videosError) throw videosError;
 
-        if (data && data.length > 0) {
-          const totalVideos = data.length;
-          const completedVideos = data.filter((video: any) =>
-            video.progresso_videos?.[0]?.concluido === true
-          ).length;
+        const totalVideos = allVideos?.length || 0;
 
-          const startedVideos = data.filter((video: any) =>
-            video.progresso_videos?.[0]?.concluido === false &&
-            (video.progresso_videos?.[0]?.segundos_total || 0) > 0
-          ).length;
-
-          const totalWatchTime = data.reduce((total: number, video: any) =>
-            total + (video.progresso_videos?.[0]?.segundos_total || 0), 0
-          );
-
-          const completionPercentage = totalVideos > 0
-            ? Math.round((completedVideos / totalVideos) * 100)
-            : 0;
-
+        if (totalVideos === 0) {
           setStats({
-            totalVideos,
-            completedVideos,
-            startedVideos,
-            completionPercentage,
-            totalWatchTime,
-            isLoading: false,
-          });
-        } else {
-          // Buscar apenas contagem total de vídeos se não há progresso
-          const { count } = await supabase
-            .from('videos')
-            .select('*', { count: 'exact', head: true })
-            .eq('pilar_id', moduleKey)
-            .eq('publicado', true);
-
-          setStats({
-            totalVideos: count || 0,
+            totalVideos: 0,
             completedVideos: 0,
             startedVideos: 0,
             completionPercentage: 0,
             totalWatchTime: 0,
             isLoading: false,
           });
+          return;
         }
+
+        // Agora buscar o progresso do usuário para estes vídeos
+        const videoIds = allVideos?.map(v => v.id) || [];
+
+        const { data: progressData, error: progressError } = await supabase
+          .from('progresso_videos')
+          .select('video_id, segundos_total, concluido')
+          .eq('usuario_id', userId)
+          .in('video_id', videoIds);
+
+        if (progressError) throw progressError;
+
+        // Calcular estatísticas
+        const completedVideos = progressData?.filter(p => p.concluido === true).length || 0;
+        const startedVideos = progressData?.filter(p =>
+          p.concluido === false && (p.segundos_total || 0) > 0
+        ).length || 0;
+
+        const totalWatchTime = progressData?.reduce((total: number, progress: any) =>
+          total + (progress.segundos_total || 0), 0
+        ) || 0;
+
+        const completionPercentage = totalVideos > 0
+          ? Math.round((completedVideos / totalVideos) * 100)
+          : 0;
+
+        setStats({
+          totalVideos,
+          completedVideos,
+          startedVideos,
+          completionPercentage,
+          totalWatchTime,
+          isLoading: false,
+        });
+
       } catch (error) {
         console.error('Erro ao buscar progresso do módulo:', error);
         setStats(prev => ({ ...prev, isLoading: false }));
