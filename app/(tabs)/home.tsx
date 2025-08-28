@@ -21,6 +21,7 @@ import {
   Heart,
   Bell,
 } from 'lucide-react-native';
+import { ModuleCardProgress } from '@/components/modules/ModuleCardProgress';
 
 export default function Home() {
   const { currentTheme, uiColors } = useTheme();
@@ -206,6 +207,7 @@ export default function Home() {
     cardColor,
     onPress,
     imageSource,
+    moduleKey,
   }: {
     icon: React.ReactNode;
     title: string;
@@ -214,6 +216,7 @@ export default function Home() {
     cardColor: string;
     onPress?: () => void;
     imageSource?: ImageSourcePropType;
+    moduleKey: string;
   }) => (
     <Pressable
       onPress={onPress}
@@ -231,7 +234,7 @@ export default function Home() {
           accessibilityIgnoresInvertColors
         />
       </View>
-      <View style={[styles.moduleBadge, { backgroundColor: badgeColor }]}> 
+      <View style={[styles.moduleBadge, { backgroundColor: badgeColor }]}>
         {icon}
       </View>
       <View style={styles.moduleInfoBar}>
@@ -248,6 +251,11 @@ export default function Home() {
           fontSize: moduleSubtitleType.fontSize.default,
           lineHeight: moduleSubtitleType.lineHeight.default,
         }}>{subtitle}</Text>
+      </View>
+
+      {/* Componente de progresso no canto inferior direito */}
+      <View style={styles.moduleProgressContainer}>
+        <ModuleCardProgress moduleKey={moduleKey} compact />
       </View>
     </Pressable>
   );
@@ -394,6 +402,7 @@ export default function Home() {
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/atividade-fisica')}
           imageSource={homemIdosoHidratando}
+          moduleKey="atividade-fisica"
         />
         <ModuleCard
           icon={<Utensils size={22} color="#FFFFFF" />}
@@ -403,6 +412,7 @@ export default function Home() {
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/habitos-alimentares')}
           imageSource={mulherSeniorFigos}
+          moduleKey="habitos-alimentares"
         />
         <ModuleCard
           icon={<Shield size={22} color="#FFFFFF" />}
@@ -412,6 +422,7 @@ export default function Home() {
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/seguranca-domiciliar')}
           imageSource={idosoImage}
+          moduleKey="seguranca-domiciliar"
         />
         <ModuleCard
           icon={<Brain size={22} color="#FFFFFF" />}
@@ -421,6 +432,7 @@ export default function Home() {
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/estimulacao-cognitiva')}
           imageSource={peopleAlbum}
+          moduleKey="estimulacao-cognitiva"
         />
         <ModuleCard
           icon={<Heart size={22} color="#FFFFFF" />}
@@ -430,6 +442,7 @@ export default function Home() {
           cardColor="#27CC95"
           onPress={() => router.push('/modulo/saude-mental')}
           imageSource={idosoFelizAlt}
+          moduleKey="saude-mental"
         />
       </View>
 
@@ -822,5 +835,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: 'rgba(255,255,255,0.9)',
     fontFamily: dsFontFamily['jakarta-medium'],
+  },
+  moduleProgressContainer: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    zIndex: 10,
   },
 });

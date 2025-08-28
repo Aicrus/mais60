@@ -15,6 +15,7 @@ import Sheet from '@/components/sheets/Sheet';
 import ConfirmModal from '@/components/modals/ConfirmModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { VideoProgressIndicator } from '@/components/modules/VideoProgressIndicator';
 
 type ModuleKey = 'atividade-fisica' | 'habitos-alimentares' | 'seguranca-domiciliar' | 'estimulacao-cognitiva' | 'saude-mental';
 
@@ -407,6 +408,7 @@ export function ModuleScreen({ moduleKey }: { moduleKey: ModuleKey }) {
                   {i.descricao || 'YouTube'}
                 </Text>
               </View>
+              <VideoProgressIndicator videoId={i.id} />
             </Pressable>
           ))}
         </View>
