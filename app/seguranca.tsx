@@ -264,26 +264,26 @@ export default function SegurancaScreen() {
             <Pressable
               onPress={() => sensors.setFallDetectionEnabled(!sensors.fallDetectionEnabled)}
               style={{
-                width: 80,
-                height: 40,
-                borderRadius: 20,
+                width: 60,
+                height: 32,
+                borderRadius: 16,
                 backgroundColor: sensors.fallDetectionEnabled ? '#10B981' : uiColors.divider,
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingHorizontal: 4
+                paddingHorizontal: 3
               }}
             >
               <View style={{
-                width: 32,
-                height: 32,
-                borderRadius: 16,
+                width: 26,
+                height: 26,
+                borderRadius: 13,
                 backgroundColor: '#FFFFFF',
-                transform: [{ translateX: sensors.fallDetectionEnabled ? 20 : -20 }],
+                transform: [{ translateX: sensors.fallDetectionEnabled ? 14 : -14 }],
                 shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
+                shadowOffset: { width: 0, height: 1 },
                 shadowOpacity: 0.2,
-                shadowRadius: 4,
-                elevation: 3
+                shadowRadius: 2,
+                elevation: 2
               }} />
             </Pressable>
           </View>
