@@ -7,7 +7,7 @@ import { useDynamicFonts } from '@/hooks/useDynamicFonts';
 import { Stack, usePathname } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
-import React, { useEffect, useState, memo, useRef } from 'react';
+import React, { useEffect, useState, memo, useRef, useMemo } from 'react';
 import { ActivityIndicator, Platform, View, StatusBar, Modal, Text, Pressable, Alert } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { OrientationManager } from '@/lib/orientation';
@@ -121,6 +121,8 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, initialCheckDone]);
 
+
+
   // Mantém a tela de splash até ter certeza do estado de autenticação
   if (!fontsLoaded || !initialCheckDone) {
     return (
@@ -196,16 +198,11 @@ const RootLayoutNav = memo(function RootLayoutNav() {
     }, [])
   );
 
-  // Se ainda está carregando ou não foi inicializado, mantém a tela de loading
-  if (isLoading || !isInitialized) {
-    return <LoadingScreen />;
-  }
-
   // Cores do tema conforme definidos em tailwind.config.js e theme.ts
-  const headerColors = {
+  const headerColors = useMemo(() => ({
     light: '#F7F8FA', // igual ao fundo claro da tela (bg primary light)
     dark: '#1C1E26'   // igual ao fundo escuro do app
-  };
+  }), []);
 
   // Configurar a StatusBar nativa para ter a mesma cor do Header
   useEffect(() => {

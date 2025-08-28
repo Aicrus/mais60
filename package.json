@@ -34,7 +34,7 @@
     "@tanstack/react-table": "8.21.3",
     "@types/react-helmet": "6.1.11",
     "base64-js": "1.5.1",
-    "expo": "~53.0.20",
+    "expo": "^54.0.0",
     "expo-battery": "~9.1.4",
     "expo-blur": "~14.1.5",
     "expo-checkbox": "~4.1.4",
