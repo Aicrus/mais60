@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Alert, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Alert, TextInput, Modal } from 'react-native';
 // Mapa simples do percurso (se disponível)
 let MapView: any = null;
 let Polyline: any = null;
@@ -21,7 +21,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { Pedometer } from 'expo-sensors';
 
-function formatDuration(totalSeconds: number) {
+function formatDuration(totalSeconds: number): string {
   if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) return '0s';
   if (totalSeconds < 60) return `${Math.floor(totalSeconds)}s`;
   return `${Math.floor(totalSeconds / 60)} min`;
